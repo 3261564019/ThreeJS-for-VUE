@@ -10,7 +10,6 @@
       {{item.label}}
     </div>
     <div class="des">
-      {{item.style}}
       {{item.description}}
     </div>
   </div>

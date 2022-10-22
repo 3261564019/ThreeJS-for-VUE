@@ -120,7 +120,9 @@ export class CubeScene extends BaseInit {
         this.camera.position.set(0, 0, 40);
         //定位相机指向场景中心
         this.camera.lookAt(this.scene.position);
-
+        this.control.autoRotate=true;
+        this.control.autoRotateSpeed=5;
+        this.control.enableRotate=true;
         let line = new THREE.ArcCurve(
             new THREE.LineCurve3(0, 0, 0),
             new THREE.LineCurve3(6, 6, 0)
@@ -142,6 +144,7 @@ export class CubeScene extends BaseInit {
 
         const animate = () => {
 
+            this.control.update();
             if (this.cube) {
                 // this.cube.rotation.x=clock.getElapsedTime()
                 // this.cube.rotation.y=clock.getElapsedTime()
