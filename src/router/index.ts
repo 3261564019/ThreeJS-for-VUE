@@ -3,7 +3,7 @@ import { createRouter, createWebHashHistory, createWebHistory, RouteRecordRaw } 
 const routes: Array<RouteRecordRaw> = [
 
     {
-        path: '/test',
+        path: '/',
         name: 'test',
         component: ()=> import("../views/test/cubeDemo.vue")
     }

@@ -27,7 +27,11 @@ export interface BaseInitParams {
     //是否需要加载器
     needGLTFLoader:boolean,
     //渲染到指定节点的id
-    renderDomId:string
+    renderDomId:string,
+    //是否需要实时计算鼠标位置
+    calcCursorPosition:boolean
+    //需要统计屏幕大小
+    needScreenSize:THREE.Vector2
 }
 
 export class BaseInit {
@@ -48,7 +52,10 @@ export class BaseInit {
     public audioLoader:AudioLoader
     //GLTF加载器
     public gltfLoader: GLTFLoader
-
+    //当前鼠标在屏幕可视区的位置x和y取值在屏幕宽高之间
+    public cursorPosition:THREE.Vector2
+    //屏幕宽高
+    public screenSize:THREE.Vector2
 
     constructor(params:BaseInitParams={
         needLightHelper: false,
@@ -61,6 +68,7 @@ export class BaseInit {
         AddCameraToScene:true,
         needAudioLoader:false,
         needGLTFLoader:false,
+        needScreenSize:false,
         renderDomId:'#webGl'
     }) {
 
@@ -143,6 +151,13 @@ export class BaseInit {
             this.gltfLoader = new GLTFLoader();
         }
 
+        if(params.calcCursorPosition){
+            this.addMouseMoveListener();
+        }
+
+        if(params.needScreenSize){
+            this.addScreenReSizeListener();
+        }
         //初始化显示帧率的组件
         this.initStats();
         //适配屏幕尺寸
@@ -157,6 +172,28 @@ export class BaseInit {
 
         console.log("初始化后",this);
 
+    }
+    addScreenReSizeListener(){
+        window.addEventListener("resize",(p)=>{
+          calc();
+        });
+        let calc=()=>{
+
+            if(!this.screenSize){
+                this.screenSize=new THREE.Vector2();
+            }
+
+            this.screenSize.set(document.body.clientWidth,document.body.clientHeight);
+            console.log("屏幕大小",this.screenSize);
+        }
+
+        calc();
+
+    }
+    addMouseMoveListener(){
+        window.addEventListener("mousemove",(p)=>{
+            this.cursorPosition=new THREE.Vector2(p.clientX,p.clientY);
+        });
     }
     initStats(){
         //实例化
