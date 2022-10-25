@@ -3,13 +3,17 @@ import { createRouter, createWebHashHistory, createWebHistory, RouteRecordRaw } 
 const routes: Array<RouteRecordRaw> = [
 
     {
-        path: '/',
+        path: '/test',
         name: 'test',
         component: ()=> import("../views/test/cubeDemo.vue")
     },{
         path: '/map',
         name: 'map',
         component: ()=> import("../views/map/index.vue")
+    },{
+        path: '/community',
+        name: 'community',
+        component: ()=> import("../views/场景练习/sceneDemo.vue")
     }
 ]
 
