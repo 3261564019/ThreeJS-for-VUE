@@ -7,7 +7,14 @@ import landNormal from "/src/assets/texture/aerial_grass_rock_2k.gltf/textures/a
 import landAlpha from "/src/assets/texture/aerial_grass_rock_2k.gltf/textures/aerial_grass_rock_nor_gl_2k.jpg";
 import landRgb from "/src/assets/texture/aerial_grass_rock_2k.gltf/textures/aerial_grass_rock_rough_2k.jpg";
 import {RectAreaLightUniformsLib} from "three/examples/jsm/lights/RectAreaLightUniformsLib";
+import THREEx from "/src/three/otherModule/threex.keyboardstate.js"
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
+import {CSS3DRenderer} from "three/examples/jsm/renderers/CSS3DRenderer";
+import {AnimationMixer, Scene} from "three";
+import {CSS2DObject, CSS2DRenderer} from "three/examples/jsm/renderers/CSS2DRenderer";
+import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
+import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
+import dancerFbx from "/src/assets/model/sambaDancing.fbx?url"
 
 interface DebugParams {
     //学校模型的Y轴偏移
@@ -21,14 +28,18 @@ export class SceneDemo extends BaseInit {
     roadScene: THREE.Group
     //地板模型
     planMesh: THREE.Mesh
-
+    //正方形房子
+    squareHouse: THREE.Mesh
     playerScene: THREE.Group
     //汽车场景
     carScene: THREE.Group
     //键盘事件
+    keyboard = null;
+    //标签渲染器
+    labelRenderer:CSS2DRenderer
 
     debugParam: DebugParams = {
-        schoolPositionY: 0.9
+        schoolPositionY:1
     }
 
     constructor({}) {
@@ -39,7 +50,8 @@ export class SceneDemo extends BaseInit {
             calcCursorPosition: true,
             needScreenSize: true,
             needAxesHelper: true,
-            needTextureLoader: true
+            needTextureLoader: true,
+            orbitControlsDom:"schoolInfo"
         } as BaseInitParams);
 
         this.initDebug();
@@ -58,12 +70,79 @@ export class SceneDemo extends BaseInit {
         //加载道路
         // this.loadRoad();
 
-        //加载玩家
+        //加载房屋
+        this.loadHouse();
+
+        //加载建筑组
+        this.loadBuilding();
+
+        //加载玩家 即 汽车
         this.loadPlayer();
         //初始化调试器
         this.initDebug();
 
-        this.addPlayerMoveListener();
+        this.loadDancer();
+    }
+    loadDancer(){
+        const loader = new FBXLoader();
+        loader.load( dancerFbx,  ( object )=>{
+
+            let mixer = new AnimationMixer( object );
+
+            console.log("人体对象",object);
+            const action = mixer.clipAction(object.animations[ 0 ] );
+
+            action.play();
+
+            object.traverse( function ( child ) {
+                if ( child.isMesh ) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+
+            } );
+
+            this.scene.add(object);
+
+        } );
+    }
+    loadBuilding(){
+        new GLTFLoader(this.loadManager).load("http://qrtest.qirenit.com:81/share/img/game_low_poly_buildings/scene.gltf",
+            (res) => {
+                // console.log("建筑模型", res);
+
+
+                //所有部分
+                let allPart = res.scene.children[0].children[0].children[0].children[0].children;
+
+                console.log("所有部分",allPart)
+                // res.scene.scale.set(35,35,35);
+                res.scene.position.set(0,3,0)
+
+                let house1=allPart[1];
+                house1.position.set(-90,0,0);
+                house1.scale.set(0.2,0.2,0.2);
+
+                this.scene.add(house1);
+            })
+    }
+    loadHouse() {
+
+        new GLTFLoader(this.loadManager).load("http://qrtest.qirenit.com:81/share/img/pubg_mobile_solo_squad_house/scene.gltf",
+            (res) => {
+                console.log("房屋模型",res);
+                this.squareHouse=res.scene;
+
+                this.squareHouse.position.set(325,0,80);
+                this.squareHouse.rotation.y=Math.PI/3;
+
+                this.dat.add(this.squareHouse.position,"x",-600,600).name("房屋X轴");
+                this.dat.add(this.squareHouse.position,"z",-600,600).name("房屋Z轴");
+                this.dat.add(this.squareHouse.rotation,"y",-Math.PI,Math.PI,0.01).name("房屋旋转");
+
+                this.scene.add(this.squareHouse);
+            })
+
     }
 
     loadRoad() {
@@ -92,28 +171,22 @@ export class SceneDemo extends BaseInit {
                 this.scene.add(a);
             });
     }
-
-    addPlayerMoveListener() {
-        document.addEventListener('keypress', (p) => {
-            console.log('我按下了press', p);
-        })
-    }
-
     loadPlayer() {
         new GLTFLoader(this.loadManager).load("http://qrtest.qirenit.com:81/share/img/pubg_coupe_rb/scene.gltf",
             (res) => {
 
                 console.log("汽车模型", res);
 
-                res.scene.position.z = 100;
-                res.scene.rotateY(Math.PI/2);
+                res.scene.position.set(0, 1, 90);
+                res.scene.rotation.y = Math.PI / 3;
                 res.scene.scale.set(0.006, 0.006, 0.006);
+
                 this.carScene = res.scene;
+                this.carScene.rotation.y = Math.PI / 2
+                // this.control=new PlayerControls(this.camera, this.carScene);
 
-                this.control=new PlayerControls(this.camera, this.carScene);
-
-                this.control.moveSpeed = 1;
-                this.control.turnSpeed = 0.1;
+                // this.control.moveSpeed = 1;
+                // this.control.turnSpeed = 0.1;
 
                 this.dat.add(this.carScene.position, "y", -500, 500, 0.1).name("人物z轴");
 
@@ -129,6 +202,12 @@ export class SceneDemo extends BaseInit {
 
                 res.scene.position.y = this.debugParam.schoolPositionY;
                 this.schoolScene = res.scene
+
+                //添加文字标签
+                const label = new CSS2DObject(document.getElementById("schoolInfo"));
+                label.position.set( 0, 10, 0 );
+
+                this.schoolScene.add(label);
 
                 this.dat.add(this.schoolScene.position, "y", -5, 5, 0.1).name("学校Y轴");
 
@@ -161,7 +240,7 @@ export class SceneDemo extends BaseInit {
 
     addPlan() {
 
-        const geometry = new THREE.PlaneGeometry(300, 300);
+        const geometry = new THREE.PlaneGeometry(200, 200);
         const material = new THREE.MeshLambertMaterial({
             map: this.textureLoader.load(landNormal),
             color: "#eee",
@@ -196,28 +275,78 @@ export class SceneDemo extends BaseInit {
         light.position.y = 30;
         this.scene.add(light);
     }
-
+    initLabelRender(){
+        let labelRenderer = new CSS2DRenderer();
+        labelRenderer.setSize( window.innerWidth, window.innerHeight );
+        labelRenderer.domElement.style.position = 'absolute';
+        labelRenderer.domElement.style.top = '0px';
+        document.body.appendChild( labelRenderer.domElement );
+        this.labelRenderer=labelRenderer;
+    }
     init() {
 
-        this.camera.position.set(0, 100, 100)
+        this.camera.position.set(0, 400, 400)
         //定位相机指向场景中心
         this.camera.lookAt(this.scene.position);
+        this.keyboard = new THREEx.KeyboardState();
 
-        // this.control.enableDamping = true;
+        //创建标签渲染器
+        this.initLabelRender()
+
+        this.control=new OrbitControls( this.camera,this.labelRenderer.domElement );
+        this.control.enableDamping = true;
+
 
         const clock = new THREE.Clock();
-
         const animate = () => {
 
-            if(this.control){
-                this.control.update();
-            }
+            const delta = clock.getDelta();
+            const moveDistance = 50 * delta;
+
+            const rotateAngle = Math.PI / 2 * delta;
 
             this.stats.update()
+            this.control.update()
+
+
+
+            if (this.keyboard.pressed('s'))
+                this.carScene.translateX(-moveDistance);
+            if (this.keyboard.pressed('w'))
+                this.carScene.translateX(moveDistance);
+            if (this.keyboard.pressed('a'))
+                this.carScene.rotateOnAxis(new THREE.Vector3(0, 1, 0), rotateAngle);
+            if (this.keyboard.pressed('d'))
+                this.carScene.rotateOnAxis(new THREE.Vector3(0, 1, 0), -rotateAngle);
+
+
+            // if (this.keyboard.pressed('w'))
+            //     this.carScene.rotateOnAxis(new THREE.Vector3(1, 0, 0), rotateAngle);
+            // if (this.keyboard.pressed('s'))
+            //     this.carScene.rotateOnAxis(new THREE.Vector3(1, 0, 0), -rotateAngle);
+            // if (this.keyboard.pressed('a'))
+            //     this.carScene.rotateOnAxis(new THREE.Vector3(0, 1, 0), rotateAngle);
+            // if (this.keyboard.pressed('d'))
+            //     this.carScene.rotateOnAxis(new THREE.Vector3(0, 1, 0), -rotateAngle);
+
+
+            //让相机位置与车辆位置相对固定
+            // if(this.carScene){
+            //     const relativeCameraOffset = new THREE.Vector3(-1000, 5000, 5000);
+            //     const cameraOffset = relativeCameraOffset.applyMatrix4( this.carScene.matrixWorld );
+            //     this.camera.position.x = cameraOffset.x;
+            //     this.camera.position.y = cameraOffset.y;
+            //     this.camera.position.z = cameraOffset.z;
+            //     // 始终让相机看向物体
+            //     this.control.target = this.carScene.position;
+            //     // console.log(this.carScene?.matrixWorld);
+            // }
 
             requestAnimationFrame(animate);
 
             this.renderer.render(this.scene, this.camera);
+
+            this.labelRenderer.render(this.scene,this.camera);
         }
 
         animate();
