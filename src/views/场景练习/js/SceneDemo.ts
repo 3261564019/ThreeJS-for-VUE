@@ -1,16 +1,14 @@
 import * as THREE from "three";
+import {AnimationMixer, MeshToonMaterial, Scene} from "three";
 import {BaseInit, BaseInitParams} from "../../../three/classDefine/baseInit";
-import PlayerControls from "../../../three/classDefine/PlayerControls";
 import belfast_sunset_pure_sky_4k from "../../../assets/hdr/belfast_sunset_puresky_4k.hdr?url";
 import {RGBELoader} from "three/examples/jsm/loaders/RGBELoader";
 import landNormal from "/src/assets/texture/aerial_grass_rock_2k.gltf/textures/aerial_grass_rock_diff_2k.jpg";
 import landAlpha from "/src/assets/texture/aerial_grass_rock_2k.gltf/textures/aerial_grass_rock_nor_gl_2k.jpg";
 import landRgb from "/src/assets/texture/aerial_grass_rock_2k.gltf/textures/aerial_grass_rock_rough_2k.jpg";
-import {RectAreaLightUniformsLib} from "three/examples/jsm/lights/RectAreaLightUniformsLib";
 import THREEx from "/src/three/otherModule/threex.keyboardstate.js"
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import {CSS3DObject, CSS3DRenderer} from "three/examples/jsm/renderers/CSS3DRenderer";
-import {AnimationMixer, Scene} from "three";
 import {CSS2DObject, CSS2DRenderer} from "three/examples/jsm/renderers/CSS2DRenderer";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
@@ -37,18 +35,32 @@ export class SceneDemo extends BaseInit {
     //键盘事件
     keyboard = null;
     //标签渲染器
-    labelRenderer:CSS2DRenderer;
+    labelRenderer: CSS2DRenderer;
     //动画播放器
-    animationMixer:AnimationMixer
+    animationMixer: AnimationMixer
     //场景加载完的回调函数
-    finishedCallBack:Function
+    finishedCallBack: Function
+    //射线
+    rayCaster:THREE.Raycaster=new THREE.Raycaster()
 
-    cssScene:Scene
-    cssRender:CSS3DRenderer
+    //当前选中的物体
+    currentMesh:THREE.Mesh;
+
+
+    cssScene: Scene
+    cssRender: CSS3DRenderer
 
     debugParam: DebugParams = {
-        schoolPositionY:1
+        schoolPositionY: 1
     }
+
+    //当前鼠标偏移量
+    mouseCoords: THREE.Vector2=new THREE.Vector2(2,2);
+
+    //选中的物体的材质
+    checkedMaterial:MeshToonMaterial=new MeshToonMaterial({
+        color:"#049ef4"
+    });
 
     constructor({
                     finished
@@ -61,10 +73,10 @@ export class SceneDemo extends BaseInit {
             needScreenSize: true,
             needAxesHelper: true,
             needTextureLoader: true,
-            orbitControlsDom:"schoolInfo"
+            orbitControlsDom: "schoolInfo"
         } as BaseInitParams);
 
-        this.finishedCallBack=finished;
+        this.finishedCallBack = finished;
 
         this.initDebug();
 
@@ -96,31 +108,88 @@ export class SceneDemo extends BaseInit {
         this.loadDancer();
         //加载dom节点至场景
         this.addDomContent();
-    }
-    loadDancer(){
-        const loader = new FBXLoader();
-        loader.load( dancerFbx,  ( object )=>{
 
-            this.animationMixer = new AnimationMixer( object );
-            console.log("人体对象",object);
-            const action = this.animationMixer.clipAction(object.animations[ 0 ] );
+        //css3DRender 在屏幕尺寸发生变化的情况下进行适配
+        this.resizeRender();
+
+        //屏幕尺寸已经在父类进行统计 此时监听鼠标位置 计算出偏移量
+        this.mouseCoordsCalc();
+
+        //添加点击事件
+        this.addEvent();
+
+        this.addBall();
+    }
+    addBall(){
+
+        const sphere = new THREE.Mesh(
+            new THREE.SphereGeometry(3, 33, 33),
+            new THREE.MeshLambertMaterial({color: "#fff"})
+        );
+
+        sphere.position.x = 10;
+        sphere.position.y = 30;
+        sphere.castShadow = true
+
+        this.scene.add(sphere);
+    }
+    addEvent(){
+        window.addEventListener("click",()=>{
+            console.log(this.currentMesh);
+            //
+            //
+            // let temp =this.currentMesh.clone()
+            // temp.material=this.checkedMaterial;
+            //
+            // temp.position.set(this.currentMesh.position);
+            //
+            // this.scene.add(temp);
+        })
+    }
+    mouseCoordsCalc() {
+
+        window.addEventListener("mousemove", (event) => {
+                this.mouseCoords.x = (event.clientX / this.screenSize.x * 2) - 1
+                this.mouseCoords.y = -(event.clientY / this.screenSize.y * 2) + 1
+
+            // console.log(this.mouseCoords);
+        })
+    }
+
+    resizeRender() {
+        window.addEventListener("resize", (p) => {
+            // console.log("宽高",window.innerWidth , window.innerHeight);
+            if (this.cssRender) {
+                this.cssRender.setSize(window.innerWidth, window.innerHeight);
+            }
+        });
+    }
+
+    loadDancer() {
+        const loader = new FBXLoader();
+        loader.load(dancerFbx, (object) => {
+
+            this.animationMixer = new AnimationMixer(object);
+            console.log("人体对象", object);
+            const action = this.animationMixer.clipAction(object.animations[0]);
 
             action.play();
 
-            object.traverse( function ( child ) {
-                if ( child.isMesh ) {
+            object.traverse(function (child) {
+                if (child.isMesh) {
                     child.castShadow = true;
                     child.receiveShadow = true;
                 }
-            } );
+            });
 
-            object.scale.set(0.1,0.1,0.1);
-            object.position.set(0,10,0);
+            object.scale.set(0.1, 0.1, 0.1);
+            object.position.set(0, 10, 0);
             this.scene.add(object);
 
-        } );
+        });
     }
-    loadBuilding(){
+
+    loadBuilding() {
         new GLTFLoader(this.loadManager).load("http://qrtest.qirenit.com:81/share/img/game_low_poly_buildings/scene.gltf",
             (res) => {
                 // console.log("建筑模型", res);
@@ -129,30 +198,31 @@ export class SceneDemo extends BaseInit {
                 //所有部分
                 let allPart = res.scene.children[0].children[0].children[0].children[0].children;
 
-                console.log("所有部分",allPart)
+                console.log("所有部分", allPart)
                 // res.scene.scale.set(35,35,35);
-                res.scene.position.set(0,3,0)
+                res.scene.position.set(0, 3, 0)
 
-                let house1=allPart[1];
-                house1.position.set(-90,0,0);
-                house1.scale.set(0.2,0.2,0.2);
+                let house1 = allPart[1];
+                house1.position.set(-90, 0, 0);
+                house1.scale.set(0.2, 0.2, 0.2);
 
                 this.scene.add(house1);
             })
     }
+
     loadHouse() {
 
         new GLTFLoader(this.loadManager).load("http://qrtest.qirenit.com:81/share/img/pubg_mobile_solo_squad_house/scene.gltf",
             (res) => {
-                console.log("房屋模型",res);
-                this.squareHouse=res.scene;
+                console.log("房屋模型", res);
+                this.squareHouse = res.scene;
 
-                this.squareHouse.position.set(325,0,80);
-                this.squareHouse.rotation.y=Math.PI/3;
+                this.squareHouse.position.set(325, 0, 80);
+                this.squareHouse.rotation.y = Math.PI / 3;
 
-                this.dat.add(this.squareHouse.position,"x",-600,600).name("房屋X轴");
-                this.dat.add(this.squareHouse.position,"z",-600,600).name("房屋Z轴");
-                this.dat.add(this.squareHouse.rotation,"y",-Math.PI,Math.PI,0.01).name("房屋旋转");
+                this.dat.add(this.squareHouse.position, "x", -600, 600).name("房屋X轴");
+                this.dat.add(this.squareHouse.position, "z", -600, 600).name("房屋Z轴");
+                this.dat.add(this.squareHouse.rotation, "y", -Math.PI, Math.PI, 0.01).name("房屋旋转");
 
                 this.scene.add(this.squareHouse);
             })
@@ -185,6 +255,7 @@ export class SceneDemo extends BaseInit {
                 this.scene.add(a);
             });
     }
+
     loadPlayer() {
         new GLTFLoader(this.loadManager).load("http://qrtest.qirenit.com:81/share/img/pubg_coupe_rb/scene.gltf",
             (res) => {
@@ -219,9 +290,9 @@ export class SceneDemo extends BaseInit {
 
                 //添加文字标签
                 const label = new CSS2DObject(document.getElementById("schoolInfo"));
-                label.position.set( 0, 10, 0 );
+                label.position.set(0, 10, 0);
 
-                this.schoolScene.add(label);
+                // this.schoolScene.add(label);
 
                 this.dat.add(this.schoolScene.position, "y", -5, 5, 0.1).name("学校Y轴");
 
@@ -233,7 +304,7 @@ export class SceneDemo extends BaseInit {
         // let that=this;
         this.loadManager = new THREE.LoadingManager(
             () => {
-                console.log('加载完成',this);
+                console.log('加载完成', this);
                 this.finishedCallBack();
             },
             // Progress
@@ -285,72 +356,97 @@ export class SceneDemo extends BaseInit {
 
     addLight() {
         //创建聚光灯
-        const light = new THREE.AmbientLight("#fff",1);
+        const light = new THREE.AmbientLight("#fff", 1);
         light.castShadow = true;            // default false
         this.scene.add(light);
 
-        const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x222222 );
-        hemiLight.position.set( 0, 200, 0 );
-        this.scene.add( hemiLight );
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x222222);
+        hemiLight.position.set(0, 200, 0);
+        this.scene.add(hemiLight);
     }
-    initLabelRender(){
+
+    initLabelRender() {
         let labelRenderer = new CSS2DRenderer();
-        labelRenderer.setSize( window.innerWidth, window.innerHeight );
+        labelRenderer.setSize(window.innerWidth, window.innerHeight);
         labelRenderer.domElement.style.position = 'absolute';
         labelRenderer.domElement.style.top = '0px';
-        document.body.appendChild( labelRenderer.domElement );
-        this.labelRenderer=labelRenderer;
+        document.body.appendChild(labelRenderer.domElement);
+        this.labelRenderer = labelRenderer;
     }
-    initDomRender(){
-            const cssScene = new THREE.Scene();
-            const cssRender = new CSS3DRenderer();
-            cssRender.setSize(window.innerWidth, window.innerHeight);
-            cssRender.domElement.style.position = "absolute";
-            cssRender.domElement.style.top = 0;
-            document.body.appendChild(cssRender.domElement);
-            this.cssScene=cssScene;
-            this.cssRender=cssRender;
-            const controls = new OrbitControls(this.camera,this.cssRender.domElement);
-    }
-    addDomContent(){
-        const context = new CSS3DObject(document.getElementById("contentDemo"));
-        context.position.set(0, 30, 20);
-        context.scale.set(0.5,0.5,0.5);
-        context.translateY(30);
 
+    initDomRender() {
+        const cssScene = new THREE.Scene();
+        const cssRender = new CSS3DRenderer();
+        cssRender.setSize(window.innerWidth, window.innerHeight);
+        cssRender.domElement.style.position = "absolute";
+        cssRender.domElement.style.top = 0;
+        document.body.appendChild(cssRender.domElement);
+        this.cssScene = cssScene;
+        this.cssRender = cssRender;
+        const controls = new OrbitControls(this.camera, this.cssRender.domElement);
+    }
+
+    addDomContent() {
+        const context = new CSS3DObject(document.getElementById("contentDemo"));
+        context.position.set(-90, 40, 0);
+        context.scale.set(0.1, 0.1, 0.1);
+        // context.translateY(30);
         this.cssScene.add(context);
+    }
+
+    calcIntersect(){
+
+        let intersects=this.rayCaster.intersectObjects(this.scene.children,true);
+
+        if (intersects.length != 0 && intersects[0].object instanceof THREE.Mesh) {
+            this.currentMesh=intersects[0].object;
+            console.log(this.currentMesh);
+        }
+
+
+    }
+
+    test(){
+        console.log(this.currentMesh);
+
+        // this.currentMesh.position.set(10,0,0);
+        // console.log("ggg");
     }
     init() {
 
-        this.camera.position.set(0, 400, 400)
+        this.camera.position.set(-50, 80, 300)
         //定位相机指向场景中心
-        this.camera.lookAt(this.scene.position);
+        this.camera.lookAt(40,80,0);
         //创建键盘事件
         this.keyboard = new THREEx.KeyboardState();
         //使渲染器支持真实光照
-        this.renderer.physicallyCorrectLights=true;
-        this.renderer.toneMapping=THREE.ACESFilmicToneMapping;
+        this.renderer.physicallyCorrectLights = true;
+        this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         //创建标签渲染器
         this.initLabelRender();
         //创建Css3D节点渲染器
         this.initDomRender();
         //创建控制器并说明可操作图层为标签渲染器的节点
-        this.control=new OrbitControls( this.camera,this.labelRenderer.domElement );
+        this.control = new OrbitControls(this.camera, this.cssRender.domElement);
         this.control.enableDamping = true;
+
+
+        console.log(this.scene,"场景对象-------")
+        this.scene.traverse((e)=>{
+            console.log(e,"---");
+        })
 
         const clock = new THREE.Clock();
         const animate = () => {
-
             const delta = clock.getDelta();
             const moveDistance = 50 * delta;
-
             const rotateAngle = Math.PI / 2 * delta;
-
+            //更新统计帧率的工具
             this.stats.update()
+            //更新控制器
             this.control.update()
 
-
-
+            //移动小车位置
             if (this.keyboard.pressed('s'))
                 this.carScene.translateX(-moveDistance);
             if (this.keyboard.pressed('w'))
@@ -360,38 +456,21 @@ export class SceneDemo extends BaseInit {
             if (this.keyboard.pressed('d'))
                 this.carScene.rotateOnAxis(new THREE.Vector3(0, 1, 0), -rotateAngle);
 
-
-            // if (this.keyboard.pressed('w'))
-            //     this.carScene.rotateOnAxis(new THREE.Vector3(1, 0, 0), rotateAngle);
-            // if (this.keyboard.pressed('s'))
-            //     this.carScene.rotateOnAxis(new THREE.Vector3(1, 0, 0), -rotateAngle);
-            // if (this.keyboard.pressed('a'))
-            //     this.carScene.rotateOnAxis(new THREE.Vector3(0, 1, 0), rotateAngle);
-            // if (this.keyboard.pressed('d'))
-            //     this.carScene.rotateOnAxis(new THREE.Vector3(0, 1, 0), -rotateAngle);
-
-
-            //让相机位置与车辆位置相对固定
-            // if(this.carScene){
-            //     const relativeCameraOffset = new THREE.Vector3(-1000, 5000, 5000);
-            //     const cameraOffset = relativeCameraOffset.applyMatrix4( this.carScene.matrixWorld );
-            //     this.camera.position.x = cameraOffset.x;
-            //     this.camera.position.y = cameraOffset.y;
-            //     this.camera.position.z = cameraOffset.z;
-            //     // 始终让相机看向物体
-            //     this.control.target = this.carScene.position;
-            //     // console.log(this.carScene?.matrixWorld);
-            // }
-
-            if(this.animationMixer){
-                this.animationMixer.update(delta);
-            }
-
             requestAnimationFrame(animate);
 
             this.renderer.render(this.scene, this.camera);
-            this.labelRenderer.render(this.scene,this.camera);
+            this.labelRenderer.render(this.scene, this.camera);
             this.cssRender.render(this.cssScene, this.camera);
+
+            //更新射线
+            this.rayCaster.setFromCamera(this.mouseCoords,this.camera);
+
+            //统计相交物体
+            this.calcIntersect()
+
+            if (this.animationMixer) {
+                this.animationMixer.update(delta);
+            }
         }
 
         animate();

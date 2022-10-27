@@ -9,9 +9,9 @@
 sss
     </div>
 
-    <div class="text" @click="showDetail">
-      详情
-    </div>
+<!--    <div class="text" @click="showDetail">-->
+<!--      详情-->
+<!--    </div>-->
   </div>
 
   <div id="loadMask" v-show="loading">
@@ -21,7 +21,6 @@ sss
   </div>
 
   <div id="contentDemo">
-    渲染dom测试 {{text}}
   </div>
 
   <div class="test">
@@ -45,10 +44,10 @@ function showDetail() {
 }
 let echartsIns=null
 function initEcharts(){
-  echartsIns = echarts.init(document.getElementById('echartsWrapper'));
+  echartsIns = echarts.init(document.getElementById('contentDemo'));
 
   let option = {
-    backgroundColor: "#05224d",
+    backgroundColor: "transparent",
     tooltip: {},
     grid: {
       top: '8%',
@@ -202,8 +201,7 @@ function initEcharts(){
 
 
 function test(){
-  text.value=Math.random();
-  console.log("修改后",text.value);
+  ins.test()
 }
 
 onMounted(() => {
@@ -212,6 +210,7 @@ onMounted(() => {
     loading.value=false;
   }
   });
+  initEcharts()
 })
 </script>
 
@@ -253,7 +252,8 @@ onMounted(() => {
   z-index: 1000;
 }
 #contentDemo{
-  padding:2px 10px;
+  width: 400px;
+  height: 250px;
   border: 1px solid #eeeeee;
   border-radius: 2px;
   color: #fff;
