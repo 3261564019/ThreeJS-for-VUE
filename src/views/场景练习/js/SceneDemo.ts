@@ -9,7 +9,7 @@ import landRgb from "/src/assets/texture/aerial_grass_rock_2k.gltf/textures/aeri
 import {RectAreaLightUniformsLib} from "three/examples/jsm/lights/RectAreaLightUniformsLib";
 import THREEx from "/src/three/otherModule/threex.keyboardstate.js"
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
-import {CSS3DRenderer} from "three/examples/jsm/renderers/CSS3DRenderer";
+import {CSS3DObject, CSS3DRenderer} from "three/examples/jsm/renderers/CSS3DRenderer";
 import {AnimationMixer, Scene} from "three";
 import {CSS2DObject, CSS2DRenderer} from "three/examples/jsm/renderers/CSS2DRenderer";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
@@ -42,6 +42,9 @@ export class SceneDemo extends BaseInit {
     animationMixer:AnimationMixer
     //场景加载完的回调函数
     finishedCallBack:Function
+
+    cssScene:Scene
+    cssRender:CSS3DRenderer
 
     debugParam: DebugParams = {
         schoolPositionY:1
@@ -89,8 +92,10 @@ export class SceneDemo extends BaseInit {
         this.loadPlayer();
         //初始化调试器
         this.initDebug();
-
+        //加载跳舞动画
         this.loadDancer();
+        //加载dom节点至场景
+        this.addDomContent();
     }
     loadDancer(){
         const loader = new FBXLoader();
@@ -296,6 +301,25 @@ export class SceneDemo extends BaseInit {
         document.body.appendChild( labelRenderer.domElement );
         this.labelRenderer=labelRenderer;
     }
+    initDomRender(){
+            const cssScene = new THREE.Scene();
+            const cssRender = new CSS3DRenderer();
+            cssRender.setSize(window.innerWidth, window.innerHeight);
+            cssRender.domElement.style.position = "absolute";
+            cssRender.domElement.style.top = 0;
+            document.body.appendChild(cssRender.domElement);
+            this.cssScene=cssScene;
+            this.cssRender=cssRender;
+            const controls = new OrbitControls(this.camera,this.cssRender.domElement);
+    }
+    addDomContent(){
+        const context = new CSS3DObject(document.getElementById("contentDemo"));
+        context.position.set(0, 30, 20);
+        context.scale.set(0.5,0.5,0.5);
+        context.translateY(30);
+
+        this.cssScene.add(context);
+    }
     init() {
 
         this.camera.position.set(0, 400, 400)
@@ -308,6 +332,8 @@ export class SceneDemo extends BaseInit {
         this.renderer.toneMapping=THREE.ACESFilmicToneMapping;
         //创建标签渲染器
         this.initLabelRender();
+        //创建Css3D节点渲染器
+        this.initDomRender();
         //创建控制器并说明可操作图层为标签渲染器的节点
         this.control=new OrbitControls( this.camera,this.labelRenderer.domElement );
         this.control.enableDamping = true;
@@ -364,8 +390,8 @@ export class SceneDemo extends BaseInit {
             requestAnimationFrame(animate);
 
             this.renderer.render(this.scene, this.camera);
-
             this.labelRenderer.render(this.scene,this.camera);
+            this.cssRender.render(this.cssScene, this.camera);
         }
 
         animate();

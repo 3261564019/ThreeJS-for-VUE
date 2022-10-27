@@ -19,6 +19,14 @@ sss
     场景加载中...
 
   </div>
+
+  <div id="contentDemo">
+    渲染dom测试 {{text}}
+  </div>
+
+  <div class="test">
+    <button @click="test">测试</button>
+  </div>
 </template>
 
 <script name="sceneDemo" setup>
@@ -28,6 +36,7 @@ import {SceneDemo} from "./js/SceneDemo";
 
 let ins = null;
 let loading=ref(true);
+let text=ref("dasdasdas");
 
 let schoolDetailVisible=ref(false);
 function showDetail() {
@@ -191,6 +200,12 @@ function initEcharts(){
 
 }
 
+
+function test(){
+  text.value=Math.random();
+  console.log("修改后",text.value);
+}
+
 onMounted(() => {
   ins = new SceneDemo({
     finished:()=>{
@@ -235,5 +250,20 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
+}
+#contentDemo{
+  padding:2px 10px;
+  border: 1px solid #eeeeee;
+  border-radius: 2px;
+  color: #fff;
+  background: rgba(0,0,0,0.4);
+}
+
+.test{
+  position: fixed;
+  top:50%;
+  left: 100px;
+  z-index: 100;
 }
 </style>
