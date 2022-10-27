@@ -13,6 +13,12 @@ sss
       详情
     </div>
   </div>
+
+  <div id="loadMask" v-show="loading">
+
+    场景加载中...
+
+  </div>
 </template>
 
 <script name="sceneDemo" setup>
@@ -21,6 +27,7 @@ import {onMounted,ref} from "vue";
 import {SceneDemo} from "./js/SceneDemo";
 
 let ins = null;
+let loading=ref(true);
 
 let schoolDetailVisible=ref(false);
 function showDetail() {
@@ -185,9 +192,11 @@ function initEcharts(){
 }
 
 onMounted(() => {
-  ins = new SceneDemo({})
-
-  // initEcharts();
+  ins = new SceneDemo({
+    finished:()=>{
+    loading.value=false;
+  }
+  });
 })
 </script>
 
@@ -213,5 +222,18 @@ onMounted(() => {
       color: dodgerblue;
     }
   }
+}
+#loadMask{
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  background: #000;
+  color: white;
+  font-size: 22px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

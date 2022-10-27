@@ -30,19 +30,26 @@ export class SceneDemo extends BaseInit {
     planMesh: THREE.Mesh
     //正方形房子
     squareHouse: THREE.Mesh
+    //汽车模型
     playerScene: THREE.Group
     //汽车场景
     carScene: THREE.Group
     //键盘事件
     keyboard = null;
     //标签渲染器
-    labelRenderer:CSS2DRenderer
+    labelRenderer:CSS2DRenderer;
+    //动画播放器
+    animationMixer:AnimationMixer
+    //场景加载完的回调函数
+    finishedCallBack:Function
 
     debugParam: DebugParams = {
         schoolPositionY:1
     }
 
-    constructor({}) {
+    constructor({
+                    finished
+                }) {
         super({
             needLight: false,
             needOrbitControls: false,
@@ -53,6 +60,8 @@ export class SceneDemo extends BaseInit {
             needTextureLoader: true,
             orbitControlsDom:"schoolInfo"
         } as BaseInitParams);
+
+        this.finishedCallBack=finished;
 
         this.initDebug();
 
@@ -87,10 +96,9 @@ export class SceneDemo extends BaseInit {
         const loader = new FBXLoader();
         loader.load( dancerFbx,  ( object )=>{
 
-            let mixer = new AnimationMixer( object );
-
+            this.animationMixer = new AnimationMixer( object );
             console.log("人体对象",object);
-            const action = mixer.clipAction(object.animations[ 0 ] );
+            const action = this.animationMixer.clipAction(object.animations[ 0 ] );
 
             action.play();
 
@@ -99,9 +107,10 @@ export class SceneDemo extends BaseInit {
                     child.castShadow = true;
                     child.receiveShadow = true;
                 }
-
             } );
 
+            object.scale.set(0.1,0.1,0.1);
+            object.position.set(0,10,0);
             this.scene.add(object);
 
         } );
@@ -216,9 +225,11 @@ export class SceneDemo extends BaseInit {
     }
 
     initResourceMange() {
+        // let that=this;
         this.loadManager = new THREE.LoadingManager(
             () => {
-                console.log('加载完成');
+                console.log('加载完成',this);
+                this.finishedCallBack();
             },
             // Progress
             (p) => {
@@ -269,11 +280,13 @@ export class SceneDemo extends BaseInit {
 
     addLight() {
         //创建聚光灯
-        const light = new THREE.SpotLight("#fff");
+        const light = new THREE.AmbientLight("#fff",1);
         light.castShadow = true;            // default false
-        light.position.x = 400;
-        light.position.y = 30;
         this.scene.add(light);
+
+        const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x222222 );
+        hemiLight.position.set( 0, 200, 0 );
+        this.scene.add( hemiLight );
     }
     initLabelRender(){
         let labelRenderer = new CSS2DRenderer();
@@ -288,14 +301,16 @@ export class SceneDemo extends BaseInit {
         this.camera.position.set(0, 400, 400)
         //定位相机指向场景中心
         this.camera.lookAt(this.scene.position);
+        //创建键盘事件
         this.keyboard = new THREEx.KeyboardState();
-
+        //使渲染器支持真实光照
+        this.renderer.physicallyCorrectLights=true;
+        this.renderer.toneMapping=THREE.ACESFilmicToneMapping;
         //创建标签渲染器
-        this.initLabelRender()
-
+        this.initLabelRender();
+        //创建控制器并说明可操作图层为标签渲染器的节点
         this.control=new OrbitControls( this.camera,this.labelRenderer.domElement );
         this.control.enableDamping = true;
-
 
         const clock = new THREE.Clock();
         const animate = () => {
@@ -341,6 +356,10 @@ export class SceneDemo extends BaseInit {
             //     this.control.target = this.carScene.position;
             //     // console.log(this.carScene?.matrixWorld);
             // }
+
+            if(this.animationMixer){
+                this.animationMixer.update(delta);
+            }
 
             requestAnimationFrame(animate);
 
