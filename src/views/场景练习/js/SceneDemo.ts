@@ -16,6 +16,8 @@ import dancerFbx from "/src/assets/model/sambaDancing.fbx?url"
 import {EffectComposer} from "three/examples/jsm/postprocessing/EffectComposer";
 import {RenderPass} from "three/examples/jsm/postprocessing/RenderPass";
 import {OutlinePass} from "three/examples/jsm/postprocessing/OutlinePass";
+import {ShaderPass} from "three/examples/jsm/postprocessing/ShaderPass";
+import {FXAAShader} from "three/examples/jsm/shaders/FXAAShader";
 
 interface DebugParams {
     //学校模型的Y轴偏移
@@ -125,8 +127,6 @@ export class SceneDemo extends BaseInit {
 
         this.addBall();
 
-        // 初始化后期处理
-        this.initEffectComposer();
     }
 
     initEffectComposer() {
@@ -142,9 +142,18 @@ export class SceneDemo extends BaseInit {
             this.scene,
             this.camera
         );
-
+        //选中的边缘颜色
+        this.outLinePath.visibleEdgeColor=new THREE.Color("#469dff");
+        //选中模型隐藏部分边界颜色
+        this.outLinePath.hiddenEdgeColor=new THREE.Color("#e47d0e");
         this.composer.addPass(this.outLinePath);
 
+
+        // 去掉锯齿
+        let FXAAShaderPass = new ShaderPass(FXAAShader);
+        FXAAShaderPass.uniforms['resolution'].value.set(1 / window.innerWidth, 1 / window.innerHeight);
+        FXAAShaderPass.renderToScreen = true;
+        this.composer.addPass(FXAAShaderPass);
     }
 
     addBall() {
@@ -460,6 +469,9 @@ export class SceneDemo extends BaseInit {
         this.initLabelRender();
         //创建Css3D节点渲染器
         this.initDomRender();
+        // 初始化后期处理 选中描边
+        this.initEffectComposer();
+
         //创建控制器并说明可操作图层为标签渲染器的节点
         this.control = new OrbitControls(this.camera, this.cssRender.domElement);
         this.control.enableDamping = true;
@@ -505,7 +517,7 @@ export class SceneDemo extends BaseInit {
             this.labelRenderer.render(this.scene, this.camera);
             this.cssRender.render(this.cssScene, this.camera);
 
-            this.composer?.render(this.scene, this.camera);
+            this.composer.render(this.scene, this.camera);
 
             // console.log(this.composer);
 
