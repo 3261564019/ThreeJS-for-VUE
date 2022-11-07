@@ -20,12 +20,12 @@ sss
 
   </div>
 
-  <div id="contentDemo">
-  </div>
+<!--  <div id="contentDemo">-->
+<!--  </div>-->
 
-  <div class="test">
-    <button @click="test">测试</button>
-  </div>
+<!--  <div class="test">-->
+<!--    <button @click="test">测试</button>-->
+<!--  </div>-->
 </template>
 
 <script name="sceneDemo" setup>
@@ -210,7 +210,7 @@ onMounted(() => {
     loading.value=false;
   }
   });
-  initEcharts()
+  // initEcharts()
 })
 </script>
 

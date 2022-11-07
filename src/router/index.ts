@@ -5,7 +5,8 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/test',
         name: 'test',
-        component: ()=> import("../views/test/cubeDemo.vue")
+        // component: ()=> import("../views/test/cubeDemo.vue")
+        component: ()=> import("../views/test/calc.vue")
     },{
         path: '/map',
         name: 'map',

@@ -13,6 +13,9 @@ import {CSS2DObject, CSS2DRenderer} from "three/examples/jsm/renderers/CSS2DRend
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
 import dancerFbx from "/src/assets/model/sambaDancing.fbx?url"
+import {EffectComposer} from "three/examples/jsm/postprocessing/EffectComposer";
+import {RenderPass} from "three/examples/jsm/postprocessing/RenderPass";
+import {OutlinePass} from "three/examples/jsm/postprocessing/OutlinePass";
 
 interface DebugParams {
     //学校模型的Y轴偏移
@@ -41,10 +44,12 @@ export class SceneDemo extends BaseInit {
     //场景加载完的回调函数
     finishedCallBack: Function
     //射线
-    rayCaster:THREE.Raycaster=new THREE.Raycaster()
-
+    rayCaster: THREE.Raycaster = new THREE.Raycaster()
     //当前选中的物体
-    currentMesh:THREE.Mesh;
+    currentMesh: THREE.Mesh;
+
+    composer: EffectComposer
+    outLinePath: OutlinePass
 
 
     cssScene: Scene
@@ -55,11 +60,11 @@ export class SceneDemo extends BaseInit {
     }
 
     //当前鼠标偏移量
-    mouseCoords: THREE.Vector2=new THREE.Vector2(2,2);
+    mouseCoords: THREE.Vector2 = new THREE.Vector2(2, 2);
 
     //选中的物体的材质
-    checkedMaterial:MeshToonMaterial=new MeshToonMaterial({
-        color:"#049ef4"
+    checkedMaterial: MeshToonMaterial = new MeshToonMaterial({
+        color: "#049ef4"
     });
 
     constructor({
@@ -67,7 +72,7 @@ export class SceneDemo extends BaseInit {
                 }) {
         super({
             needLight: false,
-            needOrbitControls: false,
+            needOrbitControls: true,
             renderDomId: "#sceneDemo",
             calcCursorPosition: true,
             needScreenSize: true,
@@ -101,13 +106,13 @@ export class SceneDemo extends BaseInit {
         this.loadBuilding();
 
         //加载玩家 即 汽车
-        this.loadPlayer();
+        // this.loadPlayer();
         //初始化调试器
         this.initDebug();
         //加载跳舞动画
-        this.loadDancer();
+        // this.loadDancer();
         //加载dom节点至场景
-        this.addDomContent();
+        // this.addDomContent();
 
         //css3DRender 在屏幕尺寸发生变化的情况下进行适配
         this.resizeRender();
@@ -116,11 +121,33 @@ export class SceneDemo extends BaseInit {
         this.mouseCoordsCalc();
 
         //添加点击事件
-        this.addEvent();
+        // this.addEvent(); 宝，你这段时间天来姨妈会不会难受呀
 
         this.addBall();
+
+        // 初始化后期处理
+        this.initEffectComposer();
     }
-    addBall(){
+
+    initEffectComposer() {
+        //初始化效果组合器
+        this.composer = new EffectComposer(this.renderer);
+        //创建场景通道
+        let renderPass = new RenderPass(this.scene, this.camera);
+        this.composer.addPass(renderPass);
+        //创建外边线通道
+        this.outLinePath = new OutlinePass(
+            //设置效果范围
+            new THREE.Vector2(window.innerWidth, window.innerHeight),
+            this.scene,
+            this.camera
+        );
+
+        this.composer.addPass(this.outLinePath);
+
+    }
+
+    addBall() {
 
         const sphere = new THREE.Mesh(
             new THREE.SphereGeometry(3, 33, 33),
@@ -133,8 +160,9 @@ export class SceneDemo extends BaseInit {
 
         this.scene.add(sphere);
     }
-    addEvent(){
-        window.addEventListener("click",()=>{
+
+    addEvent() {
+        window.addEventListener("click", () => {
             console.log(this.currentMesh);
             //
             //
@@ -146,19 +174,23 @@ export class SceneDemo extends BaseInit {
             // this.scene.add(temp);
         })
     }
+
     mouseCoordsCalc() {
 
         window.addEventListener("mousemove", (event) => {
-                this.mouseCoords.x = (event.clientX / this.screenSize.x * 2) - 1
-                this.mouseCoords.y = -(event.clientY / this.screenSize.y * 2) + 1
-
-            // console.log(this.mouseCoords);
+            this.mouseCoords.x = (event.clientX / this.screenSize.x * 2) - 1
+            this.mouseCoords.y = -(event.clientY / this.screenSize.y * 2) + 1
+            // console.log("鼠标坐标",this.mouseCoords);
         })
     }
 
     resizeRender() {
         window.addEventListener("resize", (p) => {
-            // console.log("宽高",window.innerWidth , window.innerHeight);
+
+            let dom = this.cssRender.domElement;
+
+            console.log(dom.offsetWidth, dom.offsetHeight);
+
             if (this.cssRender) {
                 this.cssRender.setSize(window.innerWidth, window.innerHeight);
             }
@@ -380,6 +412,8 @@ export class SceneDemo extends BaseInit {
         cssRender.setSize(window.innerWidth, window.innerHeight);
         cssRender.domElement.style.position = "absolute";
         cssRender.domElement.style.top = 0;
+        cssRender.domElement.id = "cssRenderDom";
+
         document.body.appendChild(cssRender.domElement);
         this.cssScene = cssScene;
         this.cssRender = cssRender;
@@ -394,29 +428,29 @@ export class SceneDemo extends BaseInit {
         this.cssScene.add(context);
     }
 
-    calcIntersect(){
+    calcIntersect() {
 
-        let intersects=this.rayCaster.intersectObjects(this.scene.children,true);
+        let intersects = this.rayCaster.intersectObjects(this.scene.children, true);
 
         if (intersects.length != 0 && intersects[0].object instanceof THREE.Mesh) {
-            this.currentMesh=intersects[0].object;
-            console.log(this.currentMesh);
+            // 将当前材质修改为被击中材质
+            this.outLinePath.selectedObjects=[];
+            this.outLinePath.selectedObjects.push(intersects[0].object);
         }
-
-
     }
 
-    test(){
+    test() {
         console.log(this.currentMesh);
 
         // this.currentMesh.position.set(10,0,0);
         // console.log("ggg");
     }
+
     init() {
 
-        this.camera.position.set(-50, 80, 300)
+        this.camera.position.set(0, 300, 0)
         //定位相机指向场景中心
-        this.camera.lookAt(40,80,0);
+        this.camera.lookAt(0, 0, 0);
         //创建键盘事件
         this.keyboard = new THREEx.KeyboardState();
         //使渲染器支持真实光照
@@ -429,22 +463,33 @@ export class SceneDemo extends BaseInit {
         //创建控制器并说明可操作图层为标签渲染器的节点
         this.control = new OrbitControls(this.camera, this.cssRender.domElement);
         this.control.enableDamping = true;
+        //设置射线构造器的射线距离
+        this.rayCaster.near = 1;
+        this.rayCaster.far = 500;
 
 
-        console.log(this.scene,"场景对象-------")
-        this.scene.traverse((e)=>{
-            console.log(e,"---");
-        })
+        // console.log(this.scene,"场景对象-------")
+        // this.scene.traverse((e)=>{
+        //     console.log(e,"---");
+        // })
 
         const clock = new THREE.Clock();
         const animate = () => {
+
+            requestAnimationFrame(animate);
+
+            //更新控制器
+            this.control.update()
+            //更新射线
+            this.rayCaster.setFromCamera(this.mouseCoords, this.camera);
+            //统计相交物体
+            this.calcIntersect()
+
             const delta = clock.getDelta();
             const moveDistance = 50 * delta;
             const rotateAngle = Math.PI / 2 * delta;
             //更新统计帧率的工具
             this.stats.update()
-            //更新控制器
-            this.control.update()
 
             //移动小车位置
             if (this.keyboard.pressed('s'))
@@ -456,17 +501,13 @@ export class SceneDemo extends BaseInit {
             if (this.keyboard.pressed('d'))
                 this.carScene.rotateOnAxis(new THREE.Vector3(0, 1, 0), -rotateAngle);
 
-            requestAnimationFrame(animate);
-
             this.renderer.render(this.scene, this.camera);
             this.labelRenderer.render(this.scene, this.camera);
             this.cssRender.render(this.cssScene, this.camera);
 
-            //更新射线
-            this.rayCaster.setFromCamera(this.mouseCoords,this.camera);
+            this.composer?.render(this.scene, this.camera);
 
-            //统计相交物体
-            this.calcIntersect()
+            // console.log(this.composer);
 
             if (this.animationMixer) {
                 this.animationMixer.update(delta);
