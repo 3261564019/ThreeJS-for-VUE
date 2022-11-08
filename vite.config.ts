@@ -4,7 +4,13 @@ const path = require('path')
 
 export default defineConfig({
   plugins: [vue()],
-
+  resolve:{
+    //设置路径别名
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+      '*': path.resolve('')
+    },
+  },
   css: {
     preprocessorOptions: {
       less: {

@@ -26,7 +26,7 @@ export interface BaseInitParams {
     needAudioLoader: boolean,
     //是否需要加载器
     needGLTFLoader: boolean,
-    //渲染到指定节点的id
+    //渲染到指定节点的id 将被直接用于 querySelector
     renderDomId: string,
     //是否需要实时计算鼠标位置
     calcCursorPosition: boolean

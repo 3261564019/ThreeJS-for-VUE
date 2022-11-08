@@ -401,9 +401,13 @@ export class SceneDemo extends BaseInit {
         light.castShadow = true;            // default false
         this.scene.add(light);
 
-        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x222222);
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff);
         hemiLight.position.set(0, 200, 0);
         this.scene.add(hemiLight);
+
+        //调整场景曝光亮度
+        this.dat.add(this.renderer,"toneMappingExposure",0,10,0.001);
+        this.renderer.toneMappingExposure=0.8;
     }
 
     initLabelRender() {

@@ -15,6 +15,10 @@ const routes: Array<RouteRecordRaw> = [
         path: '/community',
         name: 'community',
         component: ()=> import("../views/场景练习/sceneDemo.vue")
+    },{
+        path: '/ammoDemo1',
+        name: 'ammoDemo1',
+        component: ()=> import("../views/AmmoJS/index.vue")
     }
 ]
 
