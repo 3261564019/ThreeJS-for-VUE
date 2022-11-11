@@ -80,7 +80,6 @@ export class AmmoDemo1 extends BaseInit {
         mesh.position.copy(position);
         this.scene.add(mesh);
         //创建物理部分
-
         let transform=new Ammo.btTransform();
         transform.setIdentity();
         //设置其位置
