@@ -108,11 +108,11 @@ export class SceneDemo extends BaseInit {
         this.loadBuilding();
 
         //加载玩家 即 汽车
-        // this.loadPlayer();
+        this.loadPlayer();
         //初始化调试器
         this.initDebug();
         //加载跳舞动画
-        // this.loadDancer();
+        this.loadDancer();
         //加载dom节点至场景
         // this.addDomContent();
 
@@ -123,7 +123,7 @@ export class SceneDemo extends BaseInit {
         this.mouseCoordsCalc();
 
         //添加点击事件
-        // this.addEvent(); 宝，你这段时间天来姨妈会不会难受呀
+        // this.addEvent();
 
         this.addBall();
 
@@ -347,6 +347,7 @@ export class SceneDemo extends BaseInit {
             () => {
                 console.log('加载完成', this);
                 this.finishedCallBack();
+                this.startAnimation();
             },
             // Progress
             (p) => {
@@ -406,7 +407,7 @@ export class SceneDemo extends BaseInit {
         this.scene.add(hemiLight);
 
         //调整场景曝光亮度
-        this.dat.add(this.renderer,"toneMappingExposure",0,10,0.001);
+        this.dat.add(this.renderer,"toneMappingExposure",0,5,0.001).name("整体亮度");
         this.renderer.toneMappingExposure=0.8;
     }
 
@@ -419,7 +420,7 @@ export class SceneDemo extends BaseInit {
         this.labelRenderer = labelRenderer;
     }
 
-    initDomRender() {
+    initCss3DRender() {
         const cssScene = new THREE.Scene();
         const cssRender = new CSS3DRenderer();
         cssRender.setSize(window.innerWidth, window.innerHeight);
@@ -458,37 +459,8 @@ export class SceneDemo extends BaseInit {
         // this.currentMesh.position.set(10,0,0);
         // console.log("ggg");
     }
-
-    init() {
-
-        this.camera.position.set(0, 300, 0)
-        //定位相机指向场景中心
-        this.camera.lookAt(0, 0, 0);
-        //创建键盘事件
-        this.keyboard = new THREEx.KeyboardState();
-        //使渲染器支持真实光照
-        this.renderer.physicallyCorrectLights = true;
-        this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        //创建标签渲染器
-        this.initLabelRender();
-        //创建Css3D节点渲染器
-        this.initDomRender();
-        // 初始化后期处理 选中描边
-        this.initEffectComposer();
-
-        //创建控制器并说明可操作图层为标签渲染器的节点
-        this.control = new OrbitControls(this.camera, this.cssRender.domElement);
-        this.control.enableDamping = true;
-        //设置射线构造器的射线距离
-        this.rayCaster.near = 1;
-        this.rayCaster.far = 500;
-
-
-        // console.log(this.scene,"场景对象-------")
-        // this.scene.traverse((e)=>{
-        //     console.log(e,"---");
-        // })
-
+    //开始渲染动画
+    startAnimation(){
         const clock = new THREE.Clock();
         const animate = () => {
 
@@ -520,7 +492,6 @@ export class SceneDemo extends BaseInit {
             this.renderer.render(this.scene, this.camera);
             this.labelRenderer.render(this.scene, this.camera);
             this.cssRender.render(this.cssScene, this.camera);
-
             this.composer.render(this.scene, this.camera);
 
             // console.log(this.composer);
@@ -529,8 +500,32 @@ export class SceneDemo extends BaseInit {
                 this.animationMixer.update(delta);
             }
         }
-
         animate();
+    }
+    init() {
+
+        this.camera.position.set(0, 300, 0)
+        //定位相机指向场景中心
+        this.camera.lookAt(0, 0, 0);
+        //创建键盘事件
+        this.keyboard = new THREEx.KeyboardState();
+        //使渲染器支持真实光照
+        this.renderer.physicallyCorrectLights = true;
+        this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        //创建标签渲染器
+        this.initLabelRender();
+        //创建Css3D节点渲染器
+        this.initCss3DRender();
+        this.addDomContent();
+        // 初始化后期处理 选中描边
+        this.initEffectComposer();
+
+        //创建控制器并说明可操作图层为标签渲染器的节点
+        this.control = new OrbitControls(this.camera, this.cssRender.domElement);
+        this.control.enableDamping = true;
+        //设置射线构造器的射线距离
+        this.rayCaster.near = 1;
+        this.rayCaster.far = 500;
 
     }
 }
