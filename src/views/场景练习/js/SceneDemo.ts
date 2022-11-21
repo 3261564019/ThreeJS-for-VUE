@@ -39,12 +39,12 @@ export class SceneDemo extends BaseInit {
     carScene: THREE.Group
     //键盘事件
     keyboard = null;
-    //标签渲染器
-    labelRenderer: CSS2DRenderer;
     //动画播放器
     animationMixer: AnimationMixer
     //场景加载完的回调函数
     finishedCallBack: Function
+    //infoWindow创建完，可以初始化Vue组件的回调
+    initVueCpn: Function
     //射线
     rayCaster: THREE.Raycaster = new THREE.Raycaster()
     //当前选中的物体
@@ -53,9 +53,11 @@ export class SceneDemo extends BaseInit {
     composer: EffectComposer
     outLinePath: OutlinePass
 
-
+    // css3DScene
     cssScene: Scene
     cssRender: CSS3DRenderer
+    //标签渲染器
+    labelRenderer: CSS2DRenderer;
 
     debugParam: DebugParams = {
         schoolPositionY: 1
@@ -70,11 +72,12 @@ export class SceneDemo extends BaseInit {
     });
 
     constructor({
-                    finished
+                    finished,
+                    initVueCpn
                 }) {
         super({
             needLight: false,
-            needOrbitControls: true,
+            needOrbitControls: false,
             renderDomId: "#sceneDemo",
             calcCursorPosition: true,
             needScreenSize: true,
@@ -84,6 +87,7 @@ export class SceneDemo extends BaseInit {
         } as BaseInitParams);
 
         this.finishedCallBack = finished;
+        this.initVueCpn=initVueCpn;
 
         this.initDebug();
 
@@ -102,13 +106,13 @@ export class SceneDemo extends BaseInit {
         // this.loadRoad();
 
         //加载房屋
-        this.loadHouse();
+        // this.loadHouse();
 
         //加载建筑组
-        this.loadBuilding();
+        // this.loadBuilding();
 
         //加载玩家 即 汽车
-        this.loadPlayer();
+        // this.loadPlayer();
         //初始化调试器
         this.initDebug();
         //加载跳舞动画
@@ -125,7 +129,7 @@ export class SceneDemo extends BaseInit {
         //添加点击事件
         // this.addEvent();
 
-        this.addBall();
+        // this.addBall();
 
     }
 
@@ -143,9 +147,9 @@ export class SceneDemo extends BaseInit {
             this.camera
         );
         //选中的边缘颜色
-        this.outLinePath.visibleEdgeColor=new THREE.Color("#469dff");
+        this.outLinePath.visibleEdgeColor = new THREE.Color("#469dff");
         //选中模型隐藏部分边界颜色
-        this.outLinePath.hiddenEdgeColor=new THREE.Color("#e47d0e");
+        this.outLinePath.hiddenEdgeColor = new THREE.Color("#e47d0e");
         this.composer.addPass(this.outLinePath);
 
 
@@ -200,9 +204,10 @@ export class SceneDemo extends BaseInit {
 
             console.log(dom.offsetWidth, dom.offsetHeight);
 
-            if (this.cssRender) {
-                this.cssRender.setSize(window.innerWidth, window.innerHeight);
-            }
+            this.cssRender.setSize(window.innerWidth, window.innerHeight);
+            this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            this.renderer.setSize(window.innerWidth, window.innerHeight);
+
         });
     }
 
@@ -330,8 +335,8 @@ export class SceneDemo extends BaseInit {
                 this.schoolScene = res.scene
 
                 //添加文字标签
-                const label = new CSS2DObject(document.getElementById("schoolInfo"));
-                label.position.set(0, 10, 0);
+                // const label = new CSS2DObject(document.getElementById("schoolInfo"));
+                // label.position.set(0, 10, 0);
 
                 // this.schoolScene.add(label);
 
@@ -407,19 +412,30 @@ export class SceneDemo extends BaseInit {
         this.scene.add(hemiLight);
 
         //调整场景曝光亮度
-        this.dat.add(this.renderer,"toneMappingExposure",0,5,0.001).name("整体亮度");
-        this.renderer.toneMappingExposure=0.8;
+        this.dat.add(this.renderer, "toneMappingExposure", 0, 5, 0.001).name("整体亮度");
+        this.renderer.toneMappingExposure = 1.3;
     }
 
     initLabelRender() {
         let labelRenderer = new CSS2DRenderer();
         labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        labelRenderer.domElement.id="labelRenderer"
         labelRenderer.domElement.style.position = 'absolute';
         labelRenderer.domElement.style.top = '0px';
+        labelRenderer.domElement.style.left = '0px';
+        labelRenderer.domElement.style.zIndex = '10';//设置层
         document.body.appendChild(labelRenderer.domElement);
         this.labelRenderer = labelRenderer;
-    }
 
+        this.control = new OrbitControls(this.camera, labelRenderer.domElement);
+        this.control.enableDamping=true;
+    }
+    addLabelDom(){
+        const label = new CSS2DObject(document.getElementById("infoMarker"));
+        label.position.set(0,50,0);
+        this.scene.add(label)
+        this.initVueCpn();
+    }
     initCss3DRender() {
         const cssScene = new THREE.Scene();
         const cssRender = new CSS3DRenderer();
@@ -431,7 +447,6 @@ export class SceneDemo extends BaseInit {
         document.body.appendChild(cssRender.domElement);
         this.cssScene = cssScene;
         this.cssRender = cssRender;
-        const controls = new OrbitControls(this.camera, this.cssRender.domElement);
     }
 
     addDomContent() {
@@ -448,7 +463,7 @@ export class SceneDemo extends BaseInit {
 
         if (intersects.length != 0 && intersects[0].object instanceof THREE.Mesh) {
             // 将当前材质修改为被击中材质
-            this.outLinePath.selectedObjects=[];
+            this.outLinePath.selectedObjects = [];
             this.outLinePath.selectedObjects.push(intersects[0].object);
         }
     }
@@ -459,15 +474,16 @@ export class SceneDemo extends BaseInit {
         // this.currentMesh.position.set(10,0,0);
         // console.log("ggg");
     }
+
     //开始渲染动画
-    startAnimation(){
+    startAnimation() {
         const clock = new THREE.Clock();
         const animate = () => {
 
             requestAnimationFrame(animate);
 
             //更新控制器
-            this.control.update()
+            this.control?.update()
             //更新射线
             this.rayCaster.setFromCamera(this.mouseCoords, this.camera);
             //统计相交物体
@@ -502,6 +518,7 @@ export class SceneDemo extends BaseInit {
         }
         animate();
     }
+
     init() {
 
         this.camera.position.set(0, 300, 0)
@@ -514,15 +531,18 @@ export class SceneDemo extends BaseInit {
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         //创建标签渲染器
         this.initLabelRender();
+        //添加2D节点
+        this.addLabelDom();
         //创建Css3D节点渲染器
         this.initCss3DRender();
+        //将dom节点添加至3D场景
         this.addDomContent();
         // 初始化后期处理 选中描边
         this.initEffectComposer();
 
         //创建控制器并说明可操作图层为标签渲染器的节点
-        this.control = new OrbitControls(this.camera, this.cssRender.domElement);
-        this.control.enableDamping = true;
+        // this.control = new OrbitControls(this.camera, this.cssRender.domElement);
+        // this.control.enableDamping = true;
         //设置射线构造器的射线距离
         this.rayCaster.near = 1;
         this.rayCaster.far = 500;

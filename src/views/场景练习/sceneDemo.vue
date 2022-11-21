@@ -3,35 +3,23 @@
 
   </div>
 
-  <div id="schoolInfo">
-
-    <div class="echartsWrapper" id="echartsWrapper" v-show="schoolDetailVisible">
-sss
-    </div>
-
-<!--    <div class="text" @click="showDetail">-->
-<!--      详情-->
-<!--    </div>-->
-  </div>
-
   <div id="loadMask" v-show="loading">
-
     场景加载中...
-
   </div>
 
   <div id="contentDemo">
   </div>
 
-<!--  <div class="test">-->
-<!--    <button @click="test">测试</button>-->
-<!--  </div>-->
+  <div id="infoMarker">
+
+  </div>
 </template>
 
 <script name="sceneDemo" setup>
 import * as echarts from "echarts";
-import {onMounted,ref} from "vue";
+import {createApp, onMounted, ref} from "vue";
 import {SceneDemo} from "./js/SceneDemo";
+import testCpn from "@/components/test.vue";
 
 let ins = null;
 let loading=ref(true);
@@ -207,36 +195,22 @@ function test(){
 onMounted(() => {
   ins = new SceneDemo({
     finished:()=>{
-    loading.value=false;
-  }
+      loading.value=false;
+    },
+    initVueCpn:()=>{
+      // console.log("外部创建组件",document.querySelector("#test"))
+      createApp(testCpn).mount("#infoMarker")
+    }
   });
   initEcharts()
 })
+
+
+
 </script>
 
 <style lang="less" scoped>
-#schoolInfo{
-  position: relative;
 
-  .echartsWrapper{
-    position: absolute;
-    width: 400px;
-    height: 400px;
-    border: 1px solid #ccc;
-  }
-
-  .text{
-    padding:2px 10px;
-    border: 1px solid #eeeeee;
-    border-radius: 2px;
-    color: #fff;
-    background: rgba(0,0,0,0.4);
-    transition: color 0.2s;
-    &:hover{
-      color: dodgerblue;
-    }
-  }
-}
 #loadMask{
   position: fixed;
   left: 0;
