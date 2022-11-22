@@ -5,8 +5,8 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/test',
         name: 'test',
-        // component: ()=> import("../views/test/cubeDemo.vue")
-        component: ()=> import("../views/test/calc.vue")
+        component: ()=> import("../views/test/cubeDemo.vue")
+        // component: ()=> import("../views/test/calc.vue")
     },{
         path: '/map',
         name: 'map',
@@ -19,6 +19,10 @@ const routes: Array<RouteRecordRaw> = [
         path: '/ammoDemo1',
         name: 'ammoDemo1',
         component: ()=> import("../views/AmmoJS/index.vue")
+    },{
+        path: '/splitScene',
+        name: 'splitScene',
+        component: ()=> import("../views/模型拆分/index.vue")
     }
 ]
 
