@@ -3,6 +3,10 @@ import { createRouter, createWebHashHistory, createWebHistory, RouteRecordRaw } 
 const routes: Array<RouteRecordRaw> = [
 
     {
+        path: "/",
+        component: () => import("@/views/home/three.vue")
+    },
+    {
         path: '/test',
         name: 'test',
         component: ()=> import("../views/test/cubeDemo.vue")
@@ -23,6 +27,14 @@ const routes: Array<RouteRecordRaw> = [
         path: '/splitScene',
         name: 'splitScene',
         component: ()=> import("../views/模型拆分/index.vue")
+    },{
+        path: '/effectScene',
+        name: 'effectScene',
+        component: ()=> import("../views/后期效果/index.vue")
+    },{
+        path: '/modelAnimation',
+        name: 'modelAnimation',
+        component: ()=> import("../views/模型动作/index.vue")
     }
 ]
 

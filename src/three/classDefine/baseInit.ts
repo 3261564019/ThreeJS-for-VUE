@@ -60,7 +60,7 @@ export class BaseInit {
     constructor(params: BaseInitParams = {
         needLightHelper: false,
         needAxesHelper: false,
-        renderBg: "#fff",
+        renderBg: "#282c34",
         needLight: true,
         needTextureLoader: false,
         needOrbitControls: true,
@@ -210,6 +210,7 @@ export class BaseInit {
         //添加到body里
         document.body.appendChild(stats.domElement);
         this.stats = stats;
+        console.log(stats,"sssssssssssss")
     }
 
     //适配屏幕尺寸
@@ -231,5 +232,12 @@ export class BaseInit {
     //手动重新渲染
     manualRender() {
         this.renderer.render(this.scene, this.camera);
+    }
+
+    destory(){
+        console.log(this.dat.domElement.parentNode)
+        this.dat.domElement.parentNode.removeChild(this.dat.domElement)
+        this.dat.domElement.parentNode.removeChild(this.sta.domElement)
+        // this.dat.destory();
     }
 }

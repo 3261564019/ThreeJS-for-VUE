@@ -52,6 +52,7 @@ export class SceneDemo extends BaseInit {
 
     composer: EffectComposer
     outLinePath: OutlinePass
+    FXAAShaderPass:ShaderPass
 
     // css3DScene
     cssScene: Scene
@@ -101,9 +102,9 @@ export class SceneDemo extends BaseInit {
         //加载环境贴图
         this.loadSceneBg();
         //加载学校
-        this.loadSchool();
+        // this.loadSchool();
         //加载道路
-        // this.loadRoad();
+        this.loadRoad();
 
         //加载房屋
         // this.loadHouse();
@@ -118,7 +119,7 @@ export class SceneDemo extends BaseInit {
         //加载跳舞动画
         this.loadDancer();
         //加载dom节点至场景
-        // this.addDomContent();
+        this.addDomContent();
 
         //css3DRender 在屏幕尺寸发生变化的情况下进行适配
         this.resizeRender();
@@ -129,7 +130,7 @@ export class SceneDemo extends BaseInit {
         //添加点击事件
         // this.addEvent();
 
-        // this.addBall();
+        this.addBall();
 
     }
 
@@ -150,14 +151,15 @@ export class SceneDemo extends BaseInit {
         this.outLinePath.visibleEdgeColor = new THREE.Color("#469dff");
         //选中模型隐藏部分边界颜色
         this.outLinePath.hiddenEdgeColor = new THREE.Color("#e47d0e");
+        this.outLinePath.pulsePeriod=2.5;
         this.composer.addPass(this.outLinePath);
 
 
         // 去掉锯齿
-        let FXAAShaderPass = new ShaderPass(FXAAShader);
-        FXAAShaderPass.uniforms['resolution'].value.set(1 / window.innerWidth, 1 / window.innerHeight);
-        FXAAShaderPass.renderToScreen = true;
-        this.composer.addPass(FXAAShaderPass);
+        this.FXAAShaderPass = new ShaderPass(FXAAShader);
+        this.FXAAShaderPass.uniforms['resolution'].value.set(1 / window.innerWidth, 1 / window.innerHeight);
+        this.FXAAShaderPass.renderToScreen = true;
+        this.composer.addPass(this.FXAAShaderPass);
     }
 
     addBall() {
@@ -166,7 +168,9 @@ export class SceneDemo extends BaseInit {
             new THREE.SphereGeometry(3, 33, 33),
             new THREE.MeshLambertMaterial({color: "#fff"})
         );
-
+        //我在担心输出内容的质量，但凭借以前所接触到的内容，我认为那些创作者他们不一定真的在很多领域真的很有所成就。我很好奇他们的内容是如何创作出来的。
+        //他们一定有一套学习，提炼，输出的模式，想去学一下
+        //我们组有个项目提成有6万，将会存放于我们组的资金池，后续其他项目奖金也会放在里面，并且每人每个月拿出20%的工资放进去，
         sphere.position.x = 10;
         sphere.position.y = 30;
         sphere.castShadow = true
@@ -207,6 +211,8 @@ export class SceneDemo extends BaseInit {
             this.cssRender.setSize(window.innerWidth, window.innerHeight);
             this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
             this.renderer.setSize(window.innerWidth, window.innerHeight);
+            this.composer.setSize(window.innerWidth, window.innerHeight);
+            this.FXAAShaderPass?.uniforms[ 'resolution' ].value.set( 1 / window.innerWidth, 1 / window.innerHeight );
 
         });
     }
@@ -227,7 +233,14 @@ export class SceneDemo extends BaseInit {
                     child.receiveShadow = true;
                 }
             });
+            // 今天在知乎看了很久关于赚钱的，内容大致分为类似以下两类
 
+
+            //物质本应该是丰盈生活，简单而美好，如今却成了衡量爱情，衡量人生的标准，我们这代人的阈值已经太高太高，我们好像很难再找回当初那份简单的快乐。女孩，如果你看到了这篇文章，谢谢你的点赞和支持，我想对你说：“这世界唯一值得你all in的就是你的人生，你就是最美的色号”
+
+            // 知乎上赚钱方法遍地走，逛知乎就仿佛在逛90年代的香港，遍地是黄金，满街都是女人。
+
+            // https://www.zhihu.com/question/60031957
             object.scale.set(0.1, 0.1, 0.1);
             object.position.set(0, 10, 0);
             this.scene.add(object);
@@ -505,7 +518,7 @@ export class SceneDemo extends BaseInit {
             if (this.keyboard.pressed('d'))
                 this.carScene.rotateOnAxis(new THREE.Vector3(0, 1, 0), -rotateAngle);
 
-            this.renderer.render(this.scene, this.camera);
+            // this.renderer.render(this.scene, this.camera);
             this.labelRenderer.render(this.scene, this.camera);
             this.cssRender.render(this.cssScene, this.camera);
             this.composer.render(this.scene, this.camera);

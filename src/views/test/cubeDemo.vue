@@ -17,7 +17,7 @@
 </template>
 
 <script name="cubeDemo" setup>
-import {ref,onMounted} from "vue";
+import {ref, onMounted, onUnmounted} from "vue";
 import {CubeScene} from "./CubeScene";
 import * as THREE from "three";
 
@@ -90,6 +90,9 @@ onMounted(()=>{
   threeIns.visibleChange=(index,show)=>{
     infoList.value[index].show=show;
   }
+})
+onUnmounted(()=>{
+  threeIns.destory();
 })
 </script>
 

@@ -5,13 +5,16 @@
 </template>
 
 <script setup name="index">
-import {onMounted} from "vue";
+import {onMounted,onUnmounted} from "vue";
 import {AmmoDemo1} from "./AmmoDemo1";
 
 let ins;
 
 onMounted(()=>{
   ins=new AmmoDemo1();
+})
+onUnmounted(()=>{
+  ins.destory();
 })
 </script>
 

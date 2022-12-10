@@ -32,7 +32,7 @@ export class SplitScene extends BaseInit {
         // this.addBall();
         this.loadSchool();
     }
-    moveModel(form,to,model){
+    moveModel(to,model){
         let params={duration:2,delay:0,...to};
         console.log("移动参数",params)
         gsap.to(model.position,params);
@@ -72,7 +72,7 @@ export class SplitScene extends BaseInit {
             });
     }
     loadDat(){
-        this.dat.add(this.debugParam,'assembly').name("是否合体").onChange(
+        this.dat.add(this.debugParam,'assembly').name("是否合并").onChange(
             e=>{
                 // this.school.position.set(10,0,0);
 
@@ -80,13 +80,13 @@ export class SplitScene extends BaseInit {
                 if(e){
                     this.school.traverse(e => {
                         if (e.isMesh) {
-                            this.moveModel(null,e.fromPosition,e);
+                            this.moveModel(e.fromPosition,e);
                         }
                     });
                 }else{
                     this.school.traverse(e => {
                         if (e.isMesh) {
-                            this.moveModel(null,e.toPosition,e);
+                            this.moveModel(e.toPosition,e);
                         }
                     });
                 }

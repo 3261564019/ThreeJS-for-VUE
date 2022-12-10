@@ -8,6 +8,7 @@
   </div>
 
   <div id="contentDemo">
+    <button @click="testLog">aaaa</button>
   </div>
 
   <div id="infoMarker">
@@ -30,12 +31,16 @@ function showDetail() {
   console.log("aaa",schoolDetailVisible.value);
   schoolDetailVisible.value=true;
 }
+
+function testLog() {
+  console.log("aaaa")
+}
 let echartsIns=null
 function initEcharts(){
   echartsIns = echarts.init(document.getElementById('contentDemo'));
 
   let option = {
-    backgroundColor: "transparent",
+    backgroundColor: "red",
     tooltip: {},
     grid: {
       top: '8%',
@@ -185,6 +190,11 @@ function initEcharts(){
 
   echartsIns.setOption(option);
 
+  setTimeout(()=>{
+    echartsIns.setOption({
+      backgroundColor:"green"
+    })
+  },8000)
 }
 
 
@@ -202,7 +212,7 @@ onMounted(() => {
       createApp(testCpn).mount("#infoMarker")
     }
   });
-  initEcharts()
+  // initEcharts()
 })
 
 

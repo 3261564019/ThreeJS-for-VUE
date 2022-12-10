@@ -1,5 +1,5 @@
 <template>
-  <div id="sceneDemo">
+  <div id="webGl">
 
   </div>
 
@@ -9,22 +9,22 @@
 import * as echarts from "echarts";
 import {createApp, onMounted, onUnmounted, ref} from "vue";
 import testCpn from "@/components/test.vue";
-import {SplitScene} from "./SplitScene";
+import {ModelAnimation} from "./ModelAnimation";
 
 let ins;
 
 onMounted(() => {
-  ins = new SplitScene({});
+  ins = new ModelAnimation();
 })
-
 onUnmounted(()=>{
   ins.destory();
 })
 
+
 </script>
 
 <style lang="less" scoped>
-#sceneDemo{
+#webGl{
   position: fixed;
   left: 0;
   top: 0;

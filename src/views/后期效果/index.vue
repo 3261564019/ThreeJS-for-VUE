@@ -7,19 +7,17 @@
 
 <script name="sceneDemo" setup>
 import * as echarts from "echarts";
-import {createApp, onMounted, onUnmounted, ref} from "vue";
+import {createApp, onMounted, ref} from "vue";
 import testCpn from "@/components/test.vue";
-import {SplitScene} from "./SplitScene";
+import {EffectScene} from "./EffectScene";
 
 let ins;
 
 onMounted(() => {
-  ins = new SplitScene({});
+  ins = new EffectScene({});
 })
 
-onUnmounted(()=>{
-  ins.destory();
-})
+
 
 </script>
 
