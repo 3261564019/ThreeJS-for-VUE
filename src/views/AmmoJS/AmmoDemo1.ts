@@ -11,12 +11,13 @@ export class AmmoDemo1 extends BaseInit {
     tempTrans:Ammo.btTransform;
 
     constructor() {
+        // @ts-ignore
         super({
-            needLight: false,
-            renderDomId: "#ammoSceneDemo",
-            needOrbitControls: true,
-            needScreenSize:true,
-            needAxesHelper:true
+            "needLight": false,
+            "renderDomId": "#ammoSceneDemo",
+            "needOrbitControls": true,
+            "needScreenSize":true,
+            "needAxesHelper":true
         } as BaseInitParams);
 
         this.initDebug();

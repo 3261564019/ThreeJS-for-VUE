@@ -18,3 +18,29 @@ body{
   --text-color: rgba(255, 255, 255, 0.8);
   --block-width:1200px;
 }
+
+.block{
+  width: var(--block-width);
+  margin: 0 auto;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+  background: #ccc;
+}
+
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+  background: #cccc;
+  background: -webkit-linear-gradient(left, #b6ddff, #67b5ff);
+}
+
+
+*::-webkit-scrollbar-track {
+  box-shadow: unset;
+  background: #bababf;
+  border-radius: 5px
+}

@@ -79,6 +79,7 @@ export class BaseInit {
         const renderer = new THREE.WebGLRenderer({
             //开启抗锯齿
             antialias: true,
+            logarithmicDepthBuffer:true
         });
 
         //如果需要透明背景需要将渲染器的颜色通道设置为完全透明
@@ -237,7 +238,17 @@ export class BaseInit {
     destory(){
         console.log(this.dat.domElement.parentNode)
         this.dat.domElement.parentNode.removeChild(this.dat.domElement)
-        this.dat.domElement.parentNode.removeChild(this.sta.domElement)
+        this.stats.domElement.parentNode.removeChild(this.stats.domElement);
+
+        this.renderer.forceContextLoss();
+        this.renderer.dispose();
+        this.scene.clear();
+        this.scene = null;
+        this.camera = null;
+        this.controls = null;
+        this.renderer.domElement = null;
+        this.renderer = null;
+        this.sceneDomElement = null;
         // this.dat.destory();
     }
 }

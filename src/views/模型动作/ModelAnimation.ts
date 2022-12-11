@@ -46,7 +46,7 @@ var fragmentShader = `
   `;
 
 let  debugParam={
-    animationIndex:0
+    animationIndex:1
 }
 
 export class ModelAnimation extends BaseInit {
@@ -90,7 +90,6 @@ export class ModelAnimation extends BaseInit {
             this.dat.add(debugParam,"animationIndex",{
                 "动画1":0,
                 "动画2":1,
-                "动画3":2,
             }).onFinishChange(
                 e=>{
                     const action = this.animationMixer.clipAction(object.animations[e*1]);

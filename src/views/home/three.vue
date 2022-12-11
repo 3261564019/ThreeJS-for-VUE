@@ -18,17 +18,13 @@
 
 <script setup name="three">
 import {useRouter} from "vue-router"
-import img1 from "/src/assets/img/cubeImg/1.png";
-import img2 from "/src/assets/img/cubeImg/2.png";
-import img3 from "/src/assets/img/cubeImg/3.png";
-import img4 from "/src/assets/img/cubeImg/4.png";
-import img5 from "/src/assets/img/cubeImg/5.png";
 import img6 from "/src/assets/img/cubeImg/6.png";
 
 import d1 from "@/assets/img/demo/d1.png";
 import d2 from "@/assets/img/demo/d2.png";
 import d3 from "@/assets/img/demo/d3.png";
 import d4 from "@/assets/img/demo/d4.png";
+import d5 from "@/assets/img/demo/d5.png";
 
 const router=useRouter();
 
@@ -51,7 +47,8 @@ let itemList=[
     img:d4
   },{
     name:"AmmoJS练习",
-    img:img5
+    img:d5,
+    route:"/modelBg"
   },{
     name:"AmmoJS练习",
     img:img6
@@ -79,6 +76,8 @@ function to(item) {
     padding: 28px;
     grid-template-columns: repeat(5,1fr);
     grid-gap:60px 30px ;
+    border-radius: 8px;
+
     .item{
       cursor: pointer;
       transition: transform 0.2s;

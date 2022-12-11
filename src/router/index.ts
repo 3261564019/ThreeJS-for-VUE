@@ -35,6 +35,10 @@ const routes: Array<RouteRecordRaw> = [
         path: '/modelAnimation',
         name: 'modelAnimation',
         component: ()=> import("../views/模型动作/index.vue")
+    },{
+        path: '/modelBg',
+        name: 'modelBg',
+        component: ()=> import("@/views/模型背景/index.vue")
     }
 ]
 
