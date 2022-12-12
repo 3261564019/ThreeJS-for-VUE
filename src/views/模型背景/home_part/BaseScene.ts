@@ -68,6 +68,8 @@ export class Part1Scene{
                     if(v instanceof THREE.Mesh){
                         v.material.map.magFilter = THREE.LinearFilter
                         v.material.map.minFilter  = THREE.LinearMipMapLinearFilter
+                        v.material.side = THREE.FrontSide;
+
                         // console.log("图形对象=====",v.material.map);
                     }
                 })
@@ -102,8 +104,8 @@ export class Part1Scene{
                 //相机组要移动的目的地是当前鼠标偏移量[-0.5 ~ 0.5]的10倍
                 let target=new THREE.Vector2(this.cursorPosition.x * 100,this.cursorPosition.y * 100);
                 //每次移动的距离是剩余距离的1/10
-                this.light.position.x+=(target.x - this.light.position.x) * delta *2;
-                this.light.position.y+=(target.y - this.light.position.y) * delta *2;
+                this.light.position.x+=(target.x - this.light.position.x) * delta *4;
+                this.light.position.y+=(target.y - this.light.position.y) * delta *4;
             }
             if(this.control){
                 this.control.update();
@@ -140,6 +142,7 @@ export class Part1Scene{
         const camera = new THREE.PerspectiveCamera(50, 1, 0.3, 2000);
         camera.position.set(0, 0, 100);
         camera.lookAt(0, 0, 0);
+
 
 
 
