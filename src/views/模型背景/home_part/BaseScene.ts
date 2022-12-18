@@ -74,7 +74,7 @@ export class Part1Scene{
                     }
                 })
 
-                s.scale.set(10,13,10);
+                s.scale.set(10,12,10);
                 this.scene.add(s)
         })
     }

@@ -39,6 +39,10 @@ const routes: Array<RouteRecordRaw> = [
         path: '/modelBg',
         name: 'modelBg',
         component: ()=> import("@/views/模型背景/index.vue")
+    },{
+        path: '/curve',
+        name: 'curve',
+        component: ()=> import("@/views/曲线/index.vue")
     }
 ]
 
