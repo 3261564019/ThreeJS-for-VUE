@@ -43,6 +43,18 @@ const routes: Array<RouteRecordRaw> = [
         path: '/curve',
         name: 'curve',
         component: ()=> import("@/views/曲线/index.vue")
+    },{
+        path: '/ar',
+        name: 'ar',
+        component: ()=> import("@/views/AR/index.vue")
+    },{
+        path: '/closure',
+        name: 'closure',
+        component: ()=> import("@/views/题目/closure.vue")
+    },{
+        path: '/sb',
+        name: 'sb',
+        component: ()=> import("@/views/面试/圣杯布局.vue")
     }
 ]
 

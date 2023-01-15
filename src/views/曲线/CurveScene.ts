@@ -45,20 +45,23 @@ export class CurveScene extends BaseInit {
         mesh.position.copy(position);
     }
     addCurve(){
+        //用Catmull-Rom算法， 从一系列的点创建一条平滑的三维样条曲线
         const curve = new CatmullRomCurve3( [
             new THREE.Vector3(   20,  0,  - 20 ),
             new THREE.Vector3(  20,  20, 20 ),
             new THREE.Vector3(  - 20,  0, 20 ),
             new THREE.Vector3(  - 20, 0, - 20,)
         ] );
-        curve.closed=true
+        //让曲线自动闭合
+        curve.closed=true;
         this.curve=curve;
-        const points = curve.getPoints( 50 );
+        //取该曲线平均距离的100个点的位置
+        const points = curve.getPoints( 100 );
+        //通过点队列设置该 BufferGeometry 的 attribute。
         const geometry = new THREE.BufferGeometry().setFromPoints( points );
-
+        //线条材质
         const material = new THREE.LineBasicMaterial( { color: 0xff0000 } );
-
-        // Create the final object to add to the scene
+        //创建图形并加入场景
         const curveObject = new THREE.Line( geometry, material );
         this.scene.add(curveObject);
     }
@@ -132,6 +135,7 @@ export class CurveScene extends BaseInit {
 
                 //改变物体朝向
                 let tangent=this.curve.getTangentAt(t);
+                // console.log(tangent);
                 let lookAtVec=tangent.add(position);
                 this.brick.lookAt(lookAtVec);
 
