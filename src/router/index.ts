@@ -55,6 +55,13 @@ const routes: Array<RouteRecordRaw> = [
         path: '/sb',
         name: 'sb',
         component: ()=> import("@/views/面试/圣杯布局.vue")
+    },{
+        path: '/temp',
+        name: 'temp',
+        // component: ()=> import("@/views/面试/变量提升.vue")
+        // component: ()=> import("@/views/面试/事件循环.vue")
+        // component: ()=> import("@/views/面试/Symbol.vue")
+        component: ()=> import("@/views/面试/this练习.vue")
     }
 ]
 
