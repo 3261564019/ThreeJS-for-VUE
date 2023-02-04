@@ -61,7 +61,10 @@ const routes: Array<RouteRecordRaw> = [
         // component: ()=> import("@/views/面试/变量提升.vue")
         // component: ()=> import("@/views/面试/事件循环.vue")
         // component: ()=> import("@/views/面试/Symbol.vue")
-        component: ()=> import("@/views/面试/this练习.vue")
+        // component: ()=> import("@/views/面试/this练习.vue")
+        // component: ()=> import("@/views/面试/原型.vue")
+        // component: ()=> import("@/views/面试/拖拽.vue")
+        component: ()=> import("@/views/流动轨迹/index.vue")
     }
 ]
 

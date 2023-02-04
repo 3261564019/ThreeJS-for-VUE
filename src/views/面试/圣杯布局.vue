@@ -6,7 +6,9 @@
       <div class="left">left</div>
       <div class="right">right</div>
     </div>
-    <div class="footer"></div>
+    <div class="footer">
+      footer
+    </div>
   </div>
 </template>
 
@@ -25,12 +27,13 @@ export default {
   }
   .footer{
     height: 50px;
+    width: 100%;
     background: #67b5ff;
   }
   .content{
     background: #b16ef3;
-    padding-left: 300px;
     height:200px;
+    padding-left: 300px;
     padding-right: 200px;
     div{
       height:200px;
@@ -45,8 +48,10 @@ export default {
     }
     .right{
       width: 200px;
+      margin-left: -200px;
       background: #77ff2f;
-      margin-right: -200px;
+      position: relative;
+      right: -200px;
     }
     .center{
       width: 100%;

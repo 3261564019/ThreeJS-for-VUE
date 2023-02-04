@@ -25,6 +25,7 @@ import d2 from "@/assets/img/demo/d2.png";
 import d3 from "@/assets/img/demo/d3.png";
 import d4 from "@/assets/img/demo/d4.png";
 import d5 from "@/assets/img/demo/d5.png";
+import d6 from "@/assets/img/demo/d6.png";
 
 const router=useRouter();
 
@@ -46,12 +47,12 @@ let itemList=[
     route:"/splitScene",
     img:d4
   },{
-    name:"AmmoJS练习",
+    name:"模型背景",
     img:d5,
     route:"/modelBg"
   },{
-    name:"AmmoJS练习",
-    img:img6
+    name:"曲线",
+    img:d6
   },
 ];
 
