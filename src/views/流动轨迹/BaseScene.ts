@@ -115,7 +115,7 @@ export class CurvePath extends BaseInit {
 
 
                 this.splitLineArr.forEach((v, index) => {
-                    let at = (index / 30) + (t % 30) / 10
+                    let at = (index / 30) + (t % 30) / 30
                     if (at > 1) {
                         at %= 1
                     }
