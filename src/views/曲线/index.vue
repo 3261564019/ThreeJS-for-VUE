@@ -5,12 +5,15 @@
 </template>
 
 <script setup name="index">
-import {onMounted} from "vue";
+import {onMounted, onUnmounted} from "vue";
 import {CurveScene} from "./CurveScene";
 
 let ins;
 onMounted(()=>{
   ins=new CurveScene();
+})
+onUnmounted(()=>{
+  ins.destroy();
 })
 </script>
 

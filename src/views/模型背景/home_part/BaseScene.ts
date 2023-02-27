@@ -5,6 +5,7 @@ import {Renderer, Scene, PerspectiveCamera, SpotLightHelper, Vector2, SpotLight,
 import {debounce} from "../../../utils";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
+import {func} from "three/examples/jsm/nodes/shadernode/ShaderNodeBaseElements";
 
 export class Part1Scene{
 
@@ -15,7 +16,9 @@ export class Part1Scene{
     cursorPosition:Vector2
     light:SpotLight
     control:OrbitControls
-
+    raf:number
+    resizeCallBack:any
+    pointerMoveCallBack:Function
     constructor({renderDomId}) {
         this.cursorPosition=new Vector2();
         this.renderDom=document.querySelector(renderDomId);
@@ -41,19 +44,21 @@ export class Part1Scene{
         this.control=control;
     }
     mouseMove(){
-        window.addEventListener("pointermove",(event)=>{
+        this.pointerMoveCallBack=(event:PointerEvent)=>{
             let canvas = this.renderDom.children[0];
             let getBoundingClientRect = canvas.getBoundingClientRect();
             let x = ((event.clientX - getBoundingClientRect.left) / canvas.offsetWidth) * 2 - 1;
             let y = -((event.clientY - getBoundingClientRect.top) / canvas.offsetHeight) * 2 + 1;
 
             if(!Number.isNaN(x) && !Number.isNaN(y)){
-            // if (isNumber(x) && isNumber(y)) {
+                // if (isNumber(x) && isNumber(y)) {
                 this.cursorPosition.set(x, y);
                 // console.log("位置",this.cursorPosition);
-            // }
+                // }
             }
-        })
+        };
+        // @ts-ignore
+        window.addEventListener("pointermove",this.pointerMoveCallBack)
     }
     loadModel(){
         new GLTFLoader().load("http://qrtest.qirenit.com:81/share/img/cemetery_angel_-_fisher/scene.gltf",
@@ -79,7 +84,7 @@ export class Part1Scene{
         })
     }
     reSize(){
-        const callback=()=>{
+        let temp=()=>{
             console.log(this.renderDom.offsetWidth)
             let p={
                 w:this.renderDom.offsetWidth,
@@ -87,9 +92,11 @@ export class Part1Scene{
             }
             this.renderer.setSize(p.w,p.h);
         }
-        window.addEventListener("resize",debounce(callback,100));
-        callback();
+        this.resizeCallBack=debounce(temp,100)
+        window.addEventListener("resize",this.resizeCallBack());
+        this.resizeCallBack();
     }
+
     startRender(){
 
         let delta=0;
@@ -97,7 +104,7 @@ export class Part1Scene{
         const animate = () => {
             delta=clock.getDelta()
 
-            requestAnimationFrame(animate);
+            this.raf=requestAnimationFrame(animate);
 
             if(this.light){
 
@@ -175,6 +182,27 @@ export class Part1Scene{
         this.scene = scene;
         this.camera = camera;
         this.renderer = renderer;
+
+    }
+    destroy(){
+        try {
+            this.renderer.forceContextLoss();
+            this.renderer.dispose();
+            this.scene.clear();
+            // @ts-ignore
+            this.scene = null;
+            // @ts-ignore
+            this.camera = null;
+            // @ts-ignore
+            this.renderer = null;
+            cancelAnimationFrame(this.raf);
+
+            window.removeEventListener("resize",this.resizeCallBack);
+            // @ts-ignore
+            window.removeEventListener("pointermove",this.pointerMoveCallBack);
+        }catch (e) {
+            console.log("释放资源时报错",e)
+        }
 
     }
 }

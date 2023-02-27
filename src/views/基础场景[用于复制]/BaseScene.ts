@@ -1,6 +1,7 @@
-import {BaseInit, BaseInitParams} from "../classDefine/baseInit";
+
 import * as THREE from "three";
 import gsap from 'gsap';
+import {BaseInit, BaseInitParams} from "../../three/classDefine/baseInit";
 
 export class BaseScene extends BaseInit {
     constructor() {

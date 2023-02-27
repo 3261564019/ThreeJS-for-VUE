@@ -34,11 +34,13 @@ let itemList=[
     name:"射线检查该点位是否可见",
     img:d1,
     route:"/test"
-  },{
-    name:"AmmoJS练习",
-    route:"/ammoDemo1",
-    img:d2
-  },{
+  },
+  // {
+  //   name:"AmmoJS练习",
+  //   route:"/ammoDemo1",
+  //   img:d2
+  // },
+  {
     name:"模型动画",
     route:"/modelAnimation",
     img:d3
@@ -52,7 +54,9 @@ let itemList=[
     route:"/modelBg"
   },{
     name:"曲线",
-    img:d6
+    img:d6,
+    route:"/curve"
+
   },
 ];
 

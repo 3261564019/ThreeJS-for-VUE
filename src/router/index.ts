@@ -63,8 +63,9 @@ const routes: Array<RouteRecordRaw> = [
         // component: ()=> import("@/views/面试/Symbol.vue")
         // component: ()=> import("@/views/面试/this练习.vue")
         // component: ()=> import("@/views/面试/原型.vue")
-        // component: ()=> import("@/views/面试/拖拽.vue")
-        component: ()=> import("@/views/流动轨迹/index.vue")
+        // component: ()=> import("@/views/面试/圣杯布局.vue")
+        // component: ()=> import("@/views/流动轨迹/index.vue")
+        component: ()=> import("@/views/基本dom/index.vue")
     },{
         path: '/routerView',
         name: 'RouterView',

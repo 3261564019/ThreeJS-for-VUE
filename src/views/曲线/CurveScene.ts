@@ -144,7 +144,7 @@ export class CurveScene extends BaseInit {
 
             }
 
-            requestAnimationFrame(animate);
+            this.raf=requestAnimationFrame(animate);
 
             this.renderer.render(this.scene, this.camera);
         }

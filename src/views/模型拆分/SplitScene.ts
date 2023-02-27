@@ -146,7 +146,7 @@ export class SplitScene extends BaseInit {
 
             this.stats.update()
 
-            requestAnimationFrame(animate);
+            this.raf=requestAnimationFrame(animate);
 
             this.renderer.render(this.scene, this.camera);
         }

@@ -54,6 +54,19 @@
     let cat=new dog.__proto__.constructor("大橘");
     cat.run();
 
+
+    function getObj() {
+        return {
+            name:"aaa",
+            age:17
+        }
+    }
+
+
+    let arr=[1,2,3]
+    let a={}
+    console.log(a.__proto__.constructor.name)
+
 </script>
 </body>
 </html>

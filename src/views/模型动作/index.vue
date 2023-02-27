@@ -17,7 +17,7 @@ onMounted(() => {
   ins = new ModelAnimation();
 })
 onUnmounted(()=>{
-  ins.destory();
+  ins.destroy();
 })
 
 

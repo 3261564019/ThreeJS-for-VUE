@@ -33,9 +33,9 @@ export class CubeScene extends BaseInit {
             needOrbitControls: true,
             renderDomId:"#cubeDemo",
             calcCursorPosition:true,
-            needScreenSize:true,
             needAxesHelper:true,
-            needTextureLoader:true
+            needTextureLoader:true,
+            adjustScreenSize:true
         } as BaseInitParams);
 
         this.infoList=infoList;

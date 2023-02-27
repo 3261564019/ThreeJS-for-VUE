@@ -14,7 +14,7 @@ onMounted(()=>{
   ins=new AmmoDemo1();
 })
 onUnmounted(()=>{
-  ins.destory();
+  ins.destroy();
 })
 </script>
 

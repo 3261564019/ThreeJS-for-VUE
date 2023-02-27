@@ -7,10 +7,8 @@
 </div>
 </template>
 
-<script>
-export default {
-  name: "index"
-}
+<script setup>
+console.log(ggg)
 </script>
 
 <style scoped>

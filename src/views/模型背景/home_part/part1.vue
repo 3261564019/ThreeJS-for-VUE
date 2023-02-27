@@ -25,7 +25,7 @@
 
 <script name="part1" setup>
 
-import {ref,onMounted} from "vue";
+import {ref, onMounted, onUnmounted} from "vue";
 import {Part1Scene} from "@/views/模型背景/home_part/BaseScene";
 let active=ref(0);
 let navList=ref([
@@ -53,6 +53,11 @@ onMounted(()=>{
   ins=new Part1Scene({
     renderDomId:"#renderBg1"
   });
+})
+
+
+onUnmounted(()=>{
+  ins.destroy()
 })
 
 </script>

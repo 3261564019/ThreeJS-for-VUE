@@ -92,7 +92,7 @@ onMounted(()=>{
   }
 })
 onUnmounted(()=>{
-  threeIns.destory();
+  threeIns.destroy();
 })
 </script>
 

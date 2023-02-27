@@ -18,7 +18,7 @@ onMounted(() => {
 })
 
 onUnmounted(()=>{
-  ins.destory();
+  ins.destroy();
 })
 
 </script>

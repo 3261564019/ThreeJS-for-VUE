@@ -1,37 +1,39 @@
 import {AudioLoader, PerspectiveCamera, Scene, TextureLoader, WebGLRenderer} from "three";
 import * as THREE from "three";
+// @ts-ignore
 import Stats from 'stats-js';
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
+// @ts-ignore
 import * as dat from 'dat.gui';
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 
 export interface BaseInitParams {
     //是否需要坐标指示器
-    needAxesHelper: boolean,
+    needAxesHelper?: boolean,
     //是否需要灯光范围边界线
-    needLightHelper: boolean,
+    needLightHelper?: boolean,
     //渲染器的背景色
-    renderBg: string,
+    renderBg?: string,
     //是否需要添加默认灯光
-    needLight: boolean,
+    needLight?: boolean,
     //纹理加载器
-    needTextureLoader: boolean;
+    needTextureLoader?: boolean;
     //是否需要初始化好OrbitControls
-    needOrbitControls: boolean,
+    needOrbitControls?: boolean,
     //渲染器背景透明
-    transparentRenderBg: boolean,
+    transparentRenderBg?: boolean,
     //是否相机添加进场景 【为false不会将相机对象添加至场景，但是会创建相机对象】
-    AddCameraToScene: boolean,
+    AddCameraToScene?: boolean,
     //是否需要声音加载器
-    needAudioLoader: boolean,
+    needAudioLoader?: boolean,
     //是否需要加载器
-    needGLTFLoader: boolean,
+    needGLTFLoader?: boolean,
     //渲染到指定节点的id 将被直接用于 querySelector
     renderDomId: string,
-    //是否需要实时计算鼠标位置
-    calcCursorPosition: boolean
-    //需要统计屏幕大小
-    needScreenSize: THREE.Vector2
+    //是否需要实时计算鼠标位置，并存储在cursorPosition
+    calcCursorPosition?: boolean
+    //是否适配屏幕尺寸。适应
+    adjustScreenSize?: Boolean
 }
 
 export class BaseInit {
@@ -47,17 +49,26 @@ export class BaseInit {
     //灯光对象
     public light: any;
     //纹理加载器
+    // @ts-ignore
     public textureLoader: TextureLoader;
     //声音加载器
+    // @ts-ignore
     public audioLoader: AudioLoader
     //GLTF加载器
+    // @ts-ignore
     public gltfLoader: GLTFLoader
     //当前鼠标在屏幕可视区的位置x和y取值在屏幕宽高之间
+    // @ts-ignore
     public cursorPosition: THREE.Vector2
     //屏幕宽高
+    // @ts-ignore
     public screenSize: THREE.Vector2
+    // @ts-ignore
+    public raf:number;
+
 
     constructor(params: BaseInitParams = {
+        calcCursorPosition:false,
         needLightHelper: false,
         needAxesHelper: false,
         renderBg: "#282c34",
@@ -68,7 +79,7 @@ export class BaseInit {
         AddCameraToScene: true,
         needAudioLoader: false,
         needGLTFLoader: false,
-        needScreenSize: false,
+        adjustScreenSize: false,
         renderDomId: '#webGl'
     }) {
 
@@ -107,6 +118,7 @@ export class BaseInit {
             scene.add(axesHelper);
         }
 
+        // @ts-ignore
         document.querySelector(params.renderDomId).appendChild(renderer.domElement);
 
         //创建相机对象
@@ -154,7 +166,7 @@ export class BaseInit {
             this.addMouseMoveListener();
         }
 
-        if (params.needScreenSize) {
+        if (params.adjustScreenSize) {
             this.addScreenReSizeListener();
         }
         //初始化显示帧率的组件
@@ -172,31 +184,25 @@ export class BaseInit {
         console.log("初始化后", this);
 
     }
+    calc(){
 
-    addScreenReSizeListener() {
-
-        window.addEventListener("resize", (p) => {
-            calc();
-        });
-        let calc = () => {
-
-            if (!this.screenSize) {
-                this.screenSize = new THREE.Vector2();
-            }
-
-            this.screenSize.set(window.innerWidth , window.innerHeight);
-
-            this.handleResize();
+        if (!this.screenSize) {
+            this.screenSize = new THREE.Vector2();
         }
 
-        calc();
+        this.screenSize.set(window.innerWidth , window.innerHeight);
 
+        this.handleResize();
     }
-
-    addMouseMoveListener() {
-        window.addEventListener("mousemove", (p) => {
+    addScreenReSizeListener() {
+        window.addEventListener("resize", this.calc);
+        this.calc();
+    }
+    mouseMove(p:MouseEvent){
             this.cursorPosition = new THREE.Vector2(p.clientX, p.clientY);
-        });
+    }
+    addMouseMoveListener() {
+        window.addEventListener("mousemove", this.mouseMove);
     }
 
     initStats() {
@@ -211,7 +217,7 @@ export class BaseInit {
         //添加到body里
         document.body.appendChild(stats.domElement);
         this.stats = stats;
-        console.log(stats,"sssssssssssss")
+        
     }
 
     //适配屏幕尺寸
@@ -235,20 +241,28 @@ export class BaseInit {
         this.renderer.render(this.scene, this.camera);
     }
 
-    destory(){
-        console.log(this.dat.domElement.parentNode)
-        this.dat.domElement.parentNode.removeChild(this.dat.domElement)
-        this.stats.domElement.parentNode.removeChild(this.stats.domElement);
+    destroy(){
+        try {
+            console.log(this.dat.domElement.parentNode)
+            this.dat.domElement.parentNode.removeChild(this.dat.domElement)
+            this.stats.domElement.parentNode.removeChild(this.stats.domElement);
+            this.renderer.forceContextLoss();
+            this.renderer.dispose();
+            this.scene.clear();
+            // @ts-ignore
+            this.scene = null;
+            // @ts-ignore
+            this.camera = null;
+            // @ts-ignore
+            this.renderer = null;
+            cancelAnimationFrame(this.raf);
 
-        this.renderer.forceContextLoss();
-        this.renderer.dispose();
-        this.scene.clear();
-        this.scene = null;
-        this.camera = null;
-        this.controls = null;
-        this.renderer.domElement = null;
-        this.renderer = null;
-        this.sceneDomElement = null;
-        // this.dat.destory();
+            window.removeEventListener("resize",this.calc);
+            window.removeEventListener("mousemove",this.mouseMove);
+            this.dat.destroy();
+        }catch (e) {
+            console.log("释放资源时报错",e)
+        }
+
     }
 }
