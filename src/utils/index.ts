@@ -4,7 +4,7 @@
  * @param wait
  * @returns {(function(): void)|*}
  */
-function debounce(func, wait) {
+function debounce(func:Function, wait:Number) {
     let timeout;
     return function () {
         // console.log(this);  //=>从中可以测试出this指向的container

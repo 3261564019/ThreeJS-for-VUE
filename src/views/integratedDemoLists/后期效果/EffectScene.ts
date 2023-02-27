@@ -1,7 +1,7 @@
 
 import * as THREE from "three";
 import gsap from 'gsap';
-import {BaseInit, BaseInitParams} from "../../three/classDefine/baseInit";
+import {BaseInit, BaseInitParams} from "../../../three/classDefine/baseInit";
 import {EffectComposer} from "three/examples/jsm/postprocessing/EffectComposer";
 import {RenderPass} from "three/examples/jsm/postprocessing/RenderPass";
 import {OutlinePass} from "three/examples/jsm/postprocessing/OutlinePass";

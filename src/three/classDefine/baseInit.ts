@@ -6,6 +6,7 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 // @ts-ignore
 import * as dat from 'dat.gui';
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
+import {debounce} from "../../utils";
 
 export interface BaseInitParams {
     //是否需要坐标指示器
@@ -65,7 +66,8 @@ export class BaseInit {
     public screenSize: THREE.Vector2
     // @ts-ignore
     public raf:number;
-
+    // @ts-ignore
+    public reSizeCallBack:Function;
 
     constructor(params: BaseInitParams = {
         calcCursorPosition:false,
@@ -118,8 +120,12 @@ export class BaseInit {
             scene.add(axesHelper);
         }
 
-        // @ts-ignore
-        document.querySelector(params.renderDomId).appendChild(renderer.domElement);
+        let dom=document.querySelector(params.renderDomId)
+        if(dom){
+            dom.appendChild(renderer.domElement);
+        }else{
+            console.error("渲染dom有误！！！")
+        }
 
         //创建相机对象
         camera.position.set(0, 0, 100);
@@ -184,19 +190,23 @@ export class BaseInit {
         console.log("初始化后", this);
 
     }
-    calc(){
 
-        if (!this.screenSize) {
-            this.screenSize = new THREE.Vector2();
-        }
-
-        this.screenSize.set(window.innerWidth , window.innerHeight);
-
-        this.handleResize();
-    }
     addScreenReSizeListener() {
-        window.addEventListener("resize", this.calc);
-        this.calc();
+
+        let calc=()=>{
+
+            if (!this.screenSize) {
+                this.screenSize = new THREE.Vector2();
+            }
+
+            this.screenSize.set(window.innerWidth , window.innerHeight);
+
+            this.handleResize();
+        }
+        calc();
+        this.reSizeCallBack=debounce(calc,1000);
+        // @ts-ignore
+        window.addEventListener("resize", this.reSizeCallBack);
     }
     mouseMove(p:MouseEvent){
             this.cursorPosition = new THREE.Vector2(p.clientX, p.clientY);
@@ -224,9 +234,11 @@ export class BaseInit {
     handleResize() {
         try {
             // console.log("宽高",window.innerWidth , window.innerHeight);
+
             this.camera.aspect = window.innerWidth / window.innerHeight;
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(window.innerWidth, window.innerHeight);
+
         }catch (e) {
             console.log("适配尺寸报错了",e);
         }
@@ -257,7 +269,8 @@ export class BaseInit {
             this.renderer = null;
             cancelAnimationFrame(this.raf);
 
-            window.removeEventListener("resize",this.calc);
+            // @ts-ignore
+            window.removeEventListener("resize",this.reSizeCallBack);
             window.removeEventListener("mousemove",this.mouseMove);
             this.dat.destroy();
         }catch (e) {

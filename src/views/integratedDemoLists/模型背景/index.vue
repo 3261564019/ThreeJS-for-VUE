@@ -12,7 +12,7 @@
 
 import {ref, computed, onMounted} from "vue";
 import {debounce} from "@/utils";
-import Part1 from "@/views/模型背景/home_part/part1.vue";
+import Part1 from "@/views/integratedDemoLists/模型背景/home_part/part1.vue";
 
 // let translateY=ref("0px")
 let current=ref(0);

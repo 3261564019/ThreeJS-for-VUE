@@ -6,7 +6,7 @@
 
 <script setup name="index">
 import {onMounted} from "vue";
-import {TransparentMaterial} from "@/views/透明图片材质/BaseScene";
+import {TransparentMaterial} from "@/views/unsuccessful/透明图片材质/BaseScene";
 
 let ins;
 onMounted(()=>{

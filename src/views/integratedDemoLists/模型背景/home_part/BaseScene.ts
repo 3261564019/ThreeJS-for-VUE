@@ -2,7 +2,7 @@
 import * as THREE from "three";
 import gsap from 'gsap';
 import {Renderer, Scene, PerspectiveCamera, SpotLightHelper, Vector2, SpotLight, Clock} from "three";
-import {debounce} from "../../../utils";
+import {debounce} from "../../../../utils";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {func} from "three/examples/jsm/nodes/shadernode/ShaderNodeBaseElements";
@@ -75,7 +75,7 @@ export class Part1Scene{
                         v.material.map.minFilter  = THREE.LinearMipMapLinearFilter
                         v.material.side = THREE.FrontSide;
 
-                        // console.log("图形对象=====",v.material.map);
+                        // console.log("图形对象=====",v.material.基于高德地图);
                     }
                 })
 

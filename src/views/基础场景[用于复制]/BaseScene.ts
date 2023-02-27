@@ -68,13 +68,13 @@ export class BaseScene extends BaseInit {
         //定位相机指向场景中心
         this.camera.lookAt(this.scene.position)
 
-        const clock = new THREE.Clock();
+        // const clock = new THREE.Clock();
 
         const animate = () => {
 
             this.stats.update()
 
-            requestAnimationFrame(animate);
+            this.raf=requestAnimationFrame(animate);
 
             this.renderer.render(this.scene, this.camera);
         }

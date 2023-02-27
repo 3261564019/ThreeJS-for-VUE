@@ -1,7 +1,7 @@
 // THREEx.KeyboardState.js keep the current state of the keyboard.
 // It is possible to query it at any time. No need of an event.
 // This is particularly convenient in loop driven case, like in
-// 3D demos or games.
+// 3D integratedDemoLists or games.
 //
 // # Usage
 //

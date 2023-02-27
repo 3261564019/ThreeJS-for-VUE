@@ -1,11 +1,12 @@
 import * as THREE from "three";
 import {AnimationMixer, MeshToonMaterial, Scene} from "three";
-import {BaseInit, BaseInitParams} from "../../../three/classDefine/baseInit";
-import belfast_sunset_pure_sky_4k from "../../../assets/hdr/belfast_sunset_puresky_4k.hdr?url";
+import {BaseInit, BaseInitParams} from "../../../../three/classDefine/baseInit";
+import belfast_sunset_pure_sky_4k from "../../../../assets/hdr/belfast_sunset_puresky_4k.hdr?url";
 import {RGBELoader} from "three/examples/jsm/loaders/RGBELoader";
 import landNormal from "/src/assets/texture/aerial_grass_rock_2k.gltf/textures/aerial_grass_rock_diff_2k.jpg";
 import landAlpha from "/src/assets/texture/aerial_grass_rock_2k.gltf/textures/aerial_grass_rock_nor_gl_2k.jpg";
 import landRgb from "/src/assets/texture/aerial_grass_rock_2k.gltf/textures/aerial_grass_rock_rough_2k.jpg";
+// @ts-ignore
 import THREEx from "/src/three/otherModule/threex.keyboardstate.js"
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import {CSS3DObject, CSS3DRenderer} from "three/examples/jsm/renderers/CSS3DRenderer";
@@ -84,7 +85,8 @@ export class SceneDemo extends BaseInit {
             needScreenSize: true,
             needAxesHelper: true,
             needTextureLoader: true,
-            orbitControlsDom: "schoolInfo"
+            orbitControlsDom: "schoolInfo",
+            adjustScreenSize:true
         } as BaseInitParams);
 
         this.finishedCallBack = finished;

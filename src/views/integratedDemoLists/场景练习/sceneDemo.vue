@@ -208,7 +208,7 @@ onMounted(() => {
       loading.value=false;
     },
     initVueCpn:()=>{
-      // console.log("外部创建组件",document.querySelector("#test"))
+      // console.log("外部创建组件",document.querySelector("#射线可见"))
       createApp(testCpn).mount("#infoMarker")
     }
   });

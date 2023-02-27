@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import {Mesh} from "three";
-import {BaseInit, BaseInitParams} from "../../three/classDefine/baseInit";
+import {BaseInit, BaseInitParams} from "../../../three/classDefine/baseInit";
 
 export class CurvePath extends BaseInit {
 
@@ -12,7 +12,8 @@ export class CurvePath extends BaseInit {
             needLight: false,
             renderDomId: "#curve-path",
             needOrbitControls: true,
-            needAxesHelper: true
+            needAxesHelper: true,
+            adjustScreenSize:true
         } as BaseInitParams);
 
         this.initDebug();
@@ -102,9 +103,7 @@ export class CurvePath extends BaseInit {
         const animate = () => {
 
             let t = clock.getElapsedTime();
-            let percent = (t % round) / round
-
-
+            // let percent = (t % round) / round
             // console.log("当前百分比",percent)
 
 
@@ -130,7 +129,7 @@ export class CurvePath extends BaseInit {
                 })
             }
 
-            requestAnimationFrame(animate);
+            this.raf=requestAnimationFrame(animate);
 
             this.renderer.render(this.scene, this.camera);
         }

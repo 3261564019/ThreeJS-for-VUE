@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import gsap from 'gsap';
-import {BaseInit, BaseInitParams} from "../../three/classDefine/baseInit";
+import {BaseInit, BaseInitParams} from "../../../three/classDefine/baseInit";
 import {AnimationClip, AnimationMixer, ShaderMaterial} from "three";
 import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
 // import dancerFbx from "/src/assets/model/sambaDancing.fbx?url"
@@ -184,7 +184,7 @@ export class ModelAnimation extends BaseInit {
             if (this.animationMixer) {
                 this.animationMixer.update(delta);
             }
-            requestAnimationFrame(animate);
+            this.ref=requestAnimationFrame(animate);
         }
 
         animate();

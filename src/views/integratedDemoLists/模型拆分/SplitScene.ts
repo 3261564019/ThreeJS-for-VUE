@@ -2,7 +2,7 @@
 import * as THREE from "three";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import {Group} from "three";
-import {BaseInit, BaseInitParams} from "../../three/classDefine/baseInit";
+import {BaseInit, BaseInitParams} from "../../../three/classDefine/baseInit";
 import gsap from 'gsap';
 
 export class SplitScene extends BaseInit {

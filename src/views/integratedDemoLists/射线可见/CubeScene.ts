@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import gsap from 'gsap';
-import {BaseInit, BaseInitParams} from "../../three/classDefine/baseInit";
+import {BaseInit, BaseInitParams} from "../../../three/classDefine/baseInit";
 import {Raycaster} from "three";
 
 

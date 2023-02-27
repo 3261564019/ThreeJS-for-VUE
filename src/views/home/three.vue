@@ -26,6 +26,7 @@ import d3 from "@/assets/img/demo/d3.png";
 import d4 from "@/assets/img/demo/d4.png";
 import d5 from "@/assets/img/demo/d5.png";
 import d6 from "@/assets/img/demo/d6.png";
+import flowPath from "@/assets/img/demo/flowPath.png";
 
 const router=useRouter();
 
@@ -33,7 +34,7 @@ let itemList=[
   {
     name:"射线检查该点位是否可见",
     img:d1,
-    route:"/test"
+    route:"/cubeDemo"
   },
   // {
   //   name:"AmmoJS练习",
@@ -57,6 +58,10 @@ let itemList=[
     img:d6,
     route:"/curve"
 
+  },{
+    name:"流动轨迹",
+    img:flowPath,
+    route:"/flowPath"
   },
 ];
 

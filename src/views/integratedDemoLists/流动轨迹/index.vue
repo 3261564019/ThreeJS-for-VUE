@@ -8,13 +8,16 @@
 
 <script setup>
 
-import {onMounted} from "vue";
-import {CurvePath} from "@/views/流动轨迹/BaseScene";
+import {onMounted, onUnmounted} from "vue";
+import {CurvePath} from "@/views/integratedDemoLists/流动轨迹/BaseScene";
 
 let ins;
 
 onMounted(()=>{
   ins=new CurvePath();
+})
+onUnmounted(()=>{
+  ins.destroy()
 })
 </script>
 

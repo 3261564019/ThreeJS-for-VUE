@@ -7,46 +7,53 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/views/home/three.vue")
     },
     {
-        path: '/test',
-        name: 'test',
-        component: ()=> import("../views/test/cubeDemo.vue")
-        // component: ()=> import("../views/test/calc.vue")
+        path: '/cubeDemo',
+        name: 'cubeDemo',
+        component: ()=> import("../views/integratedDemoLists/射线可见/cubeDemo.vue")
     },{
-        path: '/map',
+        path: '/基于高德地图',
         name: 'map',
-        component: ()=> import("../views/map/index.vue")
+        component: ()=> import("../views/unsuccessful/基于高德地图/index.vue")
     },{
         path: '/community',
         name: 'community',
-        component: ()=> import("../views/场景练习/sceneDemo.vue")
+        component: ()=> import("../views/integratedDemoLists/场景练习/sceneDemo.vue")
     },{
-        path: '/ammoDemo1',
-        name: 'ammoDemo1',
-        component: ()=> import("../views/AmmoJS/index.vue")
+        path: '/curve',
+        name: 'curve',
+        component: ()=> import("@/views/integratedDemoLists/曲线/index.vue")
     },{
         path: '/splitScene',
         name: 'splitScene',
-        component: ()=> import("../views/模型拆分/index.vue")
-    },{
-        path: '/effectScene',
-        name: 'effectScene',
-        component: ()=> import("../views/后期效果/index.vue")
+        component: ()=> import("@/views/integratedDemoLists/模型拆分/index.vue")
     },{
         path: '/modelAnimation',
         name: 'modelAnimation',
-        component: ()=> import("../views/模型动作/index.vue")
+        component: ()=> import("@/views/integratedDemoLists/模型动作/index.vue")
+    },{
+        path: '/effectScene',
+        name: 'effectScene',
+        component: ()=> import("../views/integratedDemoLists/后期效果/index.vue")
+    },{
+        path: '/modelAnimation',
+        name: 'modelAnimation',
+        component: ()=> import("../views/integratedDemoLists/模型动作/index.vue")
     },{
         path: '/modelBg',
         name: 'modelBg',
-        component: ()=> import("@/views/模型背景/index.vue")
+        component: ()=> import("@/views/integratedDemoLists/模型背景/index.vue")
     },{
         path: '/curve',
         name: 'curve',
         component: ()=> import("@/views/曲线/index.vue")
     },{
-        path: '/ar',
-        name: 'ar',
-        component: ()=> import("@/views/AR/index.vue")
+        path: '/curve',
+        name: 'curve',
+        component: ()=> import("@/views/integratedDemoLists/曲线/index.vue")
+    },{
+        path: '/flowPath',
+        name: 'flowPath',
+        component: ()=> import("@/views/integratedDemoLists/流动轨迹/index.vue")
     },{
         path: '/closure',
         name: 'closure',
@@ -65,7 +72,8 @@ const routes: Array<RouteRecordRaw> = [
         // component: ()=> import("@/views/面试/原型.vue")
         // component: ()=> import("@/views/面试/圣杯布局.vue")
         // component: ()=> import("@/views/流动轨迹/index.vue")
-        component: ()=> import("@/views/基本dom/index.vue")
+        // component: ()=> import("@/views/基本dom/index.vue")
+        component: ()=> import("@/views/map/index.vue")
     },{
         path: '/routerView',
         name: 'RouterView',
