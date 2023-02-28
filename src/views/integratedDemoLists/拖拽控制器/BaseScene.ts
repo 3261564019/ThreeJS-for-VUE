@@ -4,16 +4,19 @@ import gsap from 'gsap';
 import {BaseInit, BaseInitParams} from "../../../three/classDefine/baseInit";
 import {TransformControls} from "three/examples/jsm/controls/TransformControls";
 import {DragControls} from "three/examples/jsm/controls/DragControls";
+import {Mesh} from "three";
 
 export class BaseScene extends BaseInit {
 
+    // @ts-ignore
+    ball:Mesh
     transformControl:TransformControls
     constructor() {
         super({
             needLight:true,
             renderDomId:"#renderDom",
             needOrbitControls:true,
-            needAxesHelper:true
+            needAxesHelper:false
         } as BaseInitParams);
 
         this.initDebug();
@@ -24,7 +27,6 @@ export class BaseScene extends BaseInit {
 
         // this.addLight();
 
-        this.initTransformControl();
 
         this.addBall();
 
@@ -34,6 +36,7 @@ export class BaseScene extends BaseInit {
         // @ts-ignore
         // this.transformControl.addEventListener( 'change', this.renderer );
 
+        this.initTransformControl();
     }
     initTransformControl(){
         //拖拽控件对象
@@ -44,13 +47,13 @@ export class BaseScene extends BaseInit {
             this.transformControl.attach( event.object );
         } );
 
-        this.control.addEventListener( 'change', this.renderer );
+        // this.control.addEventListener( 'change', this.renderer );
 
-        dragControls.addEventListener( 'dragging-changed',  ( event )=>{
+        this.transformControl.addEventListener( 'dragging-changed',  ( event )=>{
 
-            this.transformControl.enabled = ! event.value;
+            this.control.enabled = ! event.value;
 
-        } );
+        });
     }
     addPlan(){
 
@@ -91,7 +94,8 @@ export class BaseScene extends BaseInit {
         sphere.position.y = 3;
         sphere.castShadow = true
 
-        this.scene.add(sphere);
+        this.ball=sphere
+        this.scene.add(this.ball);
     }
     init() {
 
