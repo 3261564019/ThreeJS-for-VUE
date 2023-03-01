@@ -27,6 +27,7 @@ import d4 from "@/assets/img/demo/d4.png";
 import d5 from "@/assets/img/demo/d5.png";
 import d6 from "@/assets/img/demo/d6.png";
 import flowPath from "@/assets/img/demo/flowPath.png";
+import transformControl from "@/assets/img/demo/transformControl.jpg";
 
 const router=useRouter();
 
@@ -62,6 +63,10 @@ let itemList=[
     name:"流动轨迹",
     img:flowPath,
     route:"/flowPath"
+  },{
+    name:"transFormControl",
+    img:transformControl,
+    route:"/transFormControl"
   },
 ];
 

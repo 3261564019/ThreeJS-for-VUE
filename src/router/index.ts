@@ -43,8 +43,8 @@ const routes: Array<RouteRecordRaw> = [
         name: 'modelBg',
         component: ()=> import("@/views/integratedDemoLists/模型背景/index.vue")
     },{
-        path: '/dragDemo',
-        name: 'dragDemo',
+        path: '/transFormControl',
+        name: 'transFormControl',
         component: ()=> import("@/views/integratedDemoLists/拖拽控制器/index.vue")
     },{
         path: '/curve',

@@ -138,4 +138,8 @@ export class BaseScene extends BaseInit {
         animate();
 
     }
+    destroy() {
+        super.destroy();
+        this.transformControl.dispose();
+    }
 }
