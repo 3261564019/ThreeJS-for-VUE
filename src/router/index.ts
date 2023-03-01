@@ -59,6 +59,10 @@ const routes: Array<RouteRecordRaw> = [
         name: 'flowPath',
         component: ()=> import("@/views/integratedDemoLists/流动轨迹/index.vue")
     },{
+        path: '/shine',
+        name: 'shine',
+        component: ()=> import("@/views/integratedDemoLists/发光效果/index.vue")
+    },{
         path: '/closure',
         name: 'closure',
         component: ()=> import("@/views/题目/closure.vue")

@@ -48,7 +48,7 @@ export class CurveScene extends BaseInit {
         //用Catmull-Rom算法， 从一系列的点创建一条平滑的三维样条曲线
         const curve = new CatmullRomCurve3( [
             new THREE.Vector3(   20,  0,  - 20 ),
-            new THREE.Vector3(  20,  10, -20 ),
+            new THREE.Vector3(  20,  20, 20 ),
             new THREE.Vector3(  - 20,  0, 20 ),
             new THREE.Vector3(  - 20, 0, - 20,)
         ] );
