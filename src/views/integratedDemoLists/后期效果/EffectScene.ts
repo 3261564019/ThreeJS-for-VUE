@@ -10,15 +10,21 @@ import {FXAAShader} from "three/examples/jsm/shaders/FXAAShader";
 import {Mesh} from "three";
 
 export class EffectScene extends BaseInit {
+    // @ts-ignore
     composer:EffectComposer
+    // @ts-ignore
     outLinePath:OutlinePass
+    // @ts-ignore
     ball:Mesh
+    // @ts-ignore
     FXAAShaderPass:ShaderPass
     constructor() {
         super({
             needLight:false,
             renderDomId:"#sceneDemo",
-            needOrbitControls:true
+            needOrbitControls:true,
+            renderBg:"#202124",
+            needAxesHelper:true
         } as BaseInitParams);
 
         this.initDebug();
@@ -64,20 +70,10 @@ export class EffectScene extends BaseInit {
     }
     addPlan(){
 
-        const geometry = new THREE.PlaneGeometry(40, 40);
-        const material = new THREE.MeshLambertMaterial({color: 0xeeeeee});
-        material.side=THREE.DoubleSide
-        const plane = new THREE.Mesh(geometry, material);
-        //设置接受阴影
-        plane.receiveShadow = true
 
-        plane.rotation.x = -0.5 * Math.PI;
-        plane.position.x = 0;
-        plane.position.y = 0;
-        plane.position.z = 0;
-
-        //添加地板容器
-        this.scene.add(plane);
+        const gridHelper = new THREE.GridHelper( 50, 10 );
+        gridHelper.position.y=-0.2
+        this.scene.add( gridHelper );
 
     }
     addLight(){
@@ -120,7 +116,7 @@ export class EffectScene extends BaseInit {
 
             requestAnimationFrame(animate);
 
-            // this.renderer.render(this.scene, this.camera);
+            this.renderer.render(this.scene, this.camera);
 
             this.composer?.render(this.scene, this.camera);
         }

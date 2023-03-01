@@ -60,10 +60,10 @@ export class CurvePath extends BaseInit {
 
     addLine() {
         this.curve = new THREE.CatmullRomCurve3([
-            new THREE.Vector3(-20, 10, 5),
+            new THREE.Vector3(-30, 10, 5),
             new THREE.Vector3(-5, 5, 5),
             new THREE.Vector3(0, 10, 0),
-            new THREE.Vector3(5, 5, 5),
+            new THREE.Vector3(5, 12, 5),
             new THREE.Vector3(20, 10, 5)
         ])
 
