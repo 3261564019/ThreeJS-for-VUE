@@ -38,9 +38,17 @@ export class BaseScene extends BaseInit {
 
         //创建transformControl
         this.transformControl = new TransformControls( this.camera,this.renderer.domElement );
+        //最小拖动步幅
+        // this.transformControl.translationSnap=1;
         //设置该控制器的大小
-        this.transformControl.setSize(0.7);
+        this.transformControl.setSize(0.6);
         this.transformControl.addEventListener( 'change',()=>{this.manualRender()} );
+        //遍历整个控制器元素并添加标识
+        this.transformControl.traverse(item=>{
+            item.userData.isTransformControl=true
+        })
+
+        console.log(this.transformControl);
         this.scene.add(this.transformControl)
 
         //创建拖拽控制器
@@ -51,8 +59,8 @@ export class BaseScene extends BaseInit {
         let dragControls = new DragControls(this.scene.children,this.camera,this.renderer.domElement );
         //拖拽控件对象设置鼠标事件
         dragControls.addEventListener( 'hoveron',  ( event ) => {
-            console.log(event,event.object.type)
-            if(event.object.type==="Mesh"){
+            //当他是Mesh对象，并且不是控制器元素时才对其进行拖拽绑定
+            if(event.object.type==="Mesh" && !event.object.userData.isTransformControl){
                 //控件对象transformControl与选中的对象object绑定
                 this.transformControl.attach( event.object );
             }
@@ -101,7 +109,7 @@ export class BaseScene extends BaseInit {
             new THREE.MeshLambertMaterial({color: "#fff"})
         );
 
-        sphere.position.x = 10;
+        sphere.position.x = 0;
         sphere.position.y = 3;
         sphere.castShadow = true
 
