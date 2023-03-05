@@ -12,6 +12,16 @@ export class BaseScene extends BaseInit {
     // @ts-ignore
     ball:Mesh
     transformControl:TransformControls
+    // @ts-ignore
+    plane:Mesh
+
+    // @ts-ignore
+    debugParams={
+        ballLayer:0,
+        planLayer:0,
+        crameLayer:0,
+    }
+
     constructor() {
         super({
             needLight:true,
@@ -26,8 +36,6 @@ export class BaseScene extends BaseInit {
         this.init();
 
         this.addPlan();
-
-
 
         this.addBall();
 
@@ -53,6 +61,17 @@ export class BaseScene extends BaseInit {
 
         //创建拖拽控制器
         this.initDragControls();
+
+
+        console.log("默认值",this.ball.layers.mask)
+
+        this.dat.add(this.debugParams,"ballLayer",0,32,1).name("球体图层").onChange(
+            (p:number)=>{
+                console.log("参数：",p)
+                this.ball.layers.set(p);
+                console.log("球体图层变化为",this.ball.layers.mask)
+            }
+        )
     }
     initDragControls(){
         //拖拽控件对象
@@ -88,8 +107,9 @@ export class BaseScene extends BaseInit {
         plane.position.y = 0;
         plane.position.z = 0;
 
+        this.plane=plane
         //添加地板容器
-        this.scene.add(plane);
+        this.scene.add(this.plane);
 
     }
     addLight(){

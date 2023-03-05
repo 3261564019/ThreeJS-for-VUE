@@ -18,12 +18,15 @@ export class BaseScene extends BaseInit {
     };
 
     bloomComposer:any=null
+    finalComposer:any=null
+    bloomPass:any=null
 
     constructor() {
         super({
             needLight:false,
             renderDomId:"#renderDom",
-            needOrbitControls:true
+            needOrbitControls:true,
+            needAxesHelper:true
         } as BaseInitParams);
 
         this.initDebug();
@@ -49,6 +52,10 @@ export class BaseScene extends BaseInit {
         bloomComposer.renderToScreen = false;
         bloomComposer.addPass( renderScene );
         bloomComposer.addPass( bloomPass );
+
+        this.bloomPass=bloomPass;
+
+
 
         const finalPass = new ShaderPass(
             new THREE.ShaderMaterial( {
@@ -91,8 +98,43 @@ export class BaseScene extends BaseInit {
         finalComposer.addPass( renderScene );
         finalComposer.addPass( finalPass );
 
+        this.finalComposer=finalComposer
 
         this.run();
+
+        this.addDebug()
+
+        this.renderer.toneMappingExposure=0.45
+    }
+    addDebug(){
+
+        this.dat.add( this.params, 'exposure', 0.1, 2 ).onChange(  ( value )=>{
+
+            this.renderer.toneMappingExposure = Math.pow( value, 4.0 );
+            this.manualRender()
+        } );
+
+        this.dat.add( this.params, 'bloomThreshold', 0.0, 1.0 ).onChange(  ( value )=>{
+
+            this.bloomPass.threshold = Number( value );
+            this.manualRender()
+
+
+        } );
+
+        this.dat.add( this.params, 'bloomStrength', 0.0, 10.0 ).onChange( ( value )=>{
+
+            this.bloomPass.strength = Number( value );
+            this.manualRender()
+
+        } );
+
+        this.dat.add( this.params, 'bloomRadius', 0.0, 1.0 ).step( 0.01 ).onChange(  ( value )=>{
+            this.bloomPass.radius = Number( value );
+            this.manualRender()
+
+        } );
+
     }
     addPlan(){
 
@@ -151,8 +193,9 @@ export class BaseScene extends BaseInit {
 
             this.raf=requestAnimationFrame(animate);
 
-            this.renderer.render(this.scene, this.camera);
+            // this.renderer.render(this.scene, this.camera);
             this.bloomComposer.render();
+            this.finalComposer.render();
         }
 
         animate();
