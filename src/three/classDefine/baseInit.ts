@@ -255,8 +255,9 @@ export class BaseInit {
 
     destroy(){
         try {
-            console.log(this.dat.domElement.parentNode)
-            this.dat.domElement.parentNode.removeChild(this.dat.domElement)
+            cancelAnimationFrame(this.raf);
+
+            this.dat.destroy()
             this.stats.domElement.parentNode.removeChild(this.stats.domElement);
             this.renderer.forceContextLoss();
             this.renderer.dispose();
@@ -267,8 +268,6 @@ export class BaseInit {
             this.camera = null;
             // @ts-ignore
             this.renderer = null;
-            cancelAnimationFrame(this.raf);
-
             // @ts-ignore
             window.removeEventListener("resize",this.reSizeCallBack);
             window.removeEventListener("mousemove",this.mouseMove);

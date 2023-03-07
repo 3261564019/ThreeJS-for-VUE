@@ -3,9 +3,11 @@
 
   </div>
 
-  <div id="loadMask" v-show="loading">
-    场景加载中...
-  </div>
+  <transition name="fade">
+    <div id="loadMask" v-show="loading">
+      场景加载中...
+    </div>
+  </transition>
 
   <div id="contentDemo">
     <button @click="testLog">aaaa</button>
@@ -18,7 +20,7 @@
 
 <script name="sceneDemo" setup>
 import * as echarts from "echarts";
-import {createApp, onMounted, ref} from "vue";
+import {createApp, onBeforeUnmount, onMounted, onUnmounted, ref} from "vue";
 import {SceneDemo} from "./js/SceneDemo";
 import testCpn from "@/components/test.vue";
 
@@ -40,7 +42,7 @@ function initEcharts(){
   echartsIns = echarts.init(document.getElementById('contentDemo'));
 
   let option = {
-    backgroundColor: "red",
+    backgroundColor: "transparent",
     tooltip: {},
     grid: {
       top: '8%',
@@ -190,11 +192,11 @@ function initEcharts(){
 
   echartsIns.setOption(option);
 
-  setTimeout(()=>{
-    echartsIns.setOption({
-      backgroundColor:"green"
-    })
-  },8000)
+  // setTimeout(()=>{
+  //   echartsIns.setOption({
+  //     backgroundColor:"green"
+  //   })
+  // },8000)
 }
 
 
@@ -212,11 +214,21 @@ onMounted(() => {
       createApp(testCpn).mount("#infoMarker")
     }
   });
-  // initEcharts()
+  initEcharts()
 })
 
 
-
+onBeforeUnmount(()=>{
+  ins.destroy();
+  ins=null;
+  try {
+    let res=document.getElementsByClassName("dg ac");
+    res[0].removeChild(res[0].childNodes[0]);
+    console.log(res);
+  }catch (e) {
+    console.log("销毁dom报错",e);
+  }
+})
 </script>
 
 <style lang="less" scoped>
@@ -250,4 +262,16 @@ onMounted(() => {
   left: 100px;
   z-index: 100;
 }
+
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+  }
+.fade-enter, .fade-leave-to{
+  opacity: 0;
+  }
+
+  .fade-enter-to,.fade-leave{
+    opacity: 1;
+  }
 </style>

@@ -19,11 +19,16 @@ import {RenderPass} from "three/examples/jsm/postprocessing/RenderPass";
 import {OutlinePass} from "three/examples/jsm/postprocessing/OutlinePass";
 import {ShaderPass} from "three/examples/jsm/postprocessing/ShaderPass";
 import {FXAAShader} from "three/examples/jsm/shaders/FXAAShader";
+import {debounce} from "../../../../utils";
 
 interface DebugParams {
     //学校模型的Y轴偏移
     schoolPositionY: number
 }
+
+
+let mouseMoveCallBack,screenReSizeCallBack;
+
 
 export class SceneDemo extends BaseInit {
 
@@ -106,7 +111,7 @@ export class SceneDemo extends BaseInit {
         //加载学校
         // this.loadSchool();
         //加载道路
-        this.loadRoad();
+        // this.loadRoad();
 
         //加载房屋
         // this.loadHouse();
@@ -119,7 +124,7 @@ export class SceneDemo extends BaseInit {
         //初始化调试器
         this.initDebug();
         //加载跳舞动画
-        this.loadDancer();
+        // this.loadDancer();
         //加载dom节点至场景
         this.addDomContent();
 
@@ -154,14 +159,14 @@ export class SceneDemo extends BaseInit {
         //选中模型隐藏部分边界颜色
         this.outLinePath.hiddenEdgeColor = new THREE.Color("#e47d0e");
         this.outLinePath.pulsePeriod=2.5;
+
         this.composer.addPass(this.outLinePath);
 
-
         // 去掉锯齿
-        this.FXAAShaderPass = new ShaderPass(FXAAShader);
-        this.FXAAShaderPass.uniforms['resolution'].value.set(1 / window.innerWidth, 1 / window.innerHeight);
-        this.FXAAShaderPass.renderToScreen = true;
-        this.composer.addPass(this.FXAAShaderPass);
+        // this.FXAAShaderPass = new ShaderPass(FXAAShader);
+        // this.FXAAShaderPass.uniforms['resolution'].value.set(1 / window.innerWidth, 1 / window.innerHeight);
+        // this.FXAAShaderPass.renderToScreen = true;
+        // this.composer.addPass(this.FXAAShaderPass);
     }
 
     addBall() {
@@ -170,9 +175,7 @@ export class SceneDemo extends BaseInit {
             new THREE.SphereGeometry(3, 33, 33),
             new THREE.MeshLambertMaterial({color: "#fff"})
         );
-        //我在担心输出内容的质量，但凭借以前所接触到的内容，我认为那些创作者他们不一定真的在很多领域真的很有所成就。我很好奇他们的内容是如何创作出来的。
-        //他们一定有一套学习，提炼，输出的模式，想去学一下
-        //我们组有个项目提成有6万，将会存放于我们组的资金池，后续其他项目奖金也会放在里面，并且每人每个月拿出20%的工资放进去，
+
         sphere.position.x = 10;
         sphere.position.y = 30;
         sphere.castShadow = true
@@ -196,27 +199,27 @@ export class SceneDemo extends BaseInit {
 
     mouseCoordsCalc() {
 
-        window.addEventListener("mousemove", (event) => {
+        mouseMoveCallBack=(event) => {
             this.mouseCoords.x = (event.clientX / this.screenSize.x * 2) - 1
             this.mouseCoords.y = -(event.clientY / this.screenSize.y * 2) + 1
-            // console.log("鼠标坐标",this.mouseCoords);
-        })
+        };
+
+        window.addEventListener("mousemove",mouseMoveCallBack)
     }
 
     resizeRender() {
-        window.addEventListener("resize", (p) => {
 
+        screenReSizeCallBack=debounce(()=>{
             let dom = this.cssRender.domElement;
-
             console.log(dom.offsetWidth, dom.offsetHeight);
-
             this.cssRender.setSize(window.innerWidth, window.innerHeight);
             this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
             this.renderer.setSize(window.innerWidth, window.innerHeight);
             this.composer.setSize(window.innerWidth, window.innerHeight);
             this.FXAAShaderPass?.uniforms[ 'resolution' ].value.set( 1 / window.innerWidth, 1 / window.innerHeight );
+        },1000)
 
-        });
+        window.addEventListener("resize",screenReSizeCallBack);
     }
 
     loadDancer() {
@@ -235,14 +238,7 @@ export class SceneDemo extends BaseInit {
                     child.receiveShadow = true;
                 }
             });
-            // 今天在知乎看了很久关于赚钱的，内容大致分为类似以下两类
 
-
-            //物质本应该是丰盈生活，简单而美好，如今却成了衡量爱情，衡量人生的标准，我们这代人的阈值已经太高太高，我们好像很难再找回当初那份简单的快乐。女孩，如果你看到了这篇文章，谢谢你的点赞和支持，我想对你说：“这世界唯一值得你all in的就是你的人生，你就是最美的色号”
-
-            // 知乎上赚钱方法遍地走，逛知乎就仿佛在逛90年代的香港，遍地是黄金，满街都是女人。
-
-            // https://www.zhihu.com/question/60031957
             object.scale.set(0.1, 0.1, 0.1);
             object.position.set(0, 10, 0);
             this.scene.add(object);
@@ -390,16 +386,8 @@ export class SceneDemo extends BaseInit {
     addPlan() {
 
         const geometry = new THREE.PlaneGeometry(200, 200);
-        const material = new THREE.MeshLambertMaterial({
-            map: this.textureLoader.load(landNormal),
-            color: "#eee",
-            //此属性能产生凹陷  必须在创建图形时指定片段数，不然无效
-            displacementMap: this.textureLoader.load(landAlpha),
-            //塌陷和凸起的程度
-            displacementScale: 2,
-            transparent: false,
-            normalMap: this.textureLoader.load(landRgb)     //可以模拟光照在物体上亮度的贴图
-        });
+        const material = new THREE.MeshLambertMaterial({color: 0xeee});
+
         material.side = THREE.DoubleSide
         const plane = new THREE.Mesh(geometry, material);
         //设置接受阴影
@@ -418,13 +406,23 @@ export class SceneDemo extends BaseInit {
 
     addLight() {
         //创建聚光灯
-        const light = new THREE.AmbientLight("#fff", 1);
+        const light = new THREE.SpotLight(0xffffff);
+        light.castShadow = true;
+        light.position.set(200,200,0)
+        light.lookAt(0,0,0)
         light.castShadow = true;            // default false
+
+        light.shadow.camera.near = 50;
+        light.shadow.camera.far = 400;
+        light.shadow.camera.fov = 30;
         this.scene.add(light);
 
-        const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff);
-        hemiLight.position.set(0, 200, 0);
-        this.scene.add(hemiLight);
+        const spotLightHelper = new THREE.SpotLightHelper( light );
+        this.scene.add( spotLightHelper );
+
+        // const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff);
+        // hemiLight.position.set(0, 200, 0);
+        // this.scene.add(hemiLight);
 
         //调整场景曝光亮度
         this.dat.add(this.renderer, "toneMappingExposure", 0, 5, 0.001).name("整体亮度");
@@ -495,7 +493,7 @@ export class SceneDemo extends BaseInit {
         const clock = new THREE.Clock();
         const animate = () => {
 
-            requestAnimationFrame(animate);
+            this.raf=requestAnimationFrame(animate);
 
             //更新控制器
             this.control?.update()
@@ -520,10 +518,10 @@ export class SceneDemo extends BaseInit {
             if (this.keyboard.pressed('d'))
                 this.carScene.rotateOnAxis(new THREE.Vector3(0, 1, 0), -rotateAngle);
 
-            // this.renderer.render(this.scene, this.camera);
+            this.renderer.render(this.scene, this.camera);
             this.labelRenderer.render(this.scene, this.camera);
             this.cssRender.render(this.cssScene, this.camera);
-            this.composer.render(this.scene, this.camera);
+            // this.composer.render(this.scene, this.camera);
 
             // console.log(this.composer);
 
@@ -562,5 +560,23 @@ export class SceneDemo extends BaseInit {
         this.rayCaster.near = 1;
         this.rayCaster.far = 500;
 
+    }
+
+    destroy() {
+        super.destroy();
+
+        console.log("render",this.labelRenderer)
+        // @ts-ignore
+        this.labelRenderer.domElement.parentNode.removeChild(this.labelRenderer.domElement)
+        // @ts-ignore
+        this.cssRender.domElement.parentNode.removeChild(this.cssRender.domElement)
+
+        // @ts-ignore
+        this.cssScene=null
+
+        // @ts-ignore
+        window.removeEventListener("mousemove",mouseMoveCallBack)
+        // @ts-ignore
+        window.removeEventListener("resize",screenReSizeCallBack)
     }
 }
