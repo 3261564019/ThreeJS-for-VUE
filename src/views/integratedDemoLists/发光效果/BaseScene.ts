@@ -26,7 +26,8 @@ export class BaseScene extends BaseInit {
             needLight:false,
             renderDomId:"#renderDom",
             needOrbitControls:true,
-            needAxesHelper:true
+            needAxesHelper:true,
+            renderBg:"#000"
         } as BaseInitParams);
 
         this.initDebug();
@@ -100,6 +101,7 @@ export class BaseScene extends BaseInit {
 
         this.finalComposer=finalComposer
 
+
         this.run();
 
         this.addDebug()
@@ -139,7 +141,7 @@ export class BaseScene extends BaseInit {
     addPlan(){
 
         const geometry = new THREE.PlaneGeometry(40, 40);
-        const material = new THREE.MeshLambertMaterial({color:"#ccc"});
+        const material = new THREE.MeshLambertMaterial({color:"#222"});
         material.side=THREE.DoubleSide
         const plane = new THREE.Mesh(geometry, material);
         //设置接受阴影
@@ -157,11 +159,12 @@ export class BaseScene extends BaseInit {
     addLight(){
 
         //创建聚光灯
-        const light = new THREE.SpotLight("#fff");
+        const light = new THREE.SpotLight("#FFF");
+        light.intensity=0.3
         light.castShadow = true;            // default false
         light.position.x = 20;
         light.position.y = 30;
-
+        light.lookAt(0,0,0)
         this.scene.add(light);
     }
     addBall(){
@@ -174,7 +177,7 @@ export class BaseScene extends BaseInit {
         sphere.position.x = 0;
         sphere.position.y = 3;
         sphere.castShadow = true
-
+        // sphere.layers.set(1)
         this.scene.add(sphere);
     }
     run() {

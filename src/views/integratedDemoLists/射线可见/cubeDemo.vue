@@ -1,18 +1,26 @@
 <template>
 <div id="cubeDemo">
 <!--  {{value}}-->
-  <div :class="['infoItem',{'visible':item.show}]"
-       v-for="item in infoList"
-       v-show="item.show"
-       :style="{transform:'translate('+item.style.x+'px,'+item.style.y+'px)'}"
-  >
-    <div class="label">
-      {{item.label}}
+
+<!--  <TransitionGroup name="list" tag="ul">-->
+    <div :class="['infoItem']"
+         v-for="item in infoList"
+         :key="item.label"
+         :style="{transform:'translate('+item.style.x+'px,'+item.style.y+'px)'}"
+    >
+      <transition>
+        <div
+             v-show="item.show"
+             :class="['label',{'visible':item.show}]"
+        >
+          {{item.label}}
+        </div>
+      </transition>
+      <div class="des">
+        {{item.description}}
+      </div>
     </div>
-    <div class="des">
-      {{item.description}}
-    </div>
-  </div>
+<!--  </TransitionGroup>-->
 </div>
 </template>
 
@@ -26,7 +34,7 @@ let threeIns=null;
 
 let infoList=ref([
   {
-    label:"1",
+    label:"a",
     //当前标签是否显示
     show:true,
     description:"关于本点的描述，关于本点的描述，关于本点的描述，关于本点的描述，关于本点的描述，关于本点的描述，关于本点的描述，关于本点的描述。",
@@ -108,23 +116,30 @@ onUnmounted(()=>{
     position: absolute;
     left: 50%;
     top:50%;
-    transition: all 0.2s;
+    //transition: all 0.2s;
     .label{
-      transform: scale(0.1);
-      opacity: 0;
       width: 40px;
       height: 40px;
       background: rgba(0,0,0,0.5);
+      opacity: 0;
+      transform: scale(0);
       color:white;
       border-radius: 50%;
       display: flex;
       justify-content: center;
       align-items: center;
       cursor: pointer;
-      transition: all 0.25s;
+      transition: all 0.25s ease-in;
       border: 1px solid #eeeeee;
-
     }
+
+    .visible{
+
+      opacity: 1;
+      transform: scale(1);
+    }
+
+
     .des{
       background: rgba(0,0,0,0.5);
       padding: 6px;
@@ -146,14 +161,12 @@ onUnmounted(()=>{
     display: block;
     opacity: 1;
     //}
+    //.label{
+    //  transform: scale(1)  ;
+    //}
   }
 
 
-  .visible{
-    .label{
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
+
 }
 </style>

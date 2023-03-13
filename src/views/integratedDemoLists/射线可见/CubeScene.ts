@@ -156,10 +156,11 @@ export class CubeScene extends BaseInit {
                 //当前标签在三维坐标系中的位置 -1 至 1
                 let temp = v.position.clone() as THREE.Vector3;
                 temp.project(this.camera);
+                // console.log(temp)
                 //更新标签位置
                 if (this.screenSize && this.itemPositionChange) {
-                    let x = temp.x * this.screenSize.x;
-                    let y = -temp.y * this.screenSize.y;
+                    let x = (temp.x * this.screenSize.x) - 10;
+                    let y = (-temp.y * this.screenSize.y) + 10;
                     this.itemPositionChange(index, {x, y});
                 }
                 //检查是否可见
