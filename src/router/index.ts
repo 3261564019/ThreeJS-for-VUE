@@ -47,14 +47,6 @@ const routes: Array<RouteRecordRaw> = [
         name: 'transFormControl',
         component: ()=> import("@/views/integratedDemoLists/拖拽控制器/index.vue")
     },{
-        path: '/curve',
-        name: 'curve',
-        component: ()=> import("@/views/曲线/index.vue")
-    },{
-        path: '/curve',
-        name: 'curve',
-        component: ()=> import("@/views/integratedDemoLists/曲线/index.vue")
-    },{
         path: '/flowPath',
         name: 'flowPath',
         component: ()=> import("@/views/integratedDemoLists/流动轨迹/index.vue")
@@ -62,14 +54,21 @@ const routes: Array<RouteRecordRaw> = [
         path: '/shine',
         name: 'shine',
         component: ()=> import("@/views/integratedDemoLists/发光效果/index.vue")
-    },{
-        path: '/closure',
-        name: 'closure',
-        component: ()=> import("@/views/题目/closure.vue")
-    },{
-        path: '/sb',
-        name: 'sb',
-        component: ()=> import("@/views/面试/圣杯布局.vue")
+    },
+    {
+        path: '/transparent',
+        name: 'transparent',
+        component: ()=> import("@/views/integratedDemoLists/透明图片材质/index.vue")
+    },
+    // {
+    //     path: '/sb',
+    //     name: 'sb',
+    //     component: ()=> import("@/views/面试/圣杯布局.vue")
+    // },
+    {
+        path: '/water',
+        name: 'water',
+        component: ()=> import("@/views/integratedDemoLists/水面/index.vue")
     },{
         path: '/temp',
         name: 'temp',
@@ -83,26 +82,27 @@ const routes: Array<RouteRecordRaw> = [
         // component: ()=> import("@/views/基本dom/index.vue")
         // component: ()=> import("@/views/map/index.vue")
         component: ()=> import("@/views/Other/面试/vue过渡.vue")
-    },{
-        path: '/routerView',
-        name: 'RouterView',
-        // component: ()=> import("@/views/面试/变量提升.vue")
-        // component: ()=> import("@/views/面试/事件循环.vue")
-        // component: ()=> import("@/views/面试/Symbol.vue")
-        // component: ()=> import("@/views/面试/this练习.vue")
-        // component: ()=> import("@/views/面试/原型.vue")
-        // component: ()=> import("@/views/面试/拖拽.vue")
-        component: ()=> import("@/views/多个RouterView/index.vue"),
-        children:[
-            {
-                path: '/a',
-                component: ()=> import("@/views/多个RouterView/childs/a.vue")
-            },{
-                path: '/b',
-                component: ()=> import("@/views/多个RouterView/childs/b.vue")
-            }
-        ]
     }
+    // ,{
+    //     path: '/routerView',
+    //     name: 'RouterView',
+    //     // component: ()=> import("@/views/面试/变量提升.vue")
+    //     // component: ()=> import("@/views/面试/事件循环.vue")
+    //     // component: ()=> import("@/views/面试/Symbol.vue")
+    //     // component: ()=> import("@/views/面试/this练习.vue")
+    //     // component: ()=> import("@/views/面试/原型.vue")
+    //     // component: ()=> import("@/views/面试/拖拽.vue")
+    //     component: ()=> import("@/views/多个RouterView/index.vue"),
+    //     children:[
+    //         {
+    //             path: '/a',
+    //             component: ()=> import("@/views/多个RouterView/childs/a.vue")
+    //         },{
+    //             path: '/b',
+    //             component: ()=> import("@/views/多个RouterView/childs/b.vue")
+    //         }
+    //     ]
+    // }
 ]
 
 const router = createRouter({

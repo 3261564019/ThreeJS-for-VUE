@@ -10,7 +10,7 @@
     >
       <transition>
         <div
-             v-show="item.show"
+             v-show="item.  show"
              :class="['label',{'visible':item.show}]"
         >
           {{item.label}}

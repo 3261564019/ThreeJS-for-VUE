@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import {onMounted} from "vue";
+import {onMounted, onUnmounted} from "vue";
 import {BaseScene} from "@/views/基础场景[用于复制]/BaseScene";
 
 let ins;
@@ -14,6 +14,9 @@ onMounted(()=>{
   ins=new BaseScene({
     renderDomId:"#renderDom"
   })
+})
+onUnmounted(()=>{
+  ins.destroy();
 })
 </script>
 

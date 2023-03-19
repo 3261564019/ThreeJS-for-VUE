@@ -88,9 +88,15 @@ export class BaseScene extends BaseInit {
         //当他被拖拽的时候，禁用已经存在的控制器
         this.transformControl.addEventListener( 'dragging-changed',  ( event )=>{
             this.control.enabled = ! event.value;
+            console.log("在拖拽",event)
+
         });
 
-        this.transformControl.addEventListener( 'change',()=>{this.manualRender()} );
+        this.transformControl.addEventListener( 'change',(e)=>{
+            console.log("change---",e)
+            // this.manualRender()
+            }
+        );
 
     }
     addPlan(){

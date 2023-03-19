@@ -28,6 +28,7 @@ import d5 from "@/assets/img/demo/d5.png";
 import d6 from "@/assets/img/demo/d6.png";
 import flowPath from "@/assets/img/demo/flowPath.png";
 import transformControl from "@/assets/img/demo/transformControl.jpg";
+import waterDemo from "@/assets/img/demo/waterDemo.png";
 
 const router=useRouter();
 
@@ -67,6 +68,10 @@ let itemList=[
     name:"transFormControl",
     img:transformControl,
     route:"/transFormControl"
+  },{
+    name:"水面",
+    img:waterDemo,
+    route:"/water"
   },
 ];
 

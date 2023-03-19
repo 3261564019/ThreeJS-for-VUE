@@ -8,6 +8,8 @@ export default defineConfig({
     //设置路径别名
     alias: {
       '@': path.resolve(__dirname, './src'),
+      "/assets":"src/assets/",
+      "/textures/water":"src/assets/waterTexture/",
       '*': path.resolve('')
     },
   },
