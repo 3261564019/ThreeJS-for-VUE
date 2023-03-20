@@ -69,6 +69,10 @@ const routes: Array<RouteRecordRaw> = [
         path: '/water',
         name: 'water',
         component: ()=> import("@/views/integratedDemoLists/水面/index.vue")
+    }, {
+        path: '/physics',
+        name: 'physics',
+        component: ()=> import("@/views/integratedDemoLists/物理/index.vue")
     },{
         path: '/temp',
         name: 'temp',

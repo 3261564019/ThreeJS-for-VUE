@@ -120,13 +120,13 @@ export class SceneDemo extends BaseInit {
         // this.loadBuilding();
 
         //加载玩家 即 汽车
-        // this.loadPlayer();
+        this.loadPlayer();
         //初始化调试器
         this.initDebug();
         //加载跳舞动画
         // this.loadDancer();
         //加载dom节点至场景
-        this.addDomContent();
+        // this.addDomContent();
 
         //css3DRender 在屏幕尺寸发生变化的情况下进行适配
         this.resizeRender();
@@ -137,7 +137,7 @@ export class SceneDemo extends BaseInit {
         //添加点击事件
         // this.addEvent();
 
-        this.addBall();
+        // this.addBall();
 
     }
 
@@ -554,8 +554,8 @@ export class SceneDemo extends BaseInit {
         this.initEffectComposer();
 
         //创建控制器并说明可操作图层为标签渲染器的节点
-        // this.control = new OrbitControls(this.camera, this.cssRender.domElement);
-        // this.control.enableDamping = true;
+        this.control = new OrbitControls(this.camera, this.cssRender.domElement);
+        this.control.enableDamping = true;
         //设置射线构造器的射线距离
         this.rayCaster.near = 1;
         this.rayCaster.far = 500;

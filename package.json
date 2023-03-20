@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "animation.css": "^0.1.0",
+    "cannon-es": "^0.20.0",
     "echarts": "^5.4.0",
     "fundebug-javascript": "^2.8.6",
     "fundebug-vue": "^0.3.6",
