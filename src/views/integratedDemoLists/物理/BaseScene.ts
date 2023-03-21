@@ -3,11 +3,15 @@ import gsap from 'gsap';
 import {BaseInit, BaseInitParams} from "../../../three/classDefine/baseInit";
 import CANNON from "cannon-es";
 import {MeshRigid, usePhysics} from "./usePhysics";
+import CannonDebugger from 'cannon-es-debugger';
+
 
 export class physicsBaseScene extends BaseInit {
 
     private readonly world:CANNON.World;
     private mrMap:Array<MeshRigid>;
+    private cannonDebugger=null
+
 
     constructor() {
         super({
@@ -30,6 +34,9 @@ export class physicsBaseScene extends BaseInit {
         this.world=world;
         this.mrMap=mrMap;
         init();
+
+        // @ts-ignore
+        this.cannonDebugger = new CannonDebugger(this.scene,this.world )
     }
     addPlan(){
 
@@ -89,6 +96,10 @@ export class physicsBaseScene extends BaseInit {
                         mesh.quaternion.copy(body.quaternion)
                     }
                 )
+            }
+
+            if(this.cannonDebugger){
+                this.cannonDebugger.update()
             }
 
 

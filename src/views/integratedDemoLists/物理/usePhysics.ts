@@ -1,5 +1,5 @@
 import * as CANNON from "cannon-es";
-import {BoxGeometry, Mesh, MeshBasicMaterial, MeshNormalMaterial} from "three";
+import {BoxGeometry, Mesh, MeshBasicMaterial, MeshNormalMaterial, SphereGeometry} from "three";
 // @ts-ignore
 
 
@@ -16,7 +16,7 @@ export function usePhysics(ins){
         gravity: new CANNON.Vec3(0, -9.82, 0), // m/s²
     });
 
-    let current;
+    let current:MeshRigid;
 
 
 
@@ -24,6 +24,56 @@ export function usePhysics(ins){
         initPlan()
         
         temp()
+
+        addBall()
+    }
+
+
+    function sphereMove({keyCode}) {
+        console.log("event.keyCode",keyCode);
+        switch (keyCode) {
+            //w
+            case 87:
+                current.body.velocity.set(0,0,6);
+                break;
+                //a
+            case 65:
+                current.body.velocity.set(-6,0,0);
+                break;
+                //s
+            case 83:
+                current.body.velocity.set(0,0,-6);
+                break;
+                //d
+            case 68:
+                current.body.velocity.set(6,0,0);
+                break;
+
+        }
+    }
+
+    function addBall() {
+
+        const radius = 5
+        const sphereShape = new CANNON.Sphere(radius)
+        const sphereBody = new CANNON.Body({ mass: 1, shape: sphereShape })
+        world.addBody(sphereBody)
+
+        sphereBody.position.set(10,30,0)
+
+        const geometry = new SphereGeometry( radius, 32, 16 );
+        const material = new MeshNormalMaterial();
+        const ball = new Mesh( geometry, material );
+        ins.scene.add(ball);
+
+        current={
+            mesh:ball,
+            body:sphereBody
+        }
+
+        mrMap.push(current)
+
+        window.onkeydown = sphereMove
     }
     
     function temp() {

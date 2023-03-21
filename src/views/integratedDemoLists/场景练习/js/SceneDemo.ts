@@ -139,6 +139,7 @@ export class SceneDemo extends BaseInit {
 
         // this.addBall();
 
+
     }
 
     initEffectComposer() {
