@@ -31,22 +31,26 @@ export function usePhysics(ins){
 
     function sphereMove({keyCode}) {
         console.log("event.keyCode",keyCode);
+        let unit=12;
         switch (keyCode) {
             //w
-            case 87:
-                current.body.velocity.set(0,0,6);
+            case 83:
+                current.body.velocity.set(0,0,unit);
                 break;
                 //a
             case 65:
-                current.body.velocity.set(-6,0,0);
+                current.body.velocity.set(-unit,0,0);
                 break;
                 //s
-            case 83:
-                current.body.velocity.set(0,0,-6);
+            case 87:
+                current.body.velocity.set(0,0,-unit);
                 break;
                 //d
             case 68:
-                current.body.velocity.set(6,0,0);
+                current.body.velocity.set(unit,0,0);
+                break;
+            case 32:
+                current.body.velocity.set(0,unit,0);
                 break;
 
         }
@@ -54,16 +58,17 @@ export function usePhysics(ins){
 
     function addBall() {
 
-        const radius = 5
+        const radius = 2
         const sphereShape = new CANNON.Sphere(radius)
-        const sphereBody = new CANNON.Body({ mass: 1, shape: sphereShape })
+        const sphereBody = new CANNON.Body({ mass: 5, shape: sphereShape })
         world.addBody(sphereBody)
 
         sphereBody.position.set(10,30,0)
 
-        const geometry = new SphereGeometry( radius, 32, 16 );
+        const geometry = new SphereGeometry( radius, 12, 16 );
         const material = new MeshNormalMaterial();
         const ball = new Mesh( geometry, material );
+        ball.userData.isBall=true
         ins.scene.add(ball);
 
         current={

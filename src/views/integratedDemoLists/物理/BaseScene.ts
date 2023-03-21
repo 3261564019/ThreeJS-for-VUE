@@ -4,6 +4,7 @@ import {BaseInit, BaseInitParams} from "../../../three/classDefine/baseInit";
 import CANNON from "cannon-es";
 import {MeshRigid, usePhysics} from "./usePhysics";
 import CannonDebugger from 'cannon-es-debugger';
+import {PointerLockControls} from "three/examples/jsm/controls/PointerLockControls";
 
 
 export class physicsBaseScene extends BaseInit {
@@ -17,7 +18,7 @@ export class physicsBaseScene extends BaseInit {
         super({
             needLight:false,
             renderDomId:"#physicsBaseScene",
-            needOrbitControls:true,
+            needOrbitControls:false,
             needAxesHelper:true
         } as  BaseInitParams);
 
@@ -35,12 +36,14 @@ export class physicsBaseScene extends BaseInit {
         this.mrMap=mrMap;
         init();
 
+
+
         // @ts-ignore
         this.cannonDebugger = new CannonDebugger(this.scene,this.world )
     }
     addPlan(){
 
-        const geometry = new THREE.PlaneGeometry(40, 40);
+        const geometry = new THREE.PlaneGeometry(500, 500);
         const material = new THREE.MeshLambertMaterial({color: 0x222222});
         material.side=THREE.DoubleSide
         const plane = new THREE.Mesh(geometry, material);
@@ -94,6 +97,16 @@ export class physicsBaseScene extends BaseInit {
                         mesh.position.copy(body.position)
                         // @ts-ignore
                         mesh.quaternion.copy(body.quaternion)
+
+                        if(mesh.userData.isBall){
+                            this.camera.position.x=body.position.x
+                            this.camera.position.y=body.position.y+30
+                            this.camera.position.z=body.position.z+40
+
+                            // console.log("位置",body.position)
+                            // @ts-ignore
+                            this.camera.lookAt(body.position.x,body.position.y,body.position.z)
+                        }
                     }
                 )
             }
