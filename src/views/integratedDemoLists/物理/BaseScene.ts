@@ -9,18 +9,18 @@ import {PointerLockControls} from "three/examples/jsm/controls/PointerLockContro
 
 export class physicsBaseScene extends BaseInit {
 
-    private readonly world:CANNON.World;
-    private mrMap:Array<MeshRigid>;
-    private cannonDebugger=null
+    private readonly world: CANNON.World;
+    private mrMap: Array<MeshRigid>;
+    private cannonDebugger = null
 
 
     constructor() {
         super({
-            needLight:false,
-            renderDomId:"#physicsBaseScene",
-            needOrbitControls:false,
-            needAxesHelper:true
-        } as  BaseInitParams);
+            needLight: false,
+            renderDomId: "#physicsBaseScene",
+            needOrbitControls: false,
+            needAxesHelper: true
+        } as BaseInitParams);
 
 
         this.initDebug();
@@ -31,21 +31,21 @@ export class physicsBaseScene extends BaseInit {
 
         this.addLight();
 
-        let {world,mrMap,init}=usePhysics(this);
-        this.world=world;
-        this.mrMap=mrMap;
+        let {world, mrMap, init} = usePhysics(this);
+        this.world = world;
+        this.mrMap = mrMap;
         init();
 
 
-
         // @ts-ignore
-        this.cannonDebugger = new CannonDebugger(this.scene,this.world )
+        this.cannonDebugger = new CannonDebugger(this.scene, this.world)
     }
-    addPlan(){
+
+    addPlan() {
 
         const geometry = new THREE.PlaneGeometry(500, 500);
         const material = new THREE.MeshLambertMaterial({color: 0x222222});
-        material.side=THREE.DoubleSide
+        material.side = THREE.DoubleSide
         const plane = new THREE.Mesh(geometry, material);
         //设置接受阴影
         plane.receiveShadow = true
@@ -59,7 +59,8 @@ export class physicsBaseScene extends BaseInit {
         this.scene.add(plane);
 
     }
-    addLight(){
+
+    addLight() {
 
         //创建聚光灯
         const light = new THREE.SpotLight("#fff");
@@ -69,6 +70,7 @@ export class physicsBaseScene extends BaseInit {
 
         this.scene.add(light);
     }
+
     init() {
 
         this.renderer.shadowMap.enabled = true;
@@ -81,37 +83,38 @@ export class physicsBaseScene extends BaseInit {
 
         const animate = () => {
 
-
-
-            // console.log()
+            //获取当前运行了多少秒
+            // console.log(clock.getElapsedTime())
+            // console.log(clock.getDelta())
             this.stats.update()
 
-            this.raf=requestAnimationFrame(animate);
+            this.raf = requestAnimationFrame(animate);
 
-            if(this.world){
-                this.world.step(1 / 60,clock.getDelta(),3);
-                this.mrMap.map(
-                    ({mesh,body}, index, array)=>{
+            if (this.world) {
+                this.world.step(clock.getDelta());
+                for (let i = 0; i < this.mrMap.length; i++) {
 
+                    let {mesh, body} = this.mrMap[i];
+
+                    // @ts-ignore
+                    mesh.position.copy(body.position)
+                    // @ts-ignore
+                    mesh.quaternion.copy(body.quaternion)
+
+                    if (mesh.userData.isBall) {
+                        this.camera.position.x = body.position.x
+                        this.camera.position.y = body.position.y + 30
+                        this.camera.position.z = body.position.z + 40
+
+                        // console.log("位置",body.position)
                         // @ts-ignore
-                        mesh.position.copy(body.position)
-                        // @ts-ignore
-                        mesh.quaternion.copy(body.quaternion)
+                        this.camera.lookAt(body.position.x, body.position.y, body.position.z)
 
-                        if(mesh.userData.isBall){
-                            this.camera.position.x=body.position.x
-                            this.camera.position.y=body.position.y+30
-                            this.camera.position.z=body.position.z+40
-
-                            // console.log("位置",body.position)
-                            // @ts-ignore
-                            this.camera.lookAt(body.position.x,body.position.y,body.position.z)
-                        }
                     }
-                )
+                }
             }
 
-            if(this.cannonDebugger){
+            if (this.cannonDebugger) {
                 this.cannonDebugger.update()
             }
 
