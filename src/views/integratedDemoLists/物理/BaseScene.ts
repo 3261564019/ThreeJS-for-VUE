@@ -1,18 +1,23 @@
 import * as THREE from "three";
 import gsap from 'gsap';
 import {BaseInit, BaseInitParams} from "../../../three/classDefine/baseInit";
-import CANNON from "cannon-es";
-import {MeshRigid, usePhysics} from "./usePhysics";
+import * as CANNON from "cannon-es";
+
+import {MeshRigid, PhysicIns, usePhysics} from "./usePhysics";
 import CannonDebugger from 'cannon-es-debugger';
 import {PointerLockControls} from "three/examples/jsm/controls/PointerLockControls";
+import {RGBELoader} from "three/examples/jsm/loaders/RGBELoader";
+import belfast_sunset_pure_sky_4k from "@/assets/hdr/belfast_sunset_puresky_4k.hdr?url";
+import {LoadingManager} from "three";
 
 
 export class physicsBaseScene extends BaseInit {
+    //物理模块
+    private readonly physicsIns:PhysicIns;
+    private loadManager:LoadingManager;
 
-    private readonly world: CANNON.World;
-    private mrMap: Array<MeshRigid>;
-    private cannonDebugger = null
 
+    private temp:MeshRigid;
 
     constructor() {
         super({
@@ -25,27 +30,68 @@ export class physicsBaseScene extends BaseInit {
 
         this.initDebug();
 
-        this.init();
 
         this.addPlan();
 
         this.addLight();
 
-        let {world, mrMap, init} = usePhysics(this);
-        this.world = world;
-        this.mrMap = mrMap;
-        init();
+        this.physicsIns= usePhysics(this);
+        this.physicsIns.init({debug:true});
 
 
-        // @ts-ignore
-        this.cannonDebugger = new CannonDebugger(this.scene, this.world)
+
+        this.initResourceMange()
+
+        this.loadSceneBg();
+
+
+        const geometry = new THREE.BoxGeometry( 30, 4, 4 );
+        const material = new THREE.MeshPhongMaterial( {color: "#049ef4"} );
+        const cube = new THREE.Mesh( geometry, material );
+
+        const halfExtents = new CANNON.Vec3(15, 2, 2)
+        const boxShape = new CANNON.Box(halfExtents)
+        const boxBody = new CANNON.Body({ mass: 2, shape: boxShape });
+        boxBody.position.set(0,10,0)
+
+        setTimeout(()=>{
+            this.temp={mesh:cube,body:boxBody};
+
+            this.scene.add(this.temp.mesh)
+
+            this.physicsIns.world.addBody(this.temp.body)
+        },2000)
+        this.startRender();
+
     }
+    initResourceMange() {
+        // let that=this;
+        this.loadManager = new LoadingManager(
+            () => {
+                console.log('加载完成', this);
+                // this.finishedCallBack();
+                // this.startAnimation();
+            },
+            // Progress
+            (p) => {
+            });
+    }
+    loadSceneBg() {
+        new RGBELoader(this.loadManager).load(belfast_sunset_pure_sky_4k, (texture) => {
+            console.log("纹理对象", texture);
 
+            texture.mapping = THREE.EquirectangularReflectionMapping;
+            texture.encoding = THREE.sRGBEncoding;
+            this.scene.environment = texture;
+            this.scene.background = texture;
+            this.manualRender()
+        });
+    }
     addPlan() {
 
-        const geometry = new THREE.PlaneGeometry(500, 500);
+        const geometry = new THREE.PlaneGeometry(100, 100);
         const material = new THREE.MeshLambertMaterial({color: 0x222222});
-        material.side = THREE.DoubleSide
+        // material.side = THREE.DoubleSide
         const plane = new THREE.Mesh(geometry, material);
         //设置接受阴影
         plane.receiveShadow = true
@@ -62,63 +108,38 @@ export class physicsBaseScene extends BaseInit {
 
     addLight() {
 
-        //创建聚光灯
-        const light = new THREE.SpotLight("#fff");
-        light.castShadow = true;            // default false
-        light.position.x = 20;
-        light.position.y = 30;
-
+        const light = new THREE.DirectionalLight( 0xaabbff, 1 );
+        light.position.x = 0;
+        light.position.y = 150;
+        light.position.z = - 50;
         this.scene.add(light);
     }
 
-    init() {
+    startRender() {
 
         this.renderer.shadowMap.enabled = true;
-
-        this.camera.position.set(0, 30, 40);
-        //定位相机指向场景中心
-        this.camera.lookAt(this.scene.position)
 
         const clock = new THREE.Clock();
 
         const animate = () => {
 
-            //获取当前运行了多少秒
-            // console.log(clock.getElapsedTime())
-            // console.log(clock.getDelta())
             this.stats.update()
 
             this.raf = requestAnimationFrame(animate);
 
-            if (this.world) {
-                this.world.step(clock.getDelta());
-                for (let i = 0; i < this.mrMap.length; i++) {
-
-                    let {mesh, body} = this.mrMap[i];
-
-                    // @ts-ignore
-                    mesh.position.copy(body.position)
-                    // @ts-ignore
-                    mesh.quaternion.copy(body.quaternion)
-
-                    if (mesh.userData.isBall) {
-                        this.camera.position.x = body.position.x
-                        this.camera.position.y = body.position.y + 30
-                        this.camera.position.z = body.position.z + 40
-
-                        // console.log("位置",body.position)
-                        // @ts-ignore
-                        this.camera.lookAt(body.position.x, body.position.y, body.position.z)
-
-                    }
-                }
+            if (this.physicsIns) {
+                this.physicsIns.render(clock.getDelta());
             }
 
-            if (this.cannonDebugger) {
-                this.cannonDebugger.update()
+            if(this.temp){
+
+                this.temp.mesh.rotation.y=clock.getElapsedTime()
+
+                // @ts-ignore
+                // this.temp.body.position.copy(this.temp.mesh.position);
+                // // @ts-ignore
+                // this.temp.body.quaternion.copy(this.temp.mesh.quaternion)
             }
-
-
             this.renderer.render(this.scene, this.camera);
         }
 

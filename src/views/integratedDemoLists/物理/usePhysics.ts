@@ -1,5 +1,8 @@
 import * as CANNON from "cannon-es";
-import {BoxGeometry, Mesh, MeshBasicMaterial, MeshNormalMaterial, SphereGeometry} from "three";
+import {BoxGeometry, Mesh, MeshNormalMaterial, SphereGeometry} from "three";
+import {throttle} from "../../../utils";
+import CannonDebugger from "cannon-es-debugger";
+import {physicsBaseScene} from "./BaseScene";
 // @ts-ignore
 
 
@@ -7,20 +10,47 @@ export interface MeshRigid{
     mesh:Mesh,
     body:CANNON.Body
 }
-// @ts-ignore
-export function usePhysics(ins){
 
-    let context=ins;
+export interface PhysicIns{
+    world:CANNON.World,
+    mrMap:Array<MeshRigid>,
+    init(params:PhysicInsParams):void,
+    render:Function
+}
+
+export interface PhysicInsParams{
+    debug?:Boolean
+}
+
+// @ts-ignore
+export function usePhysics(ins:physicsBaseScene){
+
     let mrMap:Array<MeshRigid>=[];
     const world =  new CANNON.World({
         gravity: new CANNON.Vec3(0, -9.82, 0), // m/s²
     });
 
     let current:MeshRigid;
+    //是否显示物理世界的线条
+    let showRigidDebugLine:Boolean=true
+    // @ts-ignore
+    let cannonDebuggerIns:CannonDebugger=null
+    let params:PhysicInsParams={}
 
 
 
-    function init() {
+
+    function init(p:PhysicInsParams) {
+
+        if(p){
+            params=p;
+
+            if(p.debug){
+                // @ts-ignore
+                cannonDebuggerIns= new CannonDebugger(ins.scene,world)
+            }
+        }
+
         initPlan()
         
         temp()
@@ -29,27 +59,27 @@ export function usePhysics(ins){
     }
 
 
-    function sphereMove({keyCode}) {
-        console.log("event.keyCode",keyCode);
+    function sphereMove({code}:KeyboardEvent) {
+        console.log("event.keyCode",code);
         let unit=12;
-        switch (keyCode) {
+        switch (code) {
             //w
-            case 83:
+            case "KeyS":
                 current.body.velocity.set(0,0,unit);
                 break;
                 //a
-            case 65:
+            case "KeyA":
                 current.body.velocity.set(-unit,0,0);
                 break;
                 //s
-            case 87:
+            case "KeyW":
                 current.body.velocity.set(0,0,-unit);
                 break;
                 //d
-            case 68:
+            case "KeyD":
                 current.body.velocity.set(unit,0,0);
                 break;
-            case 32:
+            case "Space":
                 current.body.velocity.set(0,unit,0);
                 break;
 
@@ -60,7 +90,7 @@ export function usePhysics(ins){
 
         const radius = 2
         const sphereShape = new CANNON.Sphere(radius)
-        const sphereBody = new CANNON.Body({ mass: 5, shape: sphereShape })
+        const sphereBody = new CANNON.Body({ mass: 200, shape: sphereShape })
         world.addBody(sphereBody)
 
         sphereBody.position.set(10,30,0)
@@ -77,8 +107,9 @@ export function usePhysics(ins){
         }
 
         mrMap.push(current)
-
-        window.onkeydown = sphereMove
+        let temp=throttle(sphereMove,100);
+        console.log(temp)
+        window.onkeydown =temp;
     }
     
     function temp() {
@@ -151,10 +182,37 @@ export function usePhysics(ins){
     }
 
 
+    function render(delta:number) {
+        world.step(delta);
+        for (let i = 0; i <mrMap.length; i++) {
+            let {mesh, body} = mrMap[i];
+            // @ts-ignore
+            mesh.position.copy(body.position)
+            // @ts-ignore
+            mesh.quaternion.copy(body.quaternion)
+
+            if (mesh.userData.isBall) {
+                ins.camera.position.x = body.position.x
+                ins.camera.position.y = body.position.y + 30
+                ins.camera.position.z = body.position.z + 40
+                // console.log("位置",body.position)
+                // @ts-ignore
+                ins.camera.lookAt(body.position.x, body.position.y, body.position.z)
+
+            }
+        }
+
+        if(params.debug){
+            cannonDebuggerIns.update();
+        }
+    }
+
+
     return {
         world,
         mrMap,
-        init
+        init,
+        render
     }
 
 }
