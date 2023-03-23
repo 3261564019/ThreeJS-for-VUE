@@ -3,21 +3,32 @@ import {BoxGeometry, Mesh, MeshNormalMaterial, SphereGeometry} from "three";
 import {throttle} from "../../../utils";
 import CannonDebugger from "cannon-es-debugger";
 import {physicsBaseScene} from "./BaseScene";
+import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
+import footBall from "@/assets/model/football/scene.gltf?url";
 // @ts-ignore
 
 
+/**
+ * 刚体和Mesh相匹配的对象类型
+ */
 export interface MeshRigid{
     mesh:Mesh,
     body:CANNON.Body
 }
 
+/**
+ * 当前hooks导出的ins实例
+ */
 export interface PhysicIns{
     world:CANNON.World,
     mrMap:Array<MeshRigid>,
     init(params:PhysicInsParams):void,
-    render:Function
+    render(delta:number):void
 }
 
+/**
+ * 初始化当前hooks的参数
+ */
 export interface PhysicInsParams{
     debug?:Boolean
 }
@@ -29,107 +40,155 @@ export function usePhysics(ins:physicsBaseScene){
     const world =  new CANNON.World({
         gravity: new CANNON.Vec3(0, -9.82, 0), // m/s²
     });
-
+    //当前第一人称所控制的物体
     let current:MeshRigid;
     //是否显示物理世界的线条
-    let showRigidDebugLine:Boolean=true
     // @ts-ignore
     let cannonDebuggerIns:CannonDebugger=null
     let params:PhysicInsParams={}
-
-
-
+    let delta:number
 
     function init(p:PhysicInsParams) {
 
         if(p){
             params=p;
-
             if(p.debug){
                 // @ts-ignore
                 cannonDebuggerIns= new CannonDebugger(ins.scene,world)
             }
         }
 
-        initPlan()
-        
-        temp()
+        addMask();
 
-        addBall()
+        initPlan()
+
+
+        setTimeout(()=>{
+
+            temp()
+
+            addBall()
+
+        },100)
+
+
+        ins.camera.position.y=800;
+        ins.camera.position.z=10;
+        ins.camera.lookAt(0,0,0)
+    }
+
+    function addMask() {
+
+        const halfExtents = new CANNON.Vec3(200, 1, 200)
+        const boxShape = new CANNON.Box(halfExtents)
+        const boxBody = new CANNON.Body({ mass: 0, shape: boxShape });
+        boxBody.position.set(0,50,0)
+        world.addBody(boxBody)
     }
 
 
     function sphereMove({code}:KeyboardEvent) {
         console.log("event.keyCode",code);
-        let unit=12;
+
+        const impulse=new CANNON.Vec3(0,0,0);
+        const torque=new CANNON.Vec3(0,0,0);
+
+        //ApplyImpulse 50
+        //applyForce 500
+        delta*=1000;
+
+        const impulseStrength=0.6*delta * 20;
+        const torqueStrength=0.2*delta;
+
         switch (code) {
-            //w
             case "KeyS":
-                current.body.velocity.set(0,0,unit);
+                impulse.z+=impulseStrength
+                torque.z+=torqueStrength
                 break;
-                //a
             case "KeyA":
-                current.body.velocity.set(-unit,0,0);
+
+                impulse.x-=impulseStrength
+                torque.x-=torqueStrength
                 break;
-                //s
             case "KeyW":
-                current.body.velocity.set(0,0,-unit);
+
+                impulse.z-=impulseStrength
+                torque.z-=torqueStrength
                 break;
-                //d
             case "KeyD":
-                current.body.velocity.set(unit,0,0);
+
+                impulse.x+=impulseStrength
+                torque.x+=torqueStrength
                 break;
             case "Space":
-                current.body.velocity.set(0,unit,0);
+                impulse.y+=impulseStrength
+                torque.y+=torqueStrength
                 break;
-
+            case "ShiftLeft":
+                impulse.y-=impulseStrength
+                torque.y-=torqueStrength
+                break;
         }
+
+
+        //如果当前是上或者下，直接施加力
+        if(["Space","ShiftLeft"].includes(code)){
+            if(code==="Space"){
+                impulse.y*=5
+            }
+            if(code==="ShiftLeft"){
+                impulse.y*=5
+            }
+        }
+
+
+        current.body.applyForce(impulse);
+        current.body.applyTorque(torque);
+
+
     }
 
     function addBall() {
 
-        const radius = 2
-        const sphereShape = new CANNON.Sphere(radius)
-        const sphereBody = new CANNON.Body({ mass: 200, shape: sphereShape })
-        world.addBody(sphereBody)
 
-        sphereBody.position.set(10,30,0)
+        const loader = new GLTFLoader(ins.loadManager);
+        loader.load(
+            footBall,(e)=>{
+                console.log(e)
+                let scale=2.0
+                e.scene.scale.set(scale,scale,scale)
+                e.scene.userData.isBall=true;
 
-        const geometry = new SphereGeometry( radius, 12, 16 );
-        const material = new MeshNormalMaterial();
-        const ball = new Mesh( geometry, material );
-        ball.userData.isBall=true
-        ins.scene.add(ball);
+                const sphereShape = new CANNON.Sphere(2)
+                const sphereBody = new CANNON.Body({ mass: 1, shape: sphereShape })
 
-        current={
-            mesh:ball,
-            body:sphereBody
-        }
+                world.addBody(sphereBody)
+                ins.scene.add( e.scene );
 
-        mrMap.push(current)
-        let temp=throttle(sphereMove,100);
-        console.log(temp)
-        window.onkeydown =temp;
+                sphereBody.position.set(22,5,0)
+
+                current={
+                    // @ts-ignore
+                    mesh:e.scene,
+                    body:sphereBody
+                }
+
+                mrMap.push(current)
+                window.onkeydown = throttle(sphereMove,100);
+
+                let debugData={scale:2.0}
+
+                ins.dat.add(debugData,"scale").step(0.1).onChange(
+                    (p:number)=>{
+                        e.scene.scale.set(p,p,p)
+                    }
+                )
+            }
+        )
     }
     
     function temp() {
 
-        let size = 4;
-        const halfExtents = new CANNON.Vec3(size/2, size/2, size/2)
-        const boxShape = new CANNON.Box(halfExtents)
-        const boxBody = new CANNON.Body({ mass: 2, shape: boxShape });
-
-        boxBody.position.set(0,30,0)
-
-        const geometry = new BoxGeometry( size, size, size );
-        const material = new MeshNormalMaterial();
-        const cube = new Mesh( geometry, material );
-
-        current={
-            mesh:cube,
-            body:boxBody
-        }
-        mrMap.push(current)
 
         let debugParams = {
             addBox: () => {
@@ -152,25 +211,10 @@ export function usePhysics(ins:physicsBaseScene){
 
                 ins.scene.add(cube);
                 world.addBody(boxBody);
-            },
-            move:()=>{
-
-                // boxBody.fixedRotation=true
-                boxBody.velocity.set(10,0,0);
-
             }
         }
 
-
-
-
-
-        ins.scene.add(cube);
-        world.addBody(boxBody);
-
         ins.dat.add(debugParams,"addBox").name("随机添加正方体");
-        ins.dat.add(debugParams,"move").name("移动");
-
     }
 
 
@@ -181,9 +225,10 @@ export function usePhysics(ins:physicsBaseScene){
         world.addBody(planeBody)
     }
 
+    function render(d:number) {
+        delta=d;
 
-    function render(delta:number) {
-        world.step(delta);
+
         for (let i = 0; i <mrMap.length; i++) {
             let {mesh, body} = mrMap[i];
             // @ts-ignore
@@ -195,12 +240,13 @@ export function usePhysics(ins:physicsBaseScene){
                 ins.camera.position.x = body.position.x
                 ins.camera.position.y = body.position.y + 30
                 ins.camera.position.z = body.position.z + 40
-                // console.log("位置",body.position)
-                // @ts-ignore
+                // // console.log("位置",body.position)
+                // // @ts-ignore
                 ins.camera.lookAt(body.position.x, body.position.y, body.position.z)
 
             }
         }
+        world.step(d);
 
         if(params.debug){
             cannonDebuggerIns.update();

@@ -1,11 +1,7 @@
 import * as THREE from "three";
-import gsap from 'gsap';
 import {BaseInit, BaseInitParams} from "../../../three/classDefine/baseInit";
 import * as CANNON from "cannon-es";
-
 import {MeshRigid, PhysicIns, usePhysics} from "./usePhysics";
-import CannonDebugger from 'cannon-es-debugger';
-import {PointerLockControls} from "three/examples/jsm/controls/PointerLockControls";
 import {RGBELoader} from "three/examples/jsm/loaders/RGBELoader";
 import belfast_sunset_pure_sky_4k from "@/assets/hdr/belfast_sunset_puresky_4k.hdr?url";
 import {LoadingManager} from "three";
@@ -14,9 +10,11 @@ import {LoadingManager} from "three";
 export class physicsBaseScene extends BaseInit {
     //物理模块
     private readonly physicsIns:PhysicIns;
-    private loadManager:LoadingManager;
+    // @ts-ignore
+    public loadManager:LoadingManager;
 
 
+    // @ts-ignore
     private temp:MeshRigid;
 
     constructor() {
@@ -36,32 +34,32 @@ export class physicsBaseScene extends BaseInit {
         this.addLight();
 
         this.physicsIns= usePhysics(this);
-        this.physicsIns.init({debug:true});
+        this.physicsIns.init({debug:false});
 
 
 
         this.initResourceMange()
 
-        this.loadSceneBg();
+        // this.loadSceneBg();
 
 
         const geometry = new THREE.BoxGeometry( 30, 4, 4 );
         const material = new THREE.MeshPhongMaterial( {color: "#049ef4"} );
         const cube = new THREE.Mesh( geometry, material );
-
+        // cube.rotation.y=Math.PI/2
+        cube.position.set(0,5,0)
         const halfExtents = new CANNON.Vec3(15, 2, 2)
         const boxShape = new CANNON.Box(halfExtents)
-        const boxBody = new CANNON.Body({ mass: 2, shape: boxShape });
+        const boxBody = new CANNON.Body({ mass: 0, shape: boxShape });
         boxBody.position.set(0,10,0)
 
-        setTimeout(()=>{
             this.temp={mesh:cube,body:boxBody};
 
             this.scene.add(this.temp.mesh)
 
             this.physicsIns.world.addBody(this.temp.body)
-        },2000)
-        this.startRender();
+
+
 
     }
     initResourceMange() {
@@ -71,6 +69,7 @@ export class physicsBaseScene extends BaseInit {
                 console.log('加载完成', this);
                 // this.finishedCallBack();
                 // this.startAnimation();
+                this.startRender();
             },
             // Progress
             (p) => {
@@ -125,25 +124,25 @@ export class physicsBaseScene extends BaseInit {
 
             this.stats.update()
 
-            this.raf = requestAnimationFrame(animate);
-
-            if (this.physicsIns) {
-                this.physicsIns.render(clock.getDelta());
-            }
+            // this.raf = requestAnimationFrame(animate);
+            this.renderer?.render(this.scene, this.camera);
+            this.physicsIns?.render(clock.getDelta());
 
             if(this.temp){
 
                 this.temp.mesh.rotation.y=clock.getElapsedTime()
+                // this.temp.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), clock.getElapsedTime());
 
                 // @ts-ignore
-                // this.temp.body.position.copy(this.temp.mesh.position);
-                // // @ts-ignore
-                // this.temp.body.quaternion.copy(this.temp.mesh.quaternion)
+                this.temp.body.position.copy(this.temp.mesh.position);
+                // @ts-ignore
+                this.temp.body.quaternion.copy(this.temp.mesh.quaternion)
+
             }
-            this.renderer.render(this.scene, this.camera);
         }
 
-        animate();
+        // animate();
 
+        setInterval(animate,1000/60)
     }
 }
