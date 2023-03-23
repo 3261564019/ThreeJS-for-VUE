@@ -21,7 +21,7 @@ export class physicsBaseScene extends BaseInit {
         super({
             needLight: false,
             renderDomId: "#physicsBaseScene",
-            needOrbitControls: false,
+            needOrbitControls: true,
             needAxesHelper: true
         } as BaseInitParams);
 
@@ -34,7 +34,7 @@ export class physicsBaseScene extends BaseInit {
         this.addLight();
 
         this.physicsIns= usePhysics(this);
-        this.physicsIns.init({debug:false});
+        this.physicsIns.init({debug:true});
 
 
 
@@ -43,12 +43,12 @@ export class physicsBaseScene extends BaseInit {
         // this.loadSceneBg();
 
 
-        const geometry = new THREE.BoxGeometry( 30, 4, 4 );
+        const geometry = new THREE.BoxGeometry( 40, 2, 2 );
         const material = new THREE.MeshPhongMaterial( {color: "#049ef4"} );
         const cube = new THREE.Mesh( geometry, material );
         // cube.rotation.y=Math.PI/2
-        cube.position.set(0,5,0)
-        const halfExtents = new CANNON.Vec3(15, 2, 2)
+        cube.position.set(0,0,0)
+        const halfExtents = new CANNON.Vec3(20, 1, 1)
         const boxShape = new CANNON.Box(halfExtents)
         const boxBody = new CANNON.Body({ mass: 0, shape: boxShape });
         boxBody.position.set(0,10,0)
@@ -73,6 +73,7 @@ export class physicsBaseScene extends BaseInit {
             },
             // Progress
             (p) => {
+                console.log("加载中",p)
             });
     }
     loadSceneBg() {
@@ -88,7 +89,7 @@ export class physicsBaseScene extends BaseInit {
     }
     addPlan() {
 
-        const geometry = new THREE.PlaneGeometry(100, 100);
+        const geometry = new THREE.PlaneGeometry(40, 40);
         const material = new THREE.MeshLambertMaterial({color: 0x222222});
         // material.side = THREE.DoubleSide
         const plane = new THREE.Mesh(geometry, material);

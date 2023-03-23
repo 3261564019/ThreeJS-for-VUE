@@ -47,6 +47,7 @@ export function usePhysics(ins:physicsBaseScene){
     let cannonDebuggerIns:CannonDebugger=null
     let params:PhysicInsParams={}
     let delta:number
+    let preCode:String
 
     function init(p:PhysicInsParams) {
 
@@ -79,11 +80,39 @@ export function usePhysics(ins:physicsBaseScene){
 
     function addMask() {
 
-        const halfExtents = new CANNON.Vec3(200, 1, 200)
-        const boxShape = new CANNON.Box(halfExtents)
-        const boxBody = new CANNON.Body({ mass: 0, shape: boxShape });
-        boxBody.position.set(0,50,0)
-        world.addBody(boxBody)
+        let wall=[
+            {
+                size:[40/2,1,320/2],
+                position:[0,40,-320/2]
+            },
+            {
+                size:[40/2,1,320/2],
+                position:[0,20,-320/2],
+                rotation:{
+                    angle:new CANNON.Vec3(0,0,1),
+                    range:-Math.PI * 0.5
+                }
+            }
+        ]
+
+        wall.forEach(item=>{
+            const halfExtents = new CANNON.Vec3(...item.size)
+            const boxShape = new CANNON.Box(halfExtents)
+            const face = new CANNON.Body({ mass: 0, shape: boxShape });
+            // @ts-ignore
+            face.position.set(...item.position)
+            if(item.rotation){
+                face.quaternion.setFromAxisAngle(item.rotation.angle,item.rotation.range);
+            }
+            world.addBody(face)
+        })
+
+
+
+
+        //
+
+
     }
 
 
@@ -95,27 +124,46 @@ export function usePhysics(ins:physicsBaseScene){
 
         //ApplyImpulse 50
         //applyForce 500
-        delta*=1000;
+        delta*=1020;
 
-        const impulseStrength=0.6*delta * 20;
+        let impulseStrength=0.6*delta * 10;
         const torqueStrength=0.2*delta;
+        //如果本次按钮的方向和上次是相反的 需要将本次的力度加大此值为加大倍数
+        let InverseMultiple=2
 
         switch (code) {
             case "KeyS":
+
+                if(preCode==="KeyA"){
+                    impulseStrength*=InverseMultiple
+                }
+
                 impulse.z+=impulseStrength
                 torque.z+=torqueStrength
                 break;
             case "KeyA":
+
+                if(preCode==="KeyD"){
+                    impulseStrength*=InverseMultiple
+                }
 
                 impulse.x-=impulseStrength
                 torque.x-=torqueStrength
                 break;
             case "KeyW":
 
+                if(preCode==="KeyS"){
+                    impulseStrength*=InverseMultiple
+                }
+
                 impulse.z-=impulseStrength
                 torque.z-=torqueStrength
                 break;
             case "KeyD":
+
+                if(preCode==="KeyA"){
+                    impulseStrength*=InverseMultiple
+                }
 
                 impulse.x+=impulseStrength
                 torque.x+=torqueStrength
@@ -140,12 +188,10 @@ export function usePhysics(ins:physicsBaseScene){
                 impulse.y*=5
             }
         }
-
-
         current.body.applyForce(impulse);
-        current.body.applyTorque(torque);
-
-
+        // current.body.applyTorque(torque);
+        //存储之前的按键
+        preCode=code;
     }
 
     function addBall() {
@@ -165,7 +211,7 @@ export function usePhysics(ins:physicsBaseScene){
                 world.addBody(sphereBody)
                 ins.scene.add( e.scene );
 
-                sphereBody.position.set(22,5,0)
+                sphereBody.position.set(0,22,0)
 
                 current={
                     // @ts-ignore
@@ -237,12 +283,12 @@ export function usePhysics(ins:physicsBaseScene){
             mesh.quaternion.copy(body.quaternion)
 
             if (mesh.userData.isBall) {
-                ins.camera.position.x = body.position.x
-                ins.camera.position.y = body.position.y + 30
-                ins.camera.position.z = body.position.z + 40
-                // // console.log("位置",body.position)
-                // // @ts-ignore
-                ins.camera.lookAt(body.position.x, body.position.y, body.position.z)
+                // ins.camera.position.x = body.position.x
+                // ins.camera.position.y = body.position.y + 60
+                // ins.camera.position.z = body.position.z + 60
+                // // // console.log("位置",body.position)
+                // // // @ts-ignore
+                // ins.camera.lookAt(body.position.x, body.position.y, body.position.z)
 
             }
         }
