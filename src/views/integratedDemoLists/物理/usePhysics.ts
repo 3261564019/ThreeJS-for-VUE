@@ -5,49 +5,24 @@ import CannonDebugger from "cannon-es-debugger";
 import {physicsBaseScene} from "./BaseScene";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import footBall from "@/assets/model/football/scene.gltf?url";
-// @ts-ignore
+import {MeshRigid, PhysicInsParams} from "./types";
 
 
-/**
- * 刚体和Mesh相匹配的对象类型
- */
-export interface MeshRigid{
-    mesh:Mesh,
-    body:CANNON.Body
-}
-
-/**
- * 当前hooks导出的ins实例
- */
-export interface PhysicIns{
-    world:CANNON.World,
-    mrMap:Array<MeshRigid>,
-    init(params:PhysicInsParams):void,
-    render(delta:number):void
-}
-
-/**
- * 初始化当前hooks的参数
- */
-export interface PhysicInsParams{
-    debug?:Boolean
-}
-
-// @ts-ignore
 export function usePhysics(ins:physicsBaseScene){
-
     let mrMap:Array<MeshRigid>=[];
     const world =  new CANNON.World({
         gravity: new CANNON.Vec3(0, -9.82, 0), // m/s²
     });
     //当前第一人称所控制的物体
-    let current:MeshRigid;
-    //是否显示物理世界的线条
+    let current:MeshRigid; 
     // @ts-ignore
     let cannonDebuggerIns:CannonDebugger=null
     let params:PhysicInsParams={}
     let delta:number
     let preCode:String
+    //常用材质
+    let ballMaterial:CANNON.Material;
+    let planMaterial:CANNON.Material;
 
     function init(p:PhysicInsParams) {
 
@@ -59,42 +34,70 @@ export function usePhysics(ins:physicsBaseScene){
             }
         }
 
-        addMask();
+        addWalls();
 
-        initPlan()
+        initPlan();
+        
+        intiMaterial();
 
+        addTempDebug()
 
-        setTimeout(()=>{
+        addBall()
+    }
+    
+    function intiMaterial() {
+        planMaterial=new CANNON.Material("planMaterial");
+        ballMaterial=new CANNON.Material("ballMaterial");
 
-            temp()
+        let ballPlanMatch=new CANNON.ContactMaterial(
+            planMaterial,
+            ballMaterial,
+            {
+                //摩擦力
+                friction:0.1,
+                //回弹力度
+                restitution:0.5,
+                //很小会很软，类似水的材质 90 左右会回弹
+                // contactEquationStiffness:200,
+            }
+        )
 
-            addBall()
-
-        },100)
-
-
-        ins.camera.position.y=800;
-        ins.camera.position.z=10;
-        ins.camera.lookAt(0,0,0)
+        world.addContactMaterial(ballPlanMatch)
+        world.defaultContactMaterial=ballPlanMatch
     }
 
-    function addMask() {
+    function addWalls() {
 
         let wall=[
             {
-                size:[40/2,1,320/2],
-                position:[0,40,-320/2]
+                size:[40/2,2,320/2],
+                position:[0,41,-320/2]
             },
             {
-                size:[40/2,1,320/2],
-                position:[0,20,-320/2],
+                size:[40/2,2,320/2],
+                position:[-22,20,-320/2],
+                rotation:{
+                    angle:new CANNON.Vec3(0,0,1),
+                    range:-Math.PI * 0.5
+                }
+            },
+            {
+                size:[40/2,2,320/2],
+                position:[22,20,-320/2],
+                rotation:{
+                    angle:new CANNON.Vec3(0,0,1),
+                    range:-Math.PI * 0.5
+                }
+            },
+            {
+                size:[20,20,2],
+                position:[0,20,-322],
                 rotation:{
                     angle:new CANNON.Vec3(0,0,1),
                     range:-Math.PI * 0.5
                 }
             }
         ]
-
         wall.forEach(item=>{
             const halfExtents = new CANNON.Vec3(...item.size)
             const boxShape = new CANNON.Box(halfExtents)
@@ -106,16 +109,8 @@ export function usePhysics(ins:physicsBaseScene){
             }
             world.addBody(face)
         })
-
-
-
-
-        //
-
-
     }
-
-
+    
     function sphereMove({code}:KeyboardEvent) {
         console.log("event.keyCode",code);
 
@@ -124,10 +119,9 @@ export function usePhysics(ins:physicsBaseScene){
 
         //ApplyImpulse 50
         //applyForce 500
-        delta*=1020;
 
-        let impulseStrength=0.6*delta * 10;
-        const torqueStrength=0.2*delta;
+        let impulseStrength=600 ;
+        const torqueStrength=200 ;
         //如果本次按钮的方向和上次是相反的 需要将本次的力度加大此值为加大倍数
         let InverseMultiple=2
 
@@ -189,14 +183,12 @@ export function usePhysics(ins:physicsBaseScene){
             }
         }
         current.body.applyForce(impulse);
-        // current.body.applyTorque(torque);
+        current.body.applyTorque(torque);
         //存储之前的按键
         preCode=code;
     }
 
     function addBall() {
-
-
         const loader = new GLTFLoader(ins.loadManager);
         loader.load(
             footBall,(e)=>{
@@ -206,7 +198,7 @@ export function usePhysics(ins:physicsBaseScene){
                 e.scene.userData.isBall=true;
 
                 const sphereShape = new CANNON.Sphere(2)
-                const sphereBody = new CANNON.Body({ mass: 1, shape: sphereShape })
+                const sphereBody = new CANNON.Body({ mass: 1, shape: sphereShape,material:ballMaterial })
 
                 world.addBody(sphereBody)
                 ins.scene.add( e.scene );
@@ -233,7 +225,7 @@ export function usePhysics(ins:physicsBaseScene){
         )
     }
     
-    function temp() {
+    function addTempDebug() {
 
 
         let debugParams = {
@@ -262,8 +254,7 @@ export function usePhysics(ins:physicsBaseScene){
 
         ins.dat.add(debugParams,"addBox").name("随机添加正方体");
     }
-
-
+    
     function initPlan() {
         const planeShape=new CANNON.Plane();
         const planeBody = new CANNON.Body({ mass: 0, shape:  planeShape })
@@ -274,7 +265,6 @@ export function usePhysics(ins:physicsBaseScene){
     function render(d:number) {
         delta=d;
 
-
         for (let i = 0; i <mrMap.length; i++) {
             let {mesh, body} = mrMap[i];
             // @ts-ignore
@@ -283,13 +273,10 @@ export function usePhysics(ins:physicsBaseScene){
             mesh.quaternion.copy(body.quaternion)
 
             if (mesh.userData.isBall) {
-                // ins.camera.position.x = body.position.x
-                // ins.camera.position.y = body.position.y + 60
-                // ins.camera.position.z = body.position.z + 60
-                // // // console.log("位置",body.position)
-                // // // @ts-ignore
-                // ins.camera.lookAt(body.position.x, body.position.y, body.position.z)
-
+                ins.camera.position.x = body.position.x
+                ins.camera.position.y = body.position.y + 60
+                ins.camera.position.z = body.position.z + 60
+                ins.camera.lookAt(body.position.x, body.position.y, body.position.z)
             }
         }
         world.step(d);
@@ -298,7 +285,6 @@ export function usePhysics(ins:physicsBaseScene){
             cannonDebuggerIns.update();
         }
     }
-
 
     return {
         world,
