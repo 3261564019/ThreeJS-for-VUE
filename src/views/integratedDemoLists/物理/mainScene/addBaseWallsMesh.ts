@@ -1,42 +1,53 @@
 import {physicsBaseScene} from "../BaseScene";
-import {BoxGeometry, Mesh, MeshPhongMaterial} from "three";
+import {BoxGeometry, Mesh, MeshLambertMaterial, MeshPhongMaterial, MeshStandardMaterial} from "three";
+import {RGBELoader} from "three/examples/jsm/loaders/RGBELoader";
+import belfast_sunset_pure_sky_4k from "@/assets/hdr/belfast_sunset_puresky_4k.hdr?url";
 
 export class AddBaseWallsMesh {
     private ins: physicsBaseScene;
-    constructor(ins:physicsBaseScene) {
-        this.ins=ins;
+
+    constructor(ins: physicsBaseScene) {
+        this.ins = ins;
 
 
-        let wallArr=[
+        let wallArr = [
             {
-                size:[4,20,320],
-                position:[-22,10,-320/2],
-                rotation:[0,0,0]
+                size: [4, 20, 320],
+                position: [-22, 10, -320 / 2],
+                rotation: [0, 0, 0]
             },
             {
-                size:[4,20,320],
-                position:[22,10,-320/2],
-                rotation:[0,0,0]
+                size: [4, 20, 320],
+                position: [22, 10, -320 / 2],
+                rotation: [0, 0, 0]
             },
             {
-                size:[48,20,4],
-                position:[0,10,-322],
-                rotation:[0,0,0]
+                size: [48, 20, 4],
+                position: [0, 10, -322],
+                rotation: [0, 0, 0]
             }
         ]
 
-        let material=new MeshPhongMaterial({color:"#ae9a98"})
 
-        for(let i=0;i<wallArr.length;i++){
-            let geometry=new BoxGeometry(...wallArr[i].size);
-            let mesh=new Mesh(geometry,material);
+        let material = new MeshLambertMaterial({color: "#ae9a98"})
+        // let material=new MeshPhongMaterial({ map:texture})
+        // material.roughness=0.5;
+        // material.metalness=1;
+
+        // ins.dat.add(material,"roughness").min(-2).max(2).step(0.01)
+        // ins.dat.add(material,"metalness").min(-2).max(2).step(0.01)
+        // ins.dat.addColor(material,"color").name("aaa")
+
+        for (let i = 0; i < wallArr.length; i++) {
+            let geometry = new BoxGeometry(...wallArr[i].size);
+            let mesh = new Mesh(geometry, material);
+            mesh.receiveShadow=true
             // @ts-ignore
             mesh.position.set(...wallArr[i].position)
             // @ts-ignore
             mesh.rotation.set(...wallArr[i].rotation)
             ins.scene.add(mesh)
         }
-
 
 
     }

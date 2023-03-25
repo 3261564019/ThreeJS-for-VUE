@@ -1,5 +1,6 @@
 import {Mesh} from "three";
-import CANNON from "cannon-es";
+import * as CANNON from "cannon-es";
+
 
 /**
  * 刚体和Mesh相匹配的对象类型
@@ -17,6 +18,8 @@ export interface PhysicIns{
     mrMap:Array<MeshRigid>,
     init(params:PhysicInsParams):void,
     render(delta:number):void
+    destroy():void,
+    physicsMaterials:PhysicsMaterials
 }
 
 /**
@@ -30,4 +33,12 @@ export interface PhysicInsParams{
  */
 export interface ChildScene{
     render(delta:number,elapsedTime:number):void
+}
+/**
+ * 子场景
+ */
+export interface PhysicsMaterials{
+    planMaterial:CANNON.Material,
+    ballMaterial:CANNON.Material,
+    wallMaterial:CANNON.Material
 }

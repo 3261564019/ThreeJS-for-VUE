@@ -5,24 +5,24 @@ import CannonDebugger from "cannon-es-debugger";
 import {physicsBaseScene} from "./BaseScene";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import footBall from "@/assets/model/football/scene.gltf?url";
-import {MeshRigid, PhysicInsParams} from "./types";
+import {MeshRigid, PhysicIns, PhysicInsParams, PhysicsMaterials} from "./types";
 
 
-export function usePhysics(ins:physicsBaseScene){
+function usePhysics(ins:physicsBaseScene):PhysicIns{
     let mrMap:Array<MeshRigid>=[];
     const world =  new CANNON.World({
         gravity: new CANNON.Vec3(0, -9.82, 0), // m/s²
     });
     //当前第一人称所控制的物体
-    let current:MeshRigid; 
+    let current:MeshRigid;
     // @ts-ignore
     let cannonDebuggerIns:CannonDebugger=null
     let params:PhysicInsParams={}
     let delta:number
     let preCode:String
     //常用材质
-    let ballMaterial:CANNON.Material;
-    let planMaterial:CANNON.Material;
+    // @ts-ignore
+    let physicsMaterials:PhysicsMaterials={};
 
     let cameraDeviation:{ x: number; y: number; z: number }={x:0,y:25,z:60}
 
@@ -36,24 +36,25 @@ export function usePhysics(ins:physicsBaseScene){
             }
         }
 
+        intiMaterial();
+
         addWalls();
 
         initPlan();
-        
-        intiMaterial();
 
         addTempDebug()
 
         addBall()
     }
-    
+
     function intiMaterial() {
-        planMaterial=new CANNON.Material("planMaterial");
-        ballMaterial=new CANNON.Material("ballMaterial");
+        physicsMaterials.planMaterial=new CANNON.Material("planMaterial");
+        physicsMaterials.ballMaterial=new CANNON.Material("ballMaterial");
+        physicsMaterials.wallMaterial=new CANNON.Material("wallMaterial");
 
         let ballPlanMatch=new CANNON.ContactMaterial(
-            planMaterial,
-            ballMaterial,
+            physicsMaterials.planMaterial,
+            physicsMaterials.ballMaterial,
             {
                 //摩擦力
                 friction:0.1,
@@ -64,7 +65,27 @@ export function usePhysics(ins:physicsBaseScene){
             }
         )
 
+        let ballWallMatch=new CANNON.ContactMaterial(
+            physicsMaterials.wallMaterial,
+            physicsMaterials.ballMaterial,
+            {
+                //摩擦力
+                friction:80,
+                frictionEquationRelaxation:3,
+                //回弹力度
+                restitution:0,
+                //无更好的翻译 3
+                contactEquationRelaxation:3,
+                // 生成的接触方程的刚度。 1e7
+                contactEquationStiffness:1e7,
+                //很小会很软，类似水的材质 90 左右会回弹
+                frictionEquationStiffness:1e7
+            }
+        )
+
+
         world.addContactMaterial(ballPlanMatch)
+        world.addContactMaterial(ballWallMatch)
         world.defaultContactMaterial=ballPlanMatch
     }
 
@@ -111,7 +132,7 @@ export function usePhysics(ins:physicsBaseScene){
         wall.forEach(item=>{
             const halfExtents = new CANNON.Vec3(...item.size)
             const boxShape = new CANNON.Box(halfExtents)
-            const face = new CANNON.Body({ mass: 0, shape: boxShape });
+            const face = new CANNON.Body({ mass: 0, shape: boxShape,material:physicsMaterials.wallMaterial});
             // @ts-ignore
             face.position.set(...item.position)
             if(item.rotation){
@@ -120,7 +141,7 @@ export function usePhysics(ins:physicsBaseScene){
             world.addBody(face)
         })
     }
-    
+
     function sphereMove({code}:KeyboardEvent) {
         console.log("event.keyCode",code);
 
@@ -176,7 +197,10 @@ export function usePhysics(ins:physicsBaseScene){
                 impulse.y+=impulseStrength
                 torque.y+=torqueStrength
                 break;
+            case "KeyC":
             case "ShiftLeft":
+            case "ControlLeft":
+
                 impulse.y-=impulseStrength
                 torque.y-=torqueStrength
                 break;
@@ -186,10 +210,10 @@ export function usePhysics(ins:physicsBaseScene){
         //如果当前是上或者下，直接施加力
         if(["Space","ShiftLeft"].includes(code)){
             if(code==="Space"){
-                impulse.y*=5
+                impulse.y*=3
             }
             if(code==="ShiftLeft"){
-                impulse.y*=5
+                impulse.y*=3
             }
         }
         current.body.applyForce(impulse);
@@ -202,13 +226,18 @@ export function usePhysics(ins:physicsBaseScene){
         const loader = new GLTFLoader(ins.loadManager);
         loader.load(
             footBall,(e)=>{
-                console.log(e)
                 let scale=2.0
                 e.scene.scale.set(scale,scale,scale)
                 e.scene.userData.isBall=true;
+                e.scene.traverse(item=>{
+                    item.castShadow=true;
+                })
+
+                console.log("足球对象：",e)
+
 
                 const sphereShape = new CANNON.Sphere(2)
-                const sphereBody = new CANNON.Body({ mass: 1, shape: sphereShape,material:ballMaterial })
+                const sphereBody = new CANNON.Body({ mass: 1, shape: sphereShape,material:physicsMaterials.ballMaterial })
 
                 world.addBody(sphereBody)
                 ins.scene.add( e.scene );
@@ -226,15 +255,15 @@ export function usePhysics(ins:physicsBaseScene){
 
                 let debugData={scale:2.0}
 
-                ins.dat.add(debugData,"scale").step(0.1).onChange(
+                ins.dat.add(debugData,"scale").min(-2).max(10).step(0.1).onChange(
                     (p:number)=>{
                         e.scene.scale.set(p,p,p)
                     }
-                )
+                ).name("足球网格缩放")
             }
         )
     }
-    
+
     function addTempDebug() {
 
 
@@ -259,6 +288,10 @@ export function usePhysics(ins:physicsBaseScene){
 
                 ins.scene.add(cube);
                 world.addBody(boxBody);
+            },
+            resetBallPosition(){
+                current.body.sleep()
+                current.body.position.set(0,2,-20);
             }
         }
 
@@ -266,8 +299,9 @@ export function usePhysics(ins:physicsBaseScene){
         ins.dat.add(cameraDeviation,"y").min(-50).max(50).step(1).name("视角偏移 Y ");
         ins.dat.add(cameraDeviation,"z").min(-50).max(50).step(1).name("视角偏移 Z ");
         ins.dat.add(debugParams,"addBox").name("随机添加正方体");
+        ins.dat.add(debugParams,"resetBallPosition").name("重置足球位置");
     }
-    
+
     function initPlan() {
         const planeShape=new CANNON.Plane();
         const planeBody = new CANNON.Body({ mass: 0, shape:  planeShape })
@@ -286,10 +320,14 @@ export function usePhysics(ins:physicsBaseScene){
             mesh.quaternion.copy(body.quaternion)
 
             if (mesh.userData.isBall) {
-                // ins.camera.position.x = body.position.x + cameraDeviation.x;
-                // ins.camera.position.y = body.position.y + cameraDeviation.y;
-                // ins.camera.position.z = body.position.z + cameraDeviation.z;
-                // ins.camera.lookAt(body.position.x, body.position.y, body.position.z)
+                ins.camera.position.x = body.position.x + cameraDeviation.x;
+                ins.camera.position.y = body.position.y + cameraDeviation.y;
+                ins.camera.position.z = body.position.z + cameraDeviation.z;
+                ins.camera.lookAt(body.position.x, body.position.y, body.position.z)
+
+                ins.spotLight.position.set(-body.position.x, 80, body.position.z);
+                ins.spotLight.target=mesh
+                // ins.directLight.target=mesh
             }
         }
         world.step(d);
@@ -299,11 +337,22 @@ export function usePhysics(ins:physicsBaseScene){
         }
     }
 
+
+    function destroy() {
+
+    }
+
     return {
         world,
         mrMap,
         init,
-        render
+        render,
+        destroy,
+        physicsMaterials
     }
 
+}
+
+export {
+    usePhysics
 }
