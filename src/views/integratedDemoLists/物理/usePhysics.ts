@@ -1,5 +1,5 @@
 import * as CANNON from "cannon-es";
-import {BoxGeometry, Mesh, MeshNormalMaterial, SphereGeometry} from "three";
+import {BoxGeometry, Mesh, MeshNormalMaterial, SphereGeometry, Vector3} from "three";
 import {throttle} from "../../../utils";
 import CannonDebugger from "cannon-es-debugger";
 import {physicsBaseScene} from "./BaseScene";
@@ -23,6 +23,8 @@ export function usePhysics(ins:physicsBaseScene){
     //常用材质
     let ballMaterial:CANNON.Material;
     let planMaterial:CANNON.Material;
+
+    let cameraDeviation:{ x: number; y: number; z: number }={x:0,y:25,z:60}
 
     function init(p:PhysicInsParams) {
 
@@ -92,6 +94,14 @@ export function usePhysics(ins:physicsBaseScene){
             {
                 size:[20,20,2],
                 position:[0,20,-322],
+                rotation:{
+                    angle:new CANNON.Vec3(0,0,1),
+                    range:-Math.PI * 0.5
+                }
+            },
+            {
+                size:[20,20,2],
+                position:[0,20,2],
                 rotation:{
                     angle:new CANNON.Vec3(0,0,1),
                     range:-Math.PI * 0.5
@@ -203,7 +213,7 @@ export function usePhysics(ins:physicsBaseScene){
                 world.addBody(sphereBody)
                 ins.scene.add( e.scene );
 
-                sphereBody.position.set(0,22,0)
+                sphereBody.position.set(0,10,-20)
 
                 current={
                     // @ts-ignore
@@ -252,6 +262,9 @@ export function usePhysics(ins:physicsBaseScene){
             }
         }
 
+        ins.dat.add(cameraDeviation,"x").min(-50).max(50).step(1).name("视角偏移 X ");
+        ins.dat.add(cameraDeviation,"y").min(-50).max(50).step(1).name("视角偏移 Y ");
+        ins.dat.add(cameraDeviation,"z").min(-50).max(50).step(1).name("视角偏移 Z ");
         ins.dat.add(debugParams,"addBox").name("随机添加正方体");
     }
     
@@ -273,10 +286,10 @@ export function usePhysics(ins:physicsBaseScene){
             mesh.quaternion.copy(body.quaternion)
 
             if (mesh.userData.isBall) {
-                ins.camera.position.x = body.position.x
-                ins.camera.position.y = body.position.y + 60
-                ins.camera.position.z = body.position.z + 60
-                ins.camera.lookAt(body.position.x, body.position.y, body.position.z)
+                // ins.camera.position.x = body.position.x + cameraDeviation.x;
+                // ins.camera.position.y = body.position.y + cameraDeviation.y;
+                // ins.camera.position.z = body.position.z + cameraDeviation.z;
+                // ins.camera.lookAt(body.position.x, body.position.y, body.position.z)
             }
         }
         world.step(d);
