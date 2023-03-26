@@ -36,7 +36,7 @@ export class physicsBaseScene extends BaseInit {
             needLight: false,
             renderDomId: "#physicsBaseScene",
             renderBg:"#1f232b",
-            needOrbitControls: false,
+            needOrbitControls: true,
             needAxesHelper: true,
             adjustScreenSize:true
         } as BaseInitParams);
@@ -46,25 +46,26 @@ export class physicsBaseScene extends BaseInit {
         this.initResourceMange()
         //创建物理世界
         this.physicsIns= usePhysics(this);
-        this.physicsIns.init({debug:false});
+        this.physicsIns.init({debug:true});
         //加载场景背景
         // this.loadSceneBg();
+
         //添加灯光
         this.addLight();
         //创建路径中所有的障碍 球体基础背景以及其他子场景
-        this.initAllBaseScene();
-        new AddBaseWallsMesh(this);
+        // this.initAllBaseScene();
+        // new AddBaseWallsMesh(this);
     }
     initAllBaseScene(){
         let temp=[
             new PlanerBasePlane(this,new Vector3(0,0,-20)),
             new PileAnimation(new THREE.Vector3(0,0,-60),new Color("#2D2D30"),new Color("#e50012"),this,this.physicsIns,PileActionType.RotationAtCenter),
-            new MoveWall(new THREE.Vector3(0,0,-100),new Color("#002ea6"),new Color("#e50012"),this,this.physicsIns,0),
+            new MoveWall(new THREE.Vector3(0,0,-100),new Color("#002ea6"),new Color("#e33915"),this,this.physicsIns,0),
             // new WaterPool(new THREE.Vector3(0,0,-100),this,this.physicsIns,0),
             new PileAnimation(new THREE.Vector3(0,0,-140),new Color("#3D3B4F"),new Color("#e50012"),this,this.physicsIns,PileActionType.UpAndDown),
-            new MoveWall(new THREE.Vector3(0,0,-180),new Color("#E6755F"),new Color("#e50012"),this,this.physicsIns,1.2),
+            new MoveWall(new THREE.Vector3(0,0,-180),new Color("#E6755F"),new Color("#e33915"),this,this.physicsIns,1.2),
             new PileAnimation(new THREE.Vector3(0,0,-220),new Color("#C21F30"),new Color("#e50012"),this,this.physicsIns,PileActionType.RotationAtCenter),
-            new MoveWall(new THREE.Vector3(0,0,-260),new Color("#789262"),new Color("#e50012"),this,this.physicsIns,2.4),
+            new MoveWall(new THREE.Vector3(0,0,-260),new Color("#789262"),new Color("#e33915"),this,this.physicsIns,2.4),
             ]
         temp.map(v=>{
             this.childScene.push(v)
@@ -110,6 +111,14 @@ export class physicsBaseScene extends BaseInit {
 
     startRender() {
         this.renderer.shadowMap.enabled = true;
+        // this.renderer.physicallyCorrectLights = true ;
+        // this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        // renderer.toneMapping = THREE.ACESFilmicToneMapping
+// 渲染器将允许多少光线进入
+//         renderer.toneMappingExposure = 3
+        // this.dat.add(this.renderer,"toneMapping")
+        // this.dat.add(this.renderer,"toneMappingExposure").min(0).max(10)
+
         const clock = new THREE.Clock();
         // @ts-ignore
         const animate = () => {

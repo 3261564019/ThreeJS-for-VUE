@@ -6,6 +6,7 @@ import {physicsBaseScene} from "./BaseScene";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import footBall from "@/assets/model/football/scene.gltf?url";
 import {MeshRigid, PhysicIns, PhysicInsParams, PhysicsMaterials} from "./types";
+import {useConstraint} from "./constraint/useConstraint";
 
 
 function usePhysics(ins:physicsBaseScene):PhysicIns{
@@ -24,7 +25,7 @@ function usePhysics(ins:physicsBaseScene):PhysicIns{
     // @ts-ignore
     let physicsMaterials:PhysicsMaterials={};
 
-    let cameraDeviation:{ x: number; y: number; z: number }={x:0,y:25,z:60}
+    let cameraDeviation:{ x: number; y: number; z: number }={x:0,y:25,z:50}
 
     function init(p:PhysicInsParams) {
 
@@ -44,7 +45,13 @@ function usePhysics(ins:physicsBaseScene):PhysicIns{
 
         addTempDebug()
 
-        addBall()
+        addBall();
+
+        let constraints=useConstraint(world,ins);
+
+        // console.log("建立的约束",constraints.mrMap)
+
+        mrMap=mrMap.concat(constraints.mrMap);
     }
 
     function intiMaterial() {
@@ -292,6 +299,10 @@ function usePhysics(ins:physicsBaseScene):PhysicIns{
             resetBallPosition(){
                 current.body.sleep()
                 current.body.position.set(0,2,-20);
+            },
+            pushOut(){
+                current.body.sleep()
+                current.body.position.set(18,2,-100);
             }
         }
 
@@ -300,6 +311,7 @@ function usePhysics(ins:physicsBaseScene):PhysicIns{
         ins.dat.add(cameraDeviation,"z").min(-50).max(50).step(1).name("视角偏移 Z ");
         ins.dat.add(debugParams,"addBox").name("随机添加正方体");
         ins.dat.add(debugParams,"resetBallPosition").name("重置足球位置");
+        ins.dat.add(debugParams,"pushOut").name("尝试被挤出");
     }
 
     function initPlan() {
@@ -320,10 +332,17 @@ function usePhysics(ins:physicsBaseScene):PhysicIns{
             mesh.quaternion.copy(body.quaternion)
 
             if (mesh.userData.isBall) {
-                ins.camera.position.x = body.position.x + cameraDeviation.x;
-                ins.camera.position.y = body.position.y + cameraDeviation.y;
-                ins.camera.position.z = body.position.z + cameraDeviation.z;
-                ins.camera.lookAt(body.position.x, body.position.y, body.position.z)
+                // ins.camera.position.x = body.position.x + cameraDeviation.x;
+                // ins.camera.position.y = body.position.y + cameraDeviation.y;
+                // ins.camera.position.z = body.position.z + cameraDeviation.z;
+                //
+                // if(ins.camera.position.x>10){
+                //     ins.camera.position.x=10
+                // }
+                // if(ins.camera.position.x<-10){
+                //     ins.camera.position.x=-10
+                // }
+                // ins.camera.lookAt(body.position.x, body.position.y, body.position.z)
 
                 ins.spotLight.position.set(-body.position.x, 80, body.position.z);
                 ins.spotLight.target=mesh

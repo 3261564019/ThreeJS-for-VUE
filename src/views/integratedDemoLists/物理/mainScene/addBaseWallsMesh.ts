@@ -29,10 +29,10 @@ export class AddBaseWallsMesh {
         ]
 
 
-        let material = new MeshLambertMaterial({color: "#ae9a98"})
+        let material = new MeshStandardMaterial({color: "#ae9a98"})
         // let material=new MeshPhongMaterial({ map:texture})
-        // material.roughness=0.5;
-        // material.metalness=1;
+        material.roughness=1;
+        material.metalness=0;
 
         // ins.dat.add(material,"roughness").min(-2).max(2).step(0.01)
         // ins.dat.add(material,"metalness").min(-2).max(2).step(0.01)
