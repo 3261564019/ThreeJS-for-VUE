@@ -25,7 +25,7 @@ function usePhysics(ins:physicsBaseScene):PhysicIns{
     // @ts-ignore
     let physicsMaterials:PhysicsMaterials={};
 
-    let cameraDeviation:{ x: number; y: number; z: number }={x:0,y:25,z:50}
+    let cameraDeviation:{ x: number; y: number; z: number }={x:0,y:15,z:50}
 
     function init(p:PhysicInsParams) {
 
@@ -47,11 +47,27 @@ function usePhysics(ins:physicsBaseScene):PhysicIns{
 
         addBall();
 
-        let constraints=useConstraint(world,ins);
+        let constraints=useConstraint(world,ins,{x:-10,y:36,z:-30});
+        let constraints1=useConstraint(world,ins,{x:10,y:36,z:-30});
+
+
+        console.log(constraints)
+        console.log(constraints1)
 
         // console.log("建立的约束",constraints.mrMap)
-
         mrMap=mrMap.concat(constraints.mrMap);
+        mrMap=mrMap.concat(constraints1.mrMap);
+
+        // setTimeout(()=>{
+        //
+        //     mrMap.map((
+        //         {
+        //             body
+        //         }
+        //     )=>{
+        //         console.log(body.position)
+        //     })
+        // },3000)
     }
 
     function intiMaterial() {
@@ -328,27 +344,30 @@ function usePhysics(ins:physicsBaseScene):PhysicIns{
             let {mesh, body} = mrMap[i];
             // @ts-ignore
             mesh.position.copy(body.position)
+            // console.log("位置：",body.position)
             // @ts-ignore
             mesh.quaternion.copy(body.quaternion)
 
             if (mesh.userData.isBall) {
-                // ins.camera.position.x = body.position.x + cameraDeviation.x;
-                // ins.camera.position.y = body.position.y + cameraDeviation.y;
-                // ins.camera.position.z = body.position.z + cameraDeviation.z;
-                //
-                // if(ins.camera.position.x>10){
-                //     ins.camera.position.x=10
-                // }
-                // if(ins.camera.position.x<-10){
-                //     ins.camera.position.x=-10
-                // }
-                // ins.camera.lookAt(body.position.x, body.position.y, body.position.z)
+                ins.camera.position.x = body.position.x + cameraDeviation.x;
+                ins.camera.position.y = body.position.y + cameraDeviation.y;
+                ins.camera.position.z = body.position.z + cameraDeviation.z;
+
+                if(ins.camera.position.x>10){
+                    ins.camera.position.x=10
+                }
+                if(ins.camera.position.x<-10){
+                    ins.camera.position.x=-10
+                }
+                ins.camera.lookAt(body.position.x, body.position.y, body.position.z)
 
                 ins.spotLight.position.set(-body.position.x, 80, body.position.z);
                 ins.spotLight.target=mesh
                 // ins.directLight.target=mesh
             }
         }
+
+        // console.log("================")
         world.step(d);
 
         if(params.debug){

@@ -36,7 +36,7 @@ export class physicsBaseScene extends BaseInit {
             needLight: false,
             renderDomId: "#physicsBaseScene",
             renderBg:"#1f232b",
-            needOrbitControls: true,
+            needOrbitControls: false,
             needAxesHelper: true,
             adjustScreenSize:true
         } as BaseInitParams);
@@ -46,15 +46,17 @@ export class physicsBaseScene extends BaseInit {
         this.initResourceMange()
         //创建物理世界
         this.physicsIns= usePhysics(this);
-        this.physicsIns.init({debug:true});
+        this.physicsIns.init({debug:false});
         //加载场景背景
         // this.loadSceneBg();
 
         //添加灯光
         this.addLight();
         //创建路径中所有的障碍 球体基础背景以及其他子场景
-        // this.initAllBaseScene();
-        // new AddBaseWallsMesh(this);
+        this.initAllBaseScene();
+        new AddBaseWallsMesh(this);
+
+        this.startRender();
     }
     initAllBaseScene(){
         let temp=[
@@ -76,7 +78,6 @@ export class physicsBaseScene extends BaseInit {
         this.loadManager = new LoadingManager(
             () => {
                 console.log('加载完成', this);
-                this.startRender();
             },
             // Progress
             (p) => {
