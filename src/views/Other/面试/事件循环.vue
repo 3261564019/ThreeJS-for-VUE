@@ -1,30 +1,52 @@
 <template>
-
+  <div class="root">
+    <div class="wrapper" @click.prevent="temp('1')" >
+      <button @click.capture="temp('out')">out</button>
+    </div>
+    <div class="inner">
+      <button @click.capture="temp('inner')">inner</button>
+    </div>
+  </div>
 </template>
 
 <script setup>
 
-console.log(1);
 
-new Promise((resolve)=>{
-  resolve()
-}).then(()=>{
-  console.log("promise")
-});
-
-setTimeout(()=>{
-  new Promise((resolve)=>{
-    resolve()
-  }).then(()=>{
-    console.log("setTimeout中的promise")
-  });
-  console.log("setTimeout")
-},0)
-
-console.log(4)
+function temp(e) {
+  console.log(e)
+}
+//
+// new Promise((resolve)=>{
+//   resolve()
+// }).then(()=>{
+//   console.log("promise")
+// });
+//
+// setTimeout(()=>{
+//   new Promise((resolve)=>{
+//     resolve()
+//   }).then(()=>{
+//     console.log("setTimeout中的promise")
+//   });
+//   console.log("setTimeout")
+// },0)
+//
+// console.log(4)
 
 </script>
 
-<style scoped>
-
+<style lang="less" scoped>
+.root{
+  .wrapper{
+    width: 100vw;
+    height: 100vh;
+    z-index: 100;
+    position: relative;
+  }
+  .inner{
+    padding: 50px;
+    position: fixed;
+    top:10px
+  }
+}
 </style>

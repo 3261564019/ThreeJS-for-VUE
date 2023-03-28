@@ -10,7 +10,7 @@
   </transition>
 
   <div id="contentDemo">
-    <button @click="testLog">aaaa</button>
+    <button @pointerdown.prevent="testLog">aaaa</button>
   </div>
 
   <div id="infoMarker">
@@ -214,7 +214,7 @@ onMounted(() => {
       createApp(testCpn).mount("#infoMarker")
     }
   });
-  initEcharts()
+  // initEcharts()
 })
 
 

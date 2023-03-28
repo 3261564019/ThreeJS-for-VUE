@@ -438,6 +438,9 @@ export class SceneDemo extends BaseInit {
         labelRenderer.domElement.style.top = '0px';
         labelRenderer.domElement.style.left = '0px';
         labelRenderer.domElement.style.zIndex = '10';//设置层
+        labelRenderer.domElement.onclick((e:MouseEvent)=>{
+            e.cancelBubble=true
+        })
         document.body.appendChild(labelRenderer.domElement);
         this.labelRenderer = labelRenderer;
 
@@ -542,7 +545,7 @@ export class SceneDemo extends BaseInit {
         this.keyboard = new THREEx.KeyboardState();
         //使渲染器支持真实光照
         this.renderer.physicallyCorrectLights = true;
-        this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        // this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         //创建标签渲染器
         this.initLabelRender();
         //添加2D节点

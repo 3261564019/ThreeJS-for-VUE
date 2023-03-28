@@ -1,8 +1,8 @@
 <template>
-<div id="test" >
+<div id="test" @click.capture="aaa">
   {{num}}
   <input type="text" v-model="num" @change="aaa">
-  <button  id="testBtn" @pointerdown="add">增加</button>
+  <button  id="testBtn" @pointerdown.capture="add">增加</button>
 </div>
 </template>
 

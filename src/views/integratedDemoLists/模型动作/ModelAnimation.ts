@@ -1,11 +1,67 @@
 import * as THREE from "three";
 import gsap from 'gsap';
 import {BaseInit, BaseInitParams} from "../../../three/classDefine/baseInit";
-import {AnimationClip, AnimationMixer, ShaderMaterial} from "three";
+import {AnimationAction, AnimationClip, AnimationMixer, Object3D, ShaderMaterial} from "three";
 import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
 // import dancerFbx from "/src/assets/model/sambaDancing.fbx?url"
 import dancerFbx from "/src/assets/model/热舞/WaveHipHopDance.fbx?url"
 
+
+
+function clone( source:any ) {
+
+    const sourceLookup = new Map();
+    const cloneLookup = new Map();
+
+    const clone = source.clone();
+
+    parallelTraverse( source, clone, function ( sourceNode:any, clonedNode:any ) {
+
+        sourceLookup.set( clonedNode, sourceNode );
+        cloneLookup.set( sourceNode, clonedNode );
+
+    } );
+
+    clone.traverse( function ( node:any ) {
+
+        if ( ! node.isSkinnedMesh ) return;
+
+        const clonedMesh = node;
+        const sourceMesh = sourceLookup.get( node );
+        const sourceBones = sourceMesh.skeleton.bones;
+
+        clonedMesh.skeleton = sourceMesh.skeleton.clone();
+        clonedMesh.bindMatrix.copy( sourceMesh.bindMatrix );
+
+        clonedMesh.skeleton.bones = sourceBones.map( function ( bone:any ) {
+
+            return cloneLookup.get( bone );
+
+        } );
+
+        clonedMesh.bind( clonedMesh.skeleton, clonedMesh.bindMatrix );
+
+    } );
+
+    return clone;
+
+}
+
+
+
+
+// @ts-ignore
+function parallelTraverse( a, b, callback ) {
+
+    callback( a, b );
+
+    for ( let i = 0; i < a.children.length; i ++ ) {
+
+        parallelTraverse( a.children[ i ], b.children[ i ], callback );
+
+    }
+
+}
 
 
 var vertexShader = `
@@ -54,7 +110,12 @@ export class ModelAnimation extends BaseInit {
     planMaterial:ShaderMaterial
     // 动画混合器
     animationMixer:AnimationMixer
-
+    //animationList
+    animationList:Array<{
+        obj:Object3D,
+        animationMixer:AnimationMixer,
+        action:AnimationAction
+    }>;
 
 
     constructor() {
@@ -66,6 +127,7 @@ export class ModelAnimation extends BaseInit {
             renderBg:"#282c34"
         } as BaseInitParams);
 
+        this.animationList=[];
         this.initDebug();
 
         this.init();
@@ -82,31 +144,50 @@ export class ModelAnimation extends BaseInit {
         const loader = new FBXLoader();
         loader.load(dancerFbx, (object) => {
 
-            this.animationMixer = new AnimationMixer(object);
-
-            console.log("人体对象", object);
-
-            console.log(this,"调试工具")
-            this.dat.add(debugParam,"animationIndex",{
-                "动画1":0,
-                "动画2":1,
-            }).onFinishChange(
-                e=>{
-                    const action = this.animationMixer.clipAction(object.animations[e*1]);
-                    action.play();
-                    console.log("下标",e);
-                }
-            ).name("当前动画")
-
             object.traverse(function (child) {
+                // @ts-ignore
                 if (child.isMesh) {
                     child.castShadow = true;
                     child.receiveShadow = true;
                 }
             });
-            object.scale.set(0.1, 0.1, 0.1);
-            object.position.set(0, 0, 0);
-            this.scene.add(object);
+            object.position.set(-10,0,0)
+            object.scale.set(0.10,0.10,0.10)
+
+
+
+            for(let i=0;i<3;i++){
+
+                let animationMixer=new AnimationMixer(this.scene);
+                let obj=clone(object);
+                console.log("人体对象", object);
+
+                console.log("复制出来的",obj)
+
+                let action:AnimationAction=animationMixer.clipAction(clone(object.animations[0]));
+                obj.position.set(i*10,0,0);
+                this.scene.add(obj);
+                // action.play()
+                this.animationList.push({
+                    obj,
+                    animationMixer,
+                    action
+                })
+            }
+
+            this.animationMixer = new AnimationMixer(object);
+
+            // const action = this.animationMixer.clipAction(object.animations[0]);
+            // action.play();
+
+
+            setTimeout(()=>{
+                this.animationList.forEach(item=>{
+                    item.action.play()
+                })
+            },5000)
+
+
         });
     }
     addPlan(){
@@ -181,10 +262,10 @@ export class ModelAnimation extends BaseInit {
             this.stats.update()
             this.renderer.render(this.scene, this.camera);
 
-            if (this.animationMixer) {
-                this.animationMixer.update(delta);
-            }
-            this.ref=requestAnimationFrame(animate);
+            this.animationList.forEach(({animationMixer})=>{
+                animationMixer.update(delta)
+            })
+            this.raf=requestAnimationFrame(animate);
         }
 
         animate();

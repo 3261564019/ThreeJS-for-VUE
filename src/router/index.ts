@@ -19,6 +19,10 @@ const routes: Array<RouteRecordRaw> = [
         name: 'community',
         component: ()=> import("../views/integratedDemoLists/场景练习/sceneDemo.vue")
     },{
+        path: '/ggg',
+        name: 'ggg',
+        component: ()=> import("@/views/Other/面试/事件循环.vue")
+    },{
         path: '/curve',
         name: 'curve',
         component: ()=> import("@/views/integratedDemoLists/曲线/index.vue")
