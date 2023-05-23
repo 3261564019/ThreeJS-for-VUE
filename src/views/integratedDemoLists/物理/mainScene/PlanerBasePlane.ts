@@ -42,9 +42,7 @@ var fragmentShader = `
   `;
 
 export class PlanerBasePlane implements ChildScene{
-
     private readonly planMaterial:ShaderMaterial;
-
     constructor(ins:physicsBaseScene,position:Vector3) {
         const geometry = new THREE.PlaneGeometry(40, 40, 100, 100);
         geometry.rotateX(-Math.PI * .5);
@@ -66,8 +64,6 @@ export class PlanerBasePlane implements ChildScene{
         //添加地板容器
         ins.scene.add(plane);
     }
-
-
     render(delta:number, elapsedTime:number){
         this.planMaterial.uniforms.time.value=elapsedTime
     }

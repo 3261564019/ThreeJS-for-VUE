@@ -1,10 +1,10 @@
 <template>
   <div class="root">
-    <div class="wrapper" @click.prevent="temp('1')" >
+    <div class="wrapper"   >
       <button @click.capture="temp('out')">out</button>
     </div>
     <div class="inner">
-      <button @click.capture="temp('inner')">inner</button>
+      <button @click="temp('inner')">inner</button>
     </div>
   </div>
 </template>
@@ -46,7 +46,8 @@ function temp(e) {
   .inner{
     padding: 50px;
     position: fixed;
-    top:10px
+    top:10px;
+    pointer-events: auto;
   }
 }
 </style>
