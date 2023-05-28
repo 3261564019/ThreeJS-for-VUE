@@ -37,7 +37,7 @@ export class physicsBaseScene extends BaseInit {
             renderDomId: "#physicsBaseScene",
             renderBg:"#1f232b",
             needOrbitControls: false,
-            needAxesHelper: true,
+            needAxesHelper: false,
             adjustScreenSize:true
         } as BaseInitParams);
 
@@ -103,7 +103,7 @@ export class physicsBaseScene extends BaseInit {
         light.castShadow=true;
         this.scene.add( light );
         this.spotLight=light;
-        this.scene.add( new SpotLightHelper(light));
+        // this.scene.add( new SpotLightHelper(light));
         {
             const light = new THREE.AmbientLight( "#fff" ,0.4); // soft white light
             this.scene.add( light );

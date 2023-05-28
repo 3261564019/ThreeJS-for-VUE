@@ -29,6 +29,7 @@ import d6 from "@/assets/img/demo/d6.png";
 import flowPath from "@/assets/img/demo/flowPath.png";
 import transformControl from "@/assets/img/demo/transformControl.jpg";
 import waterDemo from "@/assets/img/demo/waterDemo.png";
+import physics from "@/assets/img/demo/physics.png";
 
 const router=useRouter();
 
@@ -72,6 +73,10 @@ let itemList=[
     name:"水面",
     img:waterDemo,
     route:"/water"
+  },{
+    name:"物理",
+    img:physics,
+    route:"/physics"
   },
 ];
 
