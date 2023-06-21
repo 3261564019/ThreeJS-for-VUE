@@ -13,6 +13,9 @@ export default defineConfig({
       '*': path.resolve('')
     },
   },
+  server:{
+    port:9999
+  },
   css: {
     preprocessorOptions: {
       less: {

@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import gsap from 'gsap';
 import {BaseInit, BaseInitParams} from "../../../three/classDefine/baseInit";
 import {AnimationAction, AnimationClip, AnimationMixer, Object3D, ShaderMaterial} from "three";
 import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
@@ -141,51 +140,57 @@ export class ModelAnimation extends BaseInit {
         this.addModel()
     }
     addModel(){
+
+        let  tempMaterial = new THREE.MeshBasicMaterial({ color:"#0d6ecc", transparent: true, opacity: 0.5 });
         const loader = new FBXLoader();
         loader.load(dancerFbx, (object) => {
 
+            console.log("模型对象",object)
             object.traverse(function (child) {
                 // @ts-ignore
                 if (child.isMesh) {
+                    console.log("isMesh",child)
                     child.castShadow = true;
                     child.receiveShadow = true;
+                    child.material =tempMaterial
                 }
             });
-            object.position.set(-10,0,0)
+            object.position.set(-0,0,0)
             object.scale.set(0.10,0.10,0.10)
 
 
 
-            for(let i=0;i<3;i++){
-
-                let animationMixer=new AnimationMixer(this.scene);
-                let obj=clone(object);
-                console.log("人体对象", object);
-
-                console.log("复制出来的",obj)
-
-                let action:AnimationAction=animationMixer.clipAction(clone(object.animations[0]));
-                obj.position.set(i*10,0,0);
-                this.scene.add(obj);
-                // action.play()
-                this.animationList.push({
-                    obj,
-                    animationMixer,
-                    action
-                })
-            }
+            // for(let i=0;i<3;i++){
+            //
+            //     let animationMixer=new AnimationMixer(this.scene);
+            //     let obj=clone(object);
+            //     console.log("人体对象", object);
+            //
+            //     console.log("复制出来的",obj)
+            //
+            //     let action:AnimationAction=animationMixer.clipAction(clone(object.animations[0]));
+            //     obj.position.set(i*10,0,0);
+            //     this.scene.add(obj);
+            //     // action.play()
+            //     this.animationList.push({
+            //         obj,
+            //         animationMixer,
+            //         action
+            //     })
+            // }
 
             this.animationMixer = new AnimationMixer(object);
+            this.scene.add(object);
 
-            // const action = this.animationMixer.clipAction(object.animations[0]);
-            // action.play();
+            const action = this.animationMixer.clipAction(object.animations[0]);
+            action.play();
 
 
-            setTimeout(()=>{
-                this.animationList.forEach(item=>{
-                    item.action.play()
-                })
-            },5000)
+            // setTimeout(()=>{
+            //     this.animationList.forEach(item=>{
+            //         item.action.play()
+            //     })
+            // },5000)
 
 
         });
@@ -262,9 +267,14 @@ export class ModelAnimation extends BaseInit {
             this.stats.update()
             this.renderer.render(this.scene, this.camera);
 
-            this.animationList.forEach(({animationMixer})=>{
-                animationMixer.update(delta)
-            })
+            // this.animationList.forEach(({animationMixer})=>{
+            //     animationMixer.update(delta)
+            // })
+
+            if (this.animationMixer) {
+                this.animationMixer.update(delta);
+            }
+
             this.raf=requestAnimationFrame(animate);
         }
 

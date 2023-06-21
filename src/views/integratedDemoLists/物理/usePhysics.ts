@@ -4,7 +4,6 @@ import {throttle} from "../../../utils";
 import CannonDebugger from "cannon-es-debugger";
 import {physicsBaseScene} from "./BaseScene";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
-import footBall from "@/assets/model/football/scene.gltf?url";
 import {MeshRigid, PhysicIns, PhysicInsParams, PhysicsMaterials} from "./types";
 import {useConstraint} from "./constraint/useConstraint";
 
@@ -247,8 +246,9 @@ function usePhysics(ins:physicsBaseScene):PhysicIns{
 
     function addBall() {
         const loader = new GLTFLoader(ins.loadManager);
+
         loader.load(
-            footBall,(e)=>{
+            "http://qrtest.qirenit.com:81/share/img/football/scene.gltf",(e)=>{
                 let scale=2.0
                 e.scene.scale.set(scale,scale,scale)
                 e.scene.userData.isBall=true;

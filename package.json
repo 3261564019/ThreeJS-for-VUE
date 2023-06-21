@@ -9,11 +9,10 @@
   },
   "dependencies": {
     "animation.css": "^0.1.0",
+    "@amap/amap-jsapi-loader": "^1.0.1",
     "cannon-es": "^0.20.0",
     "cannon-es-debugger": "^1.0.0",
     "echarts": "^5.4.0",
-    "fundebug-javascript": "^2.8.6",
-    "fundebug-vue": "^0.3.6",
     "gsap": "^3.11.3",
     "three": "^0.145.0",
     "vue": "^3.2.25",
