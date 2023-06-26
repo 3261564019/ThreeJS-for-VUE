@@ -1,5 +1,5 @@
 import {physicsBaseScene} from "../BaseScene";
-import {BoxGeometry, Mesh, MeshLambertMaterial, MeshPhongMaterial, MeshStandardMaterial} from "three";
+import {BoxGeometry, Color, Mesh, MeshLambertMaterial, MeshPhongMaterial, MeshStandardMaterial} from "three";
 import {RGBELoader} from "three/examples/jsm/loaders/RGBELoader";
 import belfast_sunset_pure_sky_4k from "@/assets/hdr/belfast_sunset_puresky_4k.hdr?url";
 

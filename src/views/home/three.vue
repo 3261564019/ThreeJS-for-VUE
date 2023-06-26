@@ -30,6 +30,8 @@ import flowPath from "@/assets/img/demo/flowPath.png";
 import transformControl from "@/assets/img/demo/transformControl.jpg";
 import waterDemo from "@/assets/img/demo/waterDemo.png";
 import physics from "@/assets/img/demo/physics.png";
+import shine from "@/assets/img/demo/shine.png";
+import gmap from "@/assets/img/demo/gmap.png";
 
 const router=useRouter();
 
@@ -77,6 +79,14 @@ let itemList=[
     name:"物理",
     img:physics,
     route:"/physics"
+  },{
+    name:"后期处理---发光",
+    img:shine,
+    route:"/shine"
+  },{
+    name:"结合高德地图",
+    img:gmap,
+    route:"/gmap"
   },
 ];
 

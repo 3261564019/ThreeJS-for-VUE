@@ -10,10 +10,20 @@ const routes: Array<RouteRecordRaw> = [
         path: '/cubeDemo',
         name: 'cubeDemo',
         component: ()=> import("../views/integratedDemoLists/射线可见/cubeDemo.vue")
+    },
+    {
+        path: '/lightWall',
+        name: 'lightWall',
+        component: ()=> import("@/views/integratedDemoLists/发光的墙/index.vue")
+    },
+    {
+        path: '/PostEffects',
+        name: 'PostEffects',
+        component: ()=> import("@/views/integratedDemoLists/后期效果/index.vue")
     },{
-        path: '/基于高德地图',
-        name: 'map',
-        component: ()=> import("../views/unsuccessful/基于高德地图/index.vue")
+        path: '/gmap',
+        name: 'gmap',
+        component: ()=> import("@/views/integratedDemoLists/高德地图/index.vue")
     },{
         path: '/community',
         name: 'community',
@@ -57,7 +67,7 @@ const routes: Array<RouteRecordRaw> = [
     },{
         path: '/shine',
         name: 'shine',
-        component: ()=> import("@/views/integratedDemoLists/发光效果/index.vue")
+        component: ()=> import("@/views/integratedDemoLists/后期效果/index.vue")
     },
     {
         path: '/transparent',

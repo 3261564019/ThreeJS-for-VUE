@@ -1,13 +1,12 @@
 
 import * as THREE from "three";
-import gsap from 'gsap';
 import {BaseInit, BaseInitParams} from "../../../three/classDefine/baseInit";
 import {EffectComposer} from "three/examples/jsm/postprocessing/EffectComposer";
 import {RenderPass} from "three/examples/jsm/postprocessing/RenderPass";
 import {OutlinePass} from "three/examples/jsm/postprocessing/OutlinePass";
 import {ShaderPass} from "three/examples/jsm/postprocessing/ShaderPass";
 import {FXAAShader} from "three/examples/jsm/shaders/FXAAShader";
-import {Mesh} from "three";
+import {Clock, Mesh} from "three";
 
 export class EffectScene extends BaseInit {
     // @ts-ignore
@@ -18,6 +17,7 @@ export class EffectScene extends BaseInit {
     ball:Mesh
     // @ts-ignore
     FXAAShaderPass:ShaderPass
+    private clock: Clock;
     constructor() {
         super({
             needLight:false,
@@ -26,6 +26,8 @@ export class EffectScene extends BaseInit {
             renderBg:"#202124",
             needAxesHelper:true
         } as BaseInitParams);
+
+        this.clock = new THREE.Clock();
 
         this.initDebug();
 
@@ -38,6 +40,8 @@ export class EffectScene extends BaseInit {
         this.addBall();
 
         this.initEffectComposer()
+
+        this.animate();
     }
     initEffectComposer() {
         //初始化效果组合器
@@ -50,10 +54,16 @@ export class EffectScene extends BaseInit {
             //设置效果范围
             new THREE.Vector2(window.innerWidth, window.innerHeight),
             this.scene,
-            this.camera
+            this.camera,
         );
         //选中的边缘颜色
         this.outLinePath.visibleEdgeColor = new THREE.Color("#469dff");
+        //边缘强度 发光亮度
+        this.outLinePath.edgeStrength=10
+        //边缘光渐变程度
+        this.outLinePath.edgeThickness=10
+        //发光区域闪烁频率
+        this.outLinePath.pulsePeriod=2
         //选中模型隐藏部分边界颜色
         this.outLinePath.hiddenEdgeColor = new THREE.Color("#e47d0e");
         this.composer.addPass(this.outLinePath);
@@ -93,7 +103,7 @@ export class EffectScene extends BaseInit {
             new THREE.MeshLambertMaterial({color: "#fff"})
         );
 
-        sphere.position.x = 10;
+        sphere.position.x = 0;
         sphere.position.y = 3;
         sphere.castShadow = true
 
@@ -108,20 +118,15 @@ export class EffectScene extends BaseInit {
         //定位相机指向场景中心
         this.camera.lookAt(this.scene.position)
 
-        const clock = new THREE.Clock();
 
-        const animate = () => {
+    }
+    animate(){
+        this.raf=requestAnimationFrame(this.animate.bind(this));
 
-            this.stats.update()
+        this.stats.update()
 
-            requestAnimationFrame(animate);
+        this.renderer.render(this.scene, this.camera);
 
-            this.renderer.render(this.scene, this.camera);
-
-            this.composer?.render(this.scene, this.camera);
-        }
-
-        animate();
-
+        this.composer?.render(this.clock.getDelta());
     }
 }

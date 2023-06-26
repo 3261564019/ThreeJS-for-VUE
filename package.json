@@ -8,8 +8,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "animation.css": "^0.1.0",
     "@amap/amap-jsapi-loader": "^1.0.1",
+    "animation.css": "^0.1.0",
     "cannon-es": "^0.20.0",
     "cannon-es-debugger": "^1.0.0",
     "echarts": "^5.4.0",

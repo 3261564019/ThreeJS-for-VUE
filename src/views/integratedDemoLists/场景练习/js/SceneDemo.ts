@@ -438,9 +438,9 @@ export class SceneDemo extends BaseInit {
         labelRenderer.domElement.style.top = '0px';
         labelRenderer.domElement.style.left = '0px';
         labelRenderer.domElement.style.zIndex = '10';//设置层
-        labelRenderer.domElement.onclick((e:MouseEvent)=>{
-            e.cancelBubble=true
-        })
+        // labelRenderer.domElement.onclick((e:MouseEvent)=>{
+        //     e.cancelBubble=true
+        // })
         document.body.appendChild(labelRenderer.domElement);
         this.labelRenderer = labelRenderer;
 
