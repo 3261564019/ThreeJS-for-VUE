@@ -2,8 +2,6 @@ import {Vector3} from "three";
 
 export interface GMapIns{
     customCoords:CustomCoords
-
-    // add(gllayer:): void;
 }
 
 interface CameraParams {

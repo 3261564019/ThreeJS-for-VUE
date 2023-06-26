@@ -1,9 +1,10 @@
 import {ChildScene} from "../../types";
-import THREE, {BoxGeometry, Mesh, MeshPhongMaterial, Scene, TextureLoader} from "three";
+import {BoxGeometry, Mesh, MeshPhongMaterial, Scene, TextureLoader} from "three";
+import * as THREE from "three";
 
 export class RotationBox extends ChildScene{
 
-    private meshes:Array<{mesh:Mesh,count:number}>
+    private meshes:Array<{mesh:Mesh,count:number}>=[]
 
     constructor(scene:Scene,arr:Array<number[]>) {
         super(scene);

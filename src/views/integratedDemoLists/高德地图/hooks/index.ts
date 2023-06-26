@@ -1,30 +1,34 @@
 import * as THREE from "three";
 import {Clock, DirectionalLight, PerspectiveCamera, Scene, WebGLRenderer} from "three";
 import {CustomCoords, GMapIns} from "../types/Gmap";
-import * as AMap from 'AMap';
 import {ChildScene} from "../types";
 import {RotationBox} from "./childScene/RotationBox";
+import Stats from "three/examples/jsm/libs/stats.module";
 export class GMapRender {
-    private gl: any;
     private camera: PerspectiveCamera;
     private renderer: WebGLRenderer;
     private scene: Scene;
-    private mapIns: AMap.Map;
+    //高德地图实例
+    private mapIns: any;
+    //AMapLoader.load 加载出来的结果
+    private AMap: any;
     private customCoords:CustomCoords
     //地图中心点经纬度
     private readonly centerPosition:number[]
     //RequestAnimationFrame的key
     private raf:number
     //子场景
-    private childScene: ChildScene[]
+    private childScene: ChildScene[]=[]
     private clock: Clock;
+    private stats: Stats;
 
-    constructor(gl:any,mapIns:GMapIns,center:number[]) {
-        this.gl = gl;
+    constructor(mapIns:GMapIns,center:number[],AMap:any) {
         this.mapIns=mapIns;
         this.customCoords = mapIns.customCoords;
         this.centerPosition = center;
+        this.AMap = AMap;
         this.clock=new Clock();
+        this.scene = new THREE.Scene();
 
         this.initCustomLayer();
 
@@ -36,12 +40,13 @@ export class GMapRender {
             [116.56, 39.79],
         ])));
 
-        this.startRender();
+        this.initStats();
+
+        this.animate();
 
     }
     addLights(){
         // 环境光照和平行光
-        // let aLight = new AmbientLight(0xffffff, 0.8);
         let dLight = new DirectionalLight(0xffffff, 1);
         dLight.position.set(1000, -100, 900);
         this.scene.add(dLight);
@@ -50,7 +55,7 @@ export class GMapRender {
      *  初始化自定义图层,以及渲染器，相机，场景对象
      */
     initCustomLayer(){
-        let GlLayer = new AMap.GLCustomLayer({
+        let GlLayer = new this.AMap.GLCustomLayer({
             // 图层的层级
             zIndex: 30,
             // 初始化的操作，创建图层过程中执行一次。
@@ -68,8 +73,6 @@ export class GMapRender {
 
                 // 自动清空画布这里必须设置为 false，否则地图底图将无法显示
                 this.renderer.autoClear = false;
-                this.scene = new THREE.Scene();
-
             },
             render: () => {
                 // 这里必须执行！！重新设置 three 的 gl 上下文状态。
@@ -106,12 +109,46 @@ export class GMapRender {
         });
         this.mapIns.add(GlLayer);
     }
-    startRender(){
-        this.raf=requestAnimationFrame(this.animate.bind(this));
-    }
     animate(){
         this.childScene.forEach(scene=>{
             scene.render(this.clock.getDelta(),this.clock.elapsedTime);
         })
+        this.raf=requestAnimationFrame(this.animate.bind(this));
+        this.stats.update()
+        this.mapIns.render()
+    }
+    initStats() {
+        //实例化
+        // @ts-ignore
+        this.stats = new Stats();
+        //setMode参数如果是0，监测的是FPS信息，如果是1，监测的是渲染时间
+        this.stats.setMode(0);
+        //把统计面板放到左上角
+        this.stats.domElement.style.position = 'absolute';
+        this.stats.domElement.style.top = '0px';
+        this.stats.domElement.style.left = '0px';
+        //添加到body里
+        document.body.appendChild(this.stats.domElement);
+    }
+    destroy() {
+        try {
+            cancelAnimationFrame(this.raf);
+            // @ts-ignore
+            this.stats.domElement.parentNode.removeChild(this.stats.domElement);
+            this.renderer.forceContextLoss();
+            this.renderer.dispose();
+            this.scene.clear();
+            // @ts-ignore
+            this.scene = null;
+            // @ts-ignore
+            this.camera = null;
+            // @ts-ignore
+            this.renderer = null;
+            // @ts-ignore
+            // window.removeEventListener("resize",this.reSizeCallBack);
+            // window.removeEventListener("mousemove",this.mouseMove);
+        } catch (e) {
+            console.log(e)
+        }
     }
 }
