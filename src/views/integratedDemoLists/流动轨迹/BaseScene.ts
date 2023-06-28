@@ -1,12 +1,17 @@
 import * as THREE from "three";
 import {Mesh} from "three";
 import {BaseInit, BaseInitParams} from "../../../three/classDefine/baseInit";
+import {RotationBox} from "../高德地图/hooks/childScene/RotationBox";
+import {ShiningWall} from "../高德地图/hooks/childScene/ShiningWall";
+import {ChildScene} from "../高德地图/types";
 
 export class CurvePath extends BaseInit {
 
     curve: THREE.CatmullRomCurve3
     splitLineArr: Mesh[] = []
 
+    //子场景
+    private childScene: ChildScene[]=[]
     constructor() {
         super({
             needLight: false,
@@ -26,6 +31,36 @@ export class CurvePath extends BaseInit {
 
         this.addLine();
 
+
+        this.addBall();
+        /*
+            解决一开始经纬度转换（latLongToPosition）返回值为0的问题
+         */
+        setTimeout(() =>{
+            // this.childScene.push(new RotationBox(this.scene));
+
+            this.childScene.push(new ShiningWall({scene:this.scene,wallPath:[
+                    [-20,-20],
+                    [20,-20],
+                    [20,20],
+                    [-20,20],
+                    [-20,-20],
+                ],color:"#FFD500",onlyThreeScene:true}))
+        },10)
+
+    }
+    addBall(){
+
+        const sphere = new THREE.Mesh(
+            new THREE.SphereGeometry(3, 33, 33),
+            new THREE.MeshLambertMaterial({color: "#fff"})
+        );
+
+        sphere.position.x = 10;
+        sphere.position.y = 3;
+        sphere.castShadow = true
+
+        this.scene.add(sphere);
     }
 
     addPlan() {
@@ -109,6 +144,9 @@ export class CurvePath extends BaseInit {
 
             this.stats.update()
 
+            this.childScene.forEach(scene=>{
+                scene.render(clock.getDelta(),clock.elapsedTime);
+            })
 
             if (this.curve) {
 

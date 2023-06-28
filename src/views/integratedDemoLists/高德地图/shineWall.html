@@ -1,0 +1,300 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>利用 ThreeJS 实现动态边界墙</title>
+    <link rel="stylesheet" href="https://a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css" />
+    <style>
+        html,
+        body,
+        #container {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+<div id="container"></div>
+<script>
+    console.warn = console.log;
+
+</script>
+<script src="https://webapi.amap.com/maps?v=2.0&key=307b9b2fe6d626c13dc963dc24bd60e0"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.142/build/three.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/js/loaders/GLTFLoader.js">
+</script>
+<script>javascript: (function () { var script = document.createElement('script');
+    script.onload = function () { var stats = new Stats(); document.body.appendChild(stats.dom);
+        requestAnimationFrame(function loop() { stats.update(); requestAnimationFrame(loop) }); };
+    script.src = 'https://mrdoob.github.io/stats.js/build/stats.min.js'; document.head.appendChild(script); })()
+</script>
+
+<script>
+
+    const container = document.getElementById('container')
+
+    const  map = new AMap.Map('container', {
+        center: [116.52668, 39.794678],
+        zooms: [2, 20],
+        zoom: 17.5,
+        viewMode: '3D',
+        mapStyle: 'amap://styles/grey',
+        pitch: 52,
+    })
+
+
+    map.on('click', (event) => {
+        const {lng, lat} = event.lnglat
+        console.log([lng, lat])
+    })
+
+    // 墙体路径原始数据
+    const data = [
+        [
+            [116.523344, 39.795124],
+            [116.526568, 39.796617],
+            [116.528888, 39.793540],
+            [116.525796, 39.792064],
+            [116.523344, 39.795124],
+        ]
+    ]
+    // 地理坐标转为three坐标系，不管用不用arr，都需要转换一个非空数组
+    // 否则customCoords没实例化api会报错
+    const paths = map.customCoords.lngLatsToCoords(data)
+
+    // 墙体高度
+    const height = 50
+    // 墙体颜色
+    const color = '#FFD500'
+    // 动效纹理
+    let texture = null
+    // 动效纹理偏移
+    let texture_offset = 0
+
+    // THREE相关变量
+    let camera, scene, renderer
+
+    // 初始化图层
+    function initLayer () {
+
+        const layer = new AMap.GLCustomLayer({
+            zIndex: 9999,
+            visible: true,
+            init: (gl) => {
+                initThree(gl)
+                createWall()
+                animate()
+            },
+            render: () => {
+
+                const { near, far, fov, up, lookAt, position } = map.customCoords.getCameraParams()
+
+                camera.near = near// 近平面
+                camera.far = far // 远平面
+                camera.fov = fov // 视野范围
+                camera.position.set(...position)
+                camera.up.set(...up)
+                camera.lookAt(...lookAt)
+
+                // 更新相机坐标系
+                camera.updateProjectionMatrix()
+
+                renderer.render(scene, camera)
+
+                // 这里必须执行！重新设置 three 的 gl 上下文状态
+                renderer.resetState()
+            }
+        })
+
+        map.add(layer)
+    }
+
+
+    function initThree (gl) {
+        camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 100, 1 << 30)
+        renderer = new THREE.WebGLRenderer({
+            context: gl,
+            // canvas: document.querySelector('.amap-layer'), //也可以直接用canvas初始化
+            antialias: true // 抗锯齿，默认false 耗性能
+        })
+        // 自动清空画布这里必须设置为 false，否则地图底图将无法显示
+        renderer.autoClear = false
+        renderer.outputEncoding = THREE.sRGBEncoding
+
+        scene = new THREE.Scene()
+        // 增加环境光
+        const aLight = new THREE.AmbientLight(0xffffff, 0.3)
+        scene.add(aLight)
+    }
+
+
+    function createCube () {
+        const geometry = new THREE.BoxGeometry(200, 200, 200)
+        const material = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            side: THREE.DoubleSide,
+            transparent: true,
+            depthWrite: false
+        })
+        const cube = new THREE.Mesh(geometry, material)
+        cube.position.set(0, 0, 0)
+        scene.add(cube)
+    }
+
+    // createCube()
+    function createWall () {
+
+        let faceList = []
+        let faceVertexUvs = []
+        console.log("path转换后",paths)
+
+        // 合并多个闭合范围
+        for (let i = 0; i < paths.length; i++) {
+            const { face, uvs } = generateVecData(paths[i])
+            faceList = [...faceList, ...face]
+            faceVertexUvs = [...faceVertexUvs, ...uvs]
+        }
+
+        // 背景层
+        const geometry = new THREE.BufferGeometry()
+        geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(faceList), 3))
+        geometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(faceVertexUvs), 2))
+
+        // const material1 = new THREE.MeshBasicMaterial({
+        //     color: color,
+        //     side: THREE.DoubleSide,
+        //     transparent: true,
+        //     depthWrite: false,
+        //     alphaMap: new THREE.TextureLoader().load('./images/texture_1.png'), // 不透明图片
+        //     // wireframe: true
+        // })
+
+        // 动画层
+        const geometry2 = geometry.clone()
+        texture = this.generateTexture(128, color)
+        texture.wrapS = THREE.RepeatWrapping // 水平重复平铺
+        texture.wrapT = THREE.RepeatWrapping // 垂直重复平铺
+
+        const material2 = new THREE.MeshBasicMaterial({
+            side: THREE.DoubleSide,
+            transparent: true,
+            depthWrite: false,
+            map: texture
+        })
+
+        const mesh2 = new THREE.Mesh(geometry2, material2)
+        scene.add(mesh2)
+
+    }
+
+    /**
+     * 创建一个闭合范围的模型数据
+     * @param res {Object} 包含面的顶点数据face，UV面的顶点数据uvs
+     */
+    function generateVecData (arr) {
+        const vec3List = [] // 顶点数组
+        let faceList = [] // 三角面数组
+        let faceVertexUvs = [] // 面的UV层队列，用于纹理和几何信息映射
+        // t3---t2
+        // |  \  |
+        // t0---t1
+        // UV面
+        // 下三角[t0, t1, t3]
+        // 上三角[t3, t1, t2]
+        const t0 = [0, 0]
+        const t1 = [1, 0]
+        const t2 = [1, 1]
+        const t3 = [0, 1]
+
+        for (let i = 0; i < arr.length; i++) {
+            const [x1, y1] = arr[i]
+            vec3List.push([x1, y1, 0])
+            vec3List.push([x1, y1, height])
+        }
+
+        // 1---3
+        // | \ |
+        // 0---2
+        // 三角面顶点，没有顺序要求，但要跟UV面顺序一致
+        // 下三角 [0,1,2]
+        // 上三角 [1,2,3]
+        for (let i = 0; i < vec3List.length - 2; i++) {
+            if (i % 2 === 0) {
+                // 下三角
+                faceList = [...faceList, ...vec3List[i], ...vec3List[i + 2], ...vec3List[i + 1]]
+                // UV
+                faceVertexUvs = [...faceVertexUvs, ...t0, ...t1, ...t3]
+            } else {
+                // 上三角
+                faceList = [...faceList, ...vec3List[i], ...vec3List[i + 1], ...vec3List[i + 2]]
+                // UV
+                faceVertexUvs = [...faceVertexUvs, ...t3, ...t1, ...t2]
+            }
+        }
+
+        return {
+            face: faceList,
+            uvs: faceVertexUvs
+        }
+    }
+
+    /**
+     * 创建材质图
+     * @param size 尺寸为2的n次方
+     * @param color 颜色
+     * @returns {*}
+     */
+    function generateTexture(size = 64, color ="#ff0000"){
+
+        let canvas = document.createElement('canvas')
+        canvas.width = size
+        canvas.height = size
+        let ctx = canvas.getContext('2d')
+        let linearGradient = ctx.createLinearGradient(0,0,0,size)
+        linearGradient.addColorStop(0.2, hexToRgba(color, 0.0))
+        linearGradient.addColorStop(0.8, hexToRgba(color, 0.5))
+        linearGradient.addColorStop(1.0, hexToRgba(color, 1.0))
+        ctx.fillStyle = linearGradient
+        ctx.fillRect(0,0, size, size)
+
+        let texture = new THREE.Texture(canvas)
+        texture.needsUpdate = true //必须
+        return texture
+    }
+
+    /**
+     * 将十六进制的颜色值转成rgba
+     * @param {String} hex
+     * @param {number} opacity
+     * @returns {string}
+     */
+    function hexToRgba (hex, opacity = 1) {
+        return 'rgba(' + parseInt('0x' + hex.slice(1, 3)) + ',' + parseInt('0x' + hex.slice(3, 5)) + ',' +
+            parseInt('0x' + hex.slice(5, 7)) + ',' + opacity + ')'
+    }
+
+    // 动画
+    function animate () {
+
+        // 纹理偏移
+        texture_offset -= 0.03 // 向上移动
+        texture.offset.set(0, texture_offset)
+
+        if (map) {
+            map.render()
+        }
+        requestAnimationFrame(() => {
+            animate()
+        })
+    }
+
+    initLayer()
+
+</script>
+
+</body>
+
+</html>
