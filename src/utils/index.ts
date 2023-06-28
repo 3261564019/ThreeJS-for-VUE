@@ -4,12 +4,12 @@
  * @param wait
  * @returns {(function(): void)|*}
  */
-function debounce(func:Function, wait:Number) {
+function debounce(func:Function, wait:Number,This) {
     let timeout;
     return function (e) {
         // console.log(this);  //=>从中可以测试出this指向的container
         //保存this
-        let _this = this;
+        let _this = This;
         // 清空定时器
         if(timeout) clearTimeout(timeout);
         timeout = setTimeout(function () {

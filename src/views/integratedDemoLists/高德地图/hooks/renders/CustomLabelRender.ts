@@ -11,7 +11,7 @@ export interface CustomLabelRenderParam{
 export class CustomLabelRender {
     scene:Scene
     camera:Camera
-    private labelRenderer: CSS2DRenderer;
+    labelRenderer: CSS2DRenderer;
 
     constructor(p: { camera: PerspectiveCamera; parentDom: Element | null; scene: Scene; zIndex: string }) {
 
@@ -34,5 +34,8 @@ export class CustomLabelRender {
     }
     render(scene: Scene,camera:Camera): void {
         this.labelRenderer.render(scene,camera)
+    }
+    public SetSize(w: number, h: number) {
+        this.labelRenderer.setSize(w,h)
     }
 }

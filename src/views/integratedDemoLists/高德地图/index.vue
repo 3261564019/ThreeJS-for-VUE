@@ -1,7 +1,10 @@
 <template>
-  <div id="RootContainer"></div>
-  <canvas id="Canvas"></canvas>"
-  <button @click="addMarker">动态添加</button>
+  <div class="root">
+    <div id="RootContainer"></div>
+    <div class="fixed">
+      <button @click="addMarker">动态添加</button>
+    </div>
+  </div>
 </template>
 <script setup lang="ts">
 import AMapLoader from '@amap/amap-jsapi-loader';
@@ -9,6 +12,7 @@ import {onMounted, onUnmounted} from "vue";
 import {GMapRender} from "./hooks";
 import testCpn from "@/components/test.vue";
 import {MakerWithCmp} from "./types/Gmap";
+import {debounce} from "../../../utils";
 
 let stats;
 let threeIns:GMapRender;
@@ -82,7 +86,15 @@ function initMap() {
 
     // addMarker()
 
-    threeIns=new GMapRender(mapIns,center,AMap)
+    threeIns=new GMapRender({
+      mapIns,
+      center,
+      AMap,
+      AMapDomId:"RootContainer"
+    })
+
+    window.addEventListener("resize",debounce(threeIns.resize,500,threeIns))
+
     console.log(mapIns,"实例")
 
   }).catch(e => {
@@ -94,8 +106,8 @@ onMounted(() => {
   initMap()
 })
 
+
 onUnmounted(()=>{
-  // stats.domElement.parentNode.removeChild(stats.domElement);
   mapIns.destroy();
   threeIns.destroy();
 })
@@ -105,24 +117,27 @@ onUnmounted(()=>{
 #RootContainer {
   padding: 0px;
   margin: 0px;
-  width: 500px;
-  height: 500px;
-}
-#Canvas{
-  width:500px;
-  height:200px;
-  //background: #fff;
+  height: 100vh;
 }
 </style>
 <style lang="less">
-#RootContainer {
- .amap-copyright,.amap-logo{
-    display: none;
-   opacity: 0;
-   user-select: none;
+.root{
+  position: relative;
+  #RootContainer {
+    .amap-copyright,.amap-logo{
+      display: none;
+      opacity: 0;
+      user-select: none;
+    }
+    .amap-icon{
+      user-select: none;
+    }
   }
-  .amap-icon{
-    user-select: none;
+  .fixed{
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.5);
   }
 }
 </style>

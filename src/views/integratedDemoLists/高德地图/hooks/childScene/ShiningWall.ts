@@ -53,7 +53,7 @@ export class ShiningWall extends ChildScene {
 
 
         const geometry2 = geometry.clone()
-        this.texture = this.generateTexture(128, params.color)
+        this.texture = this.generateTexture(32, params.color)
         this.texture.wrapS = THREE.RepeatWrapping // 水平重复平铺
         this.texture.wrapT = THREE.RepeatWrapping // 垂直重复平铺
 
@@ -78,7 +78,7 @@ export class ShiningWall extends ChildScene {
         this.texture_offset = - elapsedTime  // 向上移动
         this.texture.offset.set(0, this.texture_offset)
     }
-    generateTexture(size = 64, color ="#ff0000"){
+    generateTexture(size = 32, color ="#ff0000"){
 
         let canvas = document.createElement('canvas')
         canvas.width = size

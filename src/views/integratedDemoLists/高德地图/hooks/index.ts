@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import {Clock, DirectionalLight, PerspectiveCamera, Scene, WebGLRenderer} from "three";
+import {AmbientLight, CameraHelper, Clock, PerspectiveCamera, Scene, WebGLRenderer} from "three";
 import {CustomCoords, GMapIns, MakerWithCmp, SetDataParams} from "../types/Gmap";
 import {ChildScene} from "../types";
 import {RotationBox} from "./childScene/RotationBox";
@@ -8,6 +8,23 @@ import {ShiningWall} from "./childScene/ShiningWall";
 import {CustomLabelRender} from "./renders/customLabelRender";
 import {CSS2DObject} from "three/examples/jsm/renderers/CSS2DRenderer";
 import {createApp} from "vue";
+// @ts-ignore
+import * as dat from 'dat.gui';
+
+/*
+ * 构造自定义图层的参数
+ */
+export interface GMapMakerParams {
+    // 高德地图实例
+    mapIns:GMapIns
+    //中心点的经纬度[]
+    center:number[]
+    //加载出来的对象
+    AMap:any
+    //地图容器id
+    AMapDomId:string
+}
+
 export class GMapRender {
     private camera: PerspectiveCamera;
     private renderer: WebGLRenderer;
@@ -26,13 +43,14 @@ export class GMapRender {
     private clock: Clock;
     private stats: Stats;
     private labelRender:CustomLabelRender
-
-
-    constructor(mapIns:GMapIns,center:number[],AMap:any) {
-        this.mapIns=mapIns;
-        this.customCoords = mapIns.customCoords;
-        this.centerPosition = center;
-        this.AMap = AMap;
+    private p:GMapMakerParams
+    private dat:any
+    constructor(p:GMapMakerParams) {
+        this.p=p;
+        this.mapIns=p.mapIns;
+        this.customCoords = p.mapIns.customCoords;
+        this.centerPosition = p.center;
+        this.AMap = p.AMap;
         this.clock=new Clock();
         this.scene = new THREE.Scene();
 
@@ -41,12 +59,12 @@ export class GMapRender {
             let dom=document.querySelector(".amap-layers");
             this.labelRender=new CustomLabelRender({scene:this.scene,camera:this.camera,zIndex:'10',parentDom:dom});
 
-            this.childScene.push(new RotationBox(this.scene,mapIns,this,[116.38694633457945,39.927013807253026]));
-            this.childScene.push(new RotationBox(this.scene,mapIns,this,[116.38731111500547,39.92411765068325]));
-            this.childScene.push(new RotationBox(this.scene,mapIns,this,[116.38731111500547,39.92411765068325]));
-            this.childScene.push(new RotationBox(this.scene,mapIns,this,[116.38922353003309,39.92581257536286],50));
+            this.childScene.push(new RotationBox(this.scene,p.mapIns,this,[116.38694633457945,39.927013807253026]));
+            this.childScene.push(new RotationBox(this.scene,p.mapIns,this,[116.38731111500547,39.92411765068325]));
+            this.childScene.push(new RotationBox(this.scene,p.mapIns,this,[116.38731111500547,39.92411765068325]));
+            this.childScene.push(new RotationBox(this.scene,p.mapIns,this,[116.38922353003309,39.92581257536286],50));
 
-            this.childScene.push(new ShiningWall({scene:this.scene,mapIns,renderIns:this,wallPath:[
+            this.childScene.push(new ShiningWall({scene:this.scene,mapIns:p.mapIns,renderIns:this,wallPath:[
                     [116.38694633457945,39.927013807253026],
                     [116.39100183460997,39.92691507665982],
                     [116.39065851185606,39.92410119489807],
@@ -62,11 +80,13 @@ export class GMapRender {
 
         this.initStats();
 
+        this.dat = new dat.GUI({width: 300});
     }
+
     addLights(){
         // 环境光照和平行光
-        let dLight = new DirectionalLight(0xffffff, 1);
-        dLight.position.set(1000, -100, 900);
+        let dLight = new AmbientLight(0xffffff, 1);
+        // dLight.position.set(1000, -100, 900);
         this.scene.add(dLight);
     }
     /**
@@ -86,16 +106,28 @@ export class GMapRender {
                     // 这里我们的地图模式是 3D，所以创建一个透视相机，相机的参数初始化可以随意设置，因为在 render 函数中，每一帧都需要同步相机参数，因此这里变得不那么重要。
                     // 如果你需要 2D 地图（viewMode: '2D'），那么你需要创建一个正交相机
                     this.camera = new THREE.PerspectiveCamera(60, 500 / 500, 100, 1 << 30);
+                    this.camera.far=500;
                     this.renderer = new THREE.WebGLRenderer({
                         context: gl,  // 地图的 gl 上下文
                         // logarithmicDepthBuffer:true,
                         alpha: true,
-                        depth:true,
+                        depth:false,
                         antialias: false,
                         // canvas: gl.canvas,
                     });
 
+                    this.dat.add(this.camera,"near",-300,300).onChange(()=>{
+                        console.log("变")
+                        this.camera.updateProjectionMatrix();
+                    })
+                    this.dat.add(this.camera,"far",-300,300).onChange(()=>{
+                        console.log("变")
+                        this.camera.updateProjectionMatrix();
+                    })
 
+                    this.resize();
+
+                    this.scene.add(new CameraHelper(this.camera))
 
                     // 自动清空画布这里必须设置为 false，否则地图底图将无法显示
                     this.renderer.autoClear = false;
@@ -241,9 +273,22 @@ export class GMapRender {
     /**
      * 将经纬度转换为 three.js 的坐标
      * @param arr  [[116.38,39.92]]
-     * @return
+     * @return position [[x,y]]
      */
     latLongToPosition(arr:Array<number[]>){
        return  this.mapIns.customCoords.lngLatsToCoords(arr)
+    }
+    //调整显示范围的显示比例,需要自己防抖
+    resize() {
+        let dom=document.getElementById(this.p.AMapDomId);
+        if(dom){
+            let t={w:dom.offsetWidth,h:dom.offsetHeight};
+            this.camera.aspect = t.w/ t.h;
+            this.camera.updateProjectionMatrix();
+            this.renderer.setSize(t.w, t.h);
+
+            console.log(this.labelRender,"sssss")
+            this.labelRender?.labelRenderer.setSize(t.w, t.h);
+        }
     }
 }
