@@ -74,6 +74,11 @@ const routes: Array<RouteRecordRaw> = [
         name: 'transparent',
         component: ()=> import("@/views/integratedDemoLists/透明图片材质/index.vue")
     },
+    {
+        path: '/tempa',
+        name: 'tempa',
+        component: ()=> import("@/views/unsuccessful/面试/grid.vue")
+    },
     // {
     //     path: '/sb',
     //     name: 'sb',

@@ -81,10 +81,8 @@ export class BaseScene extends BaseInit {
                     
                     varying vec2 vUv;
                     
-                    void main() {
-                    
+                    void main() { 
                         gl_FragColor = ( texture2D( baseTexture, vUv ) + vec4( 1.0 ) * texture2D( bloomTexture, vUv ) );
-                    
                     }
                 `,
                 defines: {}
@@ -160,7 +158,7 @@ export class BaseScene extends BaseInit {
 
         //创建聚光灯
         const light = new THREE.SpotLight("#FFF");
-        light.intensity=0.3
+        light.intensity=1
         light.castShadow = true;            // default false
         light.position.x = 20;
         light.position.y = 30;
@@ -196,7 +194,7 @@ export class BaseScene extends BaseInit {
 
             this.raf=requestAnimationFrame(animate);
 
-            // this.renderer.render(this.scene, this.camera);
+            this.renderer.render(this.scene, this.camera);
             this.bloomComposer.render();
             this.finalComposer.render();
         }

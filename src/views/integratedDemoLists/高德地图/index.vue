@@ -1,6 +1,7 @@
 <template>
   <div id="RootContainer"></div>
   <canvas id="Canvas"></canvas>"
+  <button @click="addMarker">动态添加</button>
 </template>
 <script setup lang="ts">
 import AMapLoader from '@amap/amap-jsapi-loader';
@@ -15,33 +16,48 @@ let mapIns:any;
 
 let markerCpmMap=new Map<number,MakerWithCmp>();
 
+
+const markerClickCallback = (e) => {
+  //拿到marker的
+  let id=e.target._amap_id
+  //根据 id 获取对应的组件
+  let item=markerCpmMap.get(id)
+  //当前处于打开状态
+  if(item && item.state==="opening" && item.close){
+    item.close()
+    return
+  }
+  threeIns.openInfoWindow(item)
+}
+
 function addMarker() {
+
+  let positions = [
+    [116.38952353003309,39.92581257536286],
+    [116.38352353003309,39.92581257536286]
+  ]
+
+
   // 添加标记点
   const icon = new AMap.Icon({
     size: new AMap.Size(25, 34),
     image: '//a.amap.com/jsapi_demos/static/demo-center/icons/poi-marker-red.png',
     imageSize: new AMap.Size(25, 34)
   });
-  const marker = new AMap.Marker({
-    icon: icon,
-    position:[116.38952353003309,39.92581257536286],
-    offset: new AMap.Pixel(-12, -28),
-  });
-  console.log("marker.target._amap_id",)
-  //@ts-ignore
-  markerCpmMap.set(marker._amap_id,{marker,cmp:testCpn,state:null})
 
-  marker.setMap(mapIns);
+  positions.forEach(item=>{
+    const marker = new AMap.Marker({
+      icon: icon,
+      position:item,
+      offset: new AMap.Pixel(-12, -28),
+    });
 
-  marker.on('click', (e) => {
-    let id=e.target._amap_id
-    let item=markerCpmMap.get(id)
-    //@ts-ignore
-    if(item.state==="opening"){
-      return
-    }
-    threeIns.openInfoWindow(item)
-  });
+    markerCpmMap.set(marker._amap_id,{marker,component:testCpn,state:null})
+
+    marker.setMap(mapIns);
+
+    marker.on('click',markerClickCallback);
+  })
 }
 
 function initMap() {
@@ -52,13 +68,6 @@ function initMap() {
   }).then((AMap) => {
     console.log(AMap)
 
-    // let satellite = new AMap.TileLayer.Satellite();
-
-    // let buildings = new AMap.Buildings({
-    //   'zooms': [16,18],
-    //   'zIndex': 10,
-    //   'heightFactor': 2 // 2 倍于默认高度（3D 视图下生效）
-    // });
 
     let center= [116.38922353003309,39.92581257536286]
 
@@ -71,19 +80,7 @@ function initMap() {
       pitch: 50,
     });
 
-    addMarker()
-    //
-    // let aaa=mapIns.customCoords.lngLatsToCoords([
-    //   [116.38922453003309, 39.92581257536286],
-    // ])
-    // console.log("aaa",aaa)
-    //
-    // setTimeout(()=>{
-    //   let b=mapIns.customCoords.lngLatsToCoords([
-    //     [116.38922453003309, 39.92581257536286],
-    //   ])
-    //   console.log("bbb",b)
-    // },100)
+    // addMarker()
 
     threeIns=new GMapRender(mapIns,center,AMap)
     console.log(mapIns,"实例")
@@ -95,7 +92,6 @@ function initMap() {
 
 onMounted(() => {
   initMap()
-  // initCanvas()
 })
 
 onUnmounted(()=>{

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import {Clock, DirectionalLight, PerspectiveCamera, Scene, WebGLRenderer} from "three";
-import {CustomCoords, GMapIns, MakerWithCmp} from "../types/Gmap";
+import {CustomCoords, GMapIns, MakerWithCmp, SetDataParams} from "../types/Gmap";
 import {ChildScene} from "../types";
 import {RotationBox} from "./childScene/RotationBox";
 import Stats from "three/examples/jsm/libs/stats.module";
@@ -8,7 +8,6 @@ import {ShiningWall} from "./childScene/ShiningWall";
 import {CustomLabelRender} from "./renders/customLabelRender";
 import {CSS2DObject} from "three/examples/jsm/renderers/CSS2DRenderer";
 import {createApp} from "vue";
-import testCpn from "../../../../components/test.vue";
 export class GMapRender {
     private camera: PerspectiveCamera;
     private renderer: WebGLRenderer;
@@ -195,32 +194,46 @@ export class GMapRender {
     //打开自定义的信息窗体
     openInfoWindow(ins?:MakerWithCmp) {
         if(!ins){
-            throw "openInfoWindow 参数为空"
+            throw new Error("openInfoWindow 参数为空")
         }
-
+        //将该对象的状态置为打开状态
         ins.state="opening"
-
-        // @ts-ignore
+        //将经纬度转为坐标 @ts-ignore
         let p=this.customCoords.lngLatsToCoords([ins.marker._position])
-
-        console.log(ins);
-
+        //创建组件需要挂载的dom
         let dom=document.createElement("div");
         // @ts-ignore
         dom.id="info-window-" +ins.marker._amap_id;
-
         document.body.appendChild(dom);
-        let cmpIns=createApp(ins.cmp).mount(dom)
-        console.log(cmpIns)
-
+        //创建出组件对象
+        let cmp=createApp(ins.component);
+        //挂载完拿到组件实例
+        let cmpIns=cmp.mount(dom)
         const label = new CSS2DObject(dom);
-
-        // @ts-ignore
-        cmpIns.setData({rootElementId:dom.id,destroy:()=>{
-                this.scene.remove(label)
-                ins.state=null
-                console.log("移除完成")
-            }})
+        //窗体的销毁函数
+        let destroy=()=>{
+            // 从场景中移除对象
+            this.scene.remove(label)
+            //卸载组件
+            cmp.unmount()
+            // @ts-ignore
+            cmp=null
+            // @ts-ignore
+            cmpIns=null
+            //重置状态以便下次打开
+            ins.state=null
+        }
+        //引用给到外部，方便调用
+        ins.close=destroy
+        /*
+            1、调用组件暴露出来的方法设置附加数据
+            2、传入销毁函数便于组件内部自己关闭
+         */
+        //@ts-ignore
+        cmpIns.setData({
+            data:ins.additionalData,
+            destroy
+        } as SetDataParams)
         // @ts-ignore
         label.position.set(p[0][0],p[0][1],0);
         this.scene.add(label)

@@ -1,5 +1,5 @@
 <template>
-  <div id="test" ref="rootDom" @click.capture="aaa">
+  <div id="test" ref="rootDom" @click.stop="aaa">
     {{num}}
     <input type="text" v-model="num" @change="aaa">
     <button  id="testBtn" @pointerdown.capture="add">增加</button>
@@ -7,8 +7,9 @@
   </div>
 </template>
 
-<script setup name="test">
-  import {ref,onMounted,onBeforeUnmount} from "vue"
+<script setup lang="ts" name="test">
+import {ref, onMounted, onBeforeUnmount, onUnmounted} from "vue"
+import {SetDataParams} from "../views/integratedDemoLists/高德地图/types/Gmap";
   let num=ref(14);
   let data=ref(null)
   let add=()=>{
@@ -39,27 +40,21 @@
       console.log("1111");
     }
   })
-  onBeforeUnmount(()=>{
+  onUnmounted(()=>{
     console.log("组件卸载了")
   })
+
+  let destroy:Function;
+
   function close() {
-    // rootDom.value.remove()
-    console.log(data.value.rootElementId)
-
-    var dom=document.getElementById(data.value.rootElementId);
-    // var dom=document.getElementById("labelRenderer");
-    window.dom=dom
-    // dom.style.visibility="hidden"
-    console.log("dom",dom)
-    // dom.remove()
-    dom.parentElement.removeChild(dom);
-
-    data.value.destroy();
+    destroy();
   }
 
+
   defineExpose({
-    setData:(e)=>{
-      data.value=e;
+    setData:(e:SetDataParams)=>{
+      data.value=e.data;
+      destroy=e.destroy
       console.log("设置成功",e)
     }
   })
