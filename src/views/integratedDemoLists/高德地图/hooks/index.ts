@@ -67,6 +67,22 @@ export class GMapRender {
             this.childScene.push(new RotationBox(this.scene,p.mapIns,this,[116.38731111500547,39.92411765068325]));
             this.childScene.push(new RotationBox(this.scene,p.mapIns,this,[116.38922353003309,39.92581257536286],50));
 
+
+            const minLatitude = 39.9;  // 最小纬度
+            const maxLatitude = 40.0;  // 最大纬度
+            const minLongitude = 116.3;  // 最小经度
+            const maxLongitude = 116.4;  // 最大经度
+
+// 循环添加对象
+            for (let i = 0; i < 300; i++) {
+                // 随机生成经纬度
+                const latitude = Math.random() * (maxLatitude - minLatitude) + minLatitude;
+                const longitude = Math.random() * (maxLongitude - minLongitude) + minLongitude;
+
+                // 将对象添加到 childScene
+                this.childScene.push(new RotationBox(this.scene, p.mapIns, this, [longitude, latitude]));
+            }
+
             this.childScene.push(new ShiningWall({scene:this.scene,mapIns:p.mapIns,renderIns:this,wallPath:[
                     [116.38694633457945,39.927013807253026],
                     [116.39100183460997,39.92691507665982],
