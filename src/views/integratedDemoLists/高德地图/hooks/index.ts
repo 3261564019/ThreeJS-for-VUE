@@ -3,13 +3,15 @@ import {AmbientLight, CameraHelper, Clock, PerspectiveCamera, Scene, WebGLRender
 import {CustomCoords, GMapIns, MakerWithCmp, SetDataParams} from "../types/Gmap";
 import {ChildScene} from "../types";
 import {RotationBox} from "./childScene/RotationBox";
-import Stats from "three/examples/jsm/libs/stats.module";
 import {ShiningWall} from "./childScene/ShiningWall";
 import {CustomLabelRender} from "./renders/customLabelRender";
 import {CSS2DObject} from "three/examples/jsm/renderers/CSS2DRenderer";
 import {createApp} from "vue";
 // @ts-ignore
 import * as dat from 'dat.gui';
+// @ts-ignore
+import Stats from 'stats-js';
+import {FlowPath} from "./childScene/FlowPath";
 
 /*
  * 构造自定义图层的参数
@@ -30,7 +32,7 @@ export class GMapRender {
     private renderer: WebGLRenderer;
     private scene: Scene;
     //高德地图实例
-    private mapIns: any;
+    private readonly mapIns: any;
     //AMapLoader.load 加载出来的结果
     private AMap: any;
     private customCoords:CustomCoords
@@ -53,6 +55,7 @@ export class GMapRender {
         this.AMap = p.AMap;
         this.clock=new Clock();
         this.scene = new THREE.Scene();
+        this.dat = new dat.GUI({width: 300});
 
         this.initCustomLayer().then(()=>{
             //创建标签渲染器
@@ -72,6 +75,21 @@ export class GMapRender {
                     [116.38694633457945,39.927013807253026],
                 ],color:"#FFD500"}))
 
+
+            this.childScene.push(new FlowPath({
+                renderIns:this,
+                scene:this.scene,
+                mapIns:this.mapIns,
+                path:[
+                    [116.3840388200073,39.925380620387735],
+                    [116.38922353003309,39.92581257536286],
+                    [116.39296521160887,39.92600592575559],
+                ],
+                height:[20,330,80],
+                size:20,
+                speed:220
+            }))
+
             this.animate();
 
         })
@@ -80,7 +98,6 @@ export class GMapRender {
 
         this.initStats();
 
-        this.dat = new dat.GUI({width: 300});
     }
 
     addLights(){
@@ -88,6 +105,8 @@ export class GMapRender {
         let dLight = new AmbientLight(0xffffff, 1);
         // dLight.position.set(1000, -100, 900);
         this.scene.add(dLight);
+
+        // this.dat.add(dLight,"itensity",-10,10);
     }
     /**
      *  初始化自定义图层,以及渲染器，相机
@@ -106,7 +125,7 @@ export class GMapRender {
                     // 这里我们的地图模式是 3D，所以创建一个透视相机，相机的参数初始化可以随意设置，因为在 render 函数中，每一帧都需要同步相机参数，因此这里变得不那么重要。
                     // 如果你需要 2D 地图（viewMode: '2D'），那么你需要创建一个正交相机
                     this.camera = new THREE.PerspectiveCamera(60, 500 / 500, 100, 1 << 30);
-                    this.camera.far=500;
+
                     this.renderer = new THREE.WebGLRenderer({
                         context: gl,  // 地图的 gl 上下文
                         // logarithmicDepthBuffer:true,
@@ -116,14 +135,14 @@ export class GMapRender {
                         // canvas: gl.canvas,
                     });
 
-                    this.dat.add(this.camera,"near",-300,300).onChange(()=>{
-                        console.log("变")
-                        this.camera.updateProjectionMatrix();
-                    })
-                    this.dat.add(this.camera,"far",-300,300).onChange(()=>{
-                        console.log("变")
-                        this.camera.updateProjectionMatrix();
-                    })
+                    // this.dat.add(this.camera,"near",-300,300).onChange(()=>{
+                    //     console.log("变")
+                    //     this.camera.updateProjectionMatrix();
+                    // })
+                    // this.dat.add(this.camera,"far",-300,300).onChange(()=>{
+                    //     console.log("变")
+                    //     this.camera.updateProjectionMatrix();
+                    // })
 
                     this.resize();
 
@@ -133,9 +152,9 @@ export class GMapRender {
                     this.renderer.autoClear = false;
                     // this.renderer.setDepthTest(true);
                     //设置HDR显示效果 这个属性用于在普通计算机显示器或者移动设备屏幕等低动态范围介质上，模拟、逼近高动态范围（HDR）效果。
-                    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+                    // this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
                     //场景曝光以及亮度
-                    // this.renderer.toneMappingExposure = 0.6;
+                    // this.renderer.toneMappingExposure =1;
 
                     // this.renderer.outputEncoding = THREE.sRGBEncoding;
                     this.renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
@@ -181,10 +200,11 @@ export class GMapRender {
         })
     }
     animate(){
-        this.childScene.forEach(scene=>{
+        for (let i = 0; i < this.childScene.length; i++){
+            let scene=this.childScene[i];
             scene.render(this.clock.getDelta(),this.clock.elapsedTime);
-        })
-        this.stats.update()
+        }
+        this.stats?.update()
         this.mapIns.render()
         this.labelRender?.render(this.scene, this.camera)
         this.raf=requestAnimationFrame(this.animate.bind(this));
@@ -236,7 +256,12 @@ export class GMapRender {
         let dom=document.createElement("div");
         // @ts-ignore
         dom.id="info-window-" +ins.marker._amap_id;
-        document.body.appendChild(dom);
+        dom.style.position='fixed'
+        let renderRoot=document.querySelector("#labelRenderer")
+        if(!renderRoot){
+            throw new Error("labelRenderer 没获取到！！！");
+        }
+        renderRoot.appendChild(dom);
         //创建出组件对象
         let cmp=createApp(ins.component);
         //挂载完拿到组件实例

@@ -75,7 +75,6 @@ onMounted(() => {
 #RootContainer {
   padding: 0px;
   margin: 0px;
-  width: 500px;
-  height: 500px;
+  height:100vh
 }
 </style>

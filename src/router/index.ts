@@ -25,6 +25,10 @@ const routes: Array<RouteRecordRaw> = [
         name: 'gmap',
         component: ()=> import("@/views/integratedDemoLists/高德地图/index.vue")
     },{
+        path: '/gmapt',
+        name: 'gmapt',
+        component: ()=> import("@/views/integratedDemoLists/高德地图/temp.vue")
+    },{
         path: '/community',
         name: 'community',
         component: ()=> import("../views/integratedDemoLists/场景练习/sceneDemo.vue")
