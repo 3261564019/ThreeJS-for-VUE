@@ -74,7 +74,7 @@ export class GMapRender {
             const maxLongitude = 116.4;  // 最大经度
 
 // 循环添加对象
-            for (let i = 0; i < 300; i++) {
+            for (let i = 0; i < 3; i++) {
                 // 随机生成经纬度
                 const latitude = Math.random() * (maxLatitude - minLatitude) + minLatitude;
                 const longitude = Math.random() * (maxLongitude - minLongitude) + minLongitude;

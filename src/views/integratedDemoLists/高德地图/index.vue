@@ -117,8 +117,10 @@ onUnmounted(()=>{
 #RootContainer {
   padding: 0px;
   margin: 0px;
-  height:800px;
-  width:800px;
+  //height:800px;
+  //width:800px;
+  height:100vh;
+  width:100vw;
 }
 </style>
 <style lang="less">
