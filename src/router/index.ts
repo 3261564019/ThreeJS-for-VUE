@@ -83,6 +83,11 @@ const routes: Array<RouteRecordRaw> = [
         name: 'tempa',
         component: ()=> import("@/views/unsuccessful/面试/grid.vue")
     },
+    {
+        path: '/shaderPart',
+        name: 'shaderPart',
+        component: ()=> import("@/views/unsuccessful/shaderPart/index.vue")
+    },
     // {
     //     path: '/sb',
     //     name: 'sb',

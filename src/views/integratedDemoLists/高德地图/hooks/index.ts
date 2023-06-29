@@ -18,13 +18,13 @@ import {FlowPath} from "./childScene/FlowPath";
  */
 export interface GMapMakerParams {
     // 高德地图实例
-    mapIns:GMapIns
+    mapIns: GMapIns
     //中心点的经纬度[]
-    center:number[]
+    center: number[]
     //加载出来的对象
-    AMap:any
+    AMap: any
     //地图容器id
-    AMapDomId:string
+    AMapDomId: string
 }
 
 export class GMapRender {
@@ -35,37 +35,43 @@ export class GMapRender {
     private readonly mapIns: any;
     //AMapLoader.load 加载出来的结果
     private AMap: any;
-    private customCoords:CustomCoords
+    private customCoords: CustomCoords
     //地图中心点经纬度
-    private readonly centerPosition:number[]
+    private readonly centerPosition: number[]
     //RequestAnimationFrame的key
-    private raf:number
+    private raf: number
     //子场景
-    private childScene: ChildScene[]=[]
+    private childScene: ChildScene[] = []
     private clock: Clock;
     private stats: Stats;
-    private labelRender:CustomLabelRender
-    private p:GMapMakerParams
-    private dat:any
-    constructor(p:GMapMakerParams) {
-        this.p=p;
-        this.mapIns=p.mapIns;
+    private labelRender: CustomLabelRender
+    private p: GMapMakerParams
+    private dat: any
+
+    constructor(p: GMapMakerParams) {
+        this.p = p;
+        this.mapIns = p.mapIns;
         this.customCoords = p.mapIns.customCoords;
         this.centerPosition = p.center;
         this.AMap = p.AMap;
-        this.clock=new Clock();
+        this.clock = new Clock();
         this.scene = new THREE.Scene();
         this.dat = new dat.GUI({width: 300});
 
-        this.initCustomLayer().then(()=>{
+        this.initCustomLayer().then(() => {
             //创建标签渲染器
-            let dom=document.querySelector(".amap-layers");
-            this.labelRender=new CustomLabelRender({scene:this.scene,camera:this.camera,zIndex:'10',parentDom:dom});
+            let dom = document.querySelector(".amap-layers");
+            this.labelRender = new CustomLabelRender({
+                scene: this.scene,
+                camera: this.camera,
+                zIndex: '10',
+                parentDom: dom
+            });
 
-            this.childScene.push(new RotationBox(this.scene,p.mapIns,this,[116.38694633457945,39.927013807253026]));
-            this.childScene.push(new RotationBox(this.scene,p.mapIns,this,[116.38731111500547,39.92411765068325]));
-            this.childScene.push(new RotationBox(this.scene,p.mapIns,this,[116.38731111500547,39.92411765068325]));
-            this.childScene.push(new RotationBox(this.scene,p.mapIns,this,[116.38922353003309,39.92581257536286],50));
+            this.childScene.push(new RotationBox(this.scene, p.mapIns, this, [116.38694633457945, 39.927013807253026]));
+            this.childScene.push(new RotationBox(this.scene, p.mapIns, this, [116.38731111500547, 39.92411765068325]));
+            this.childScene.push(new RotationBox(this.scene, p.mapIns, this, [116.38731111500547, 39.92411765068325]));
+            this.childScene.push(new RotationBox(this.scene, p.mapIns, this, [116.38922353003309, 39.92581257536286], 50));
 
 
             const minLatitude = 39.9;  // 最小纬度
@@ -73,37 +79,38 @@ export class GMapRender {
             const minLongitude = 116.3;  // 最小经度
             const maxLongitude = 116.4;  // 最大经度
 
-// 循环添加对象
-            for (let i = 0; i < 3; i++) {
+            // 循环添加对象
+            for (let i = 0; i < 1000; i++) {
                 // 随机生成经纬度
                 const latitude = Math.random() * (maxLatitude - minLatitude) + minLatitude;
                 const longitude = Math.random() * (maxLongitude - minLongitude) + minLongitude;
-
                 // 将对象添加到 childScene
                 this.childScene.push(new RotationBox(this.scene, p.mapIns, this, [longitude, latitude]));
             }
 
-            this.childScene.push(new ShiningWall({scene:this.scene,mapIns:p.mapIns,renderIns:this,wallPath:[
-                    [116.38694633457945,39.927013807253026],
-                    [116.39100183460997,39.92691507665982],
-                    [116.39065851185606,39.92410119489807],
-                    [116.38731111500547,39.92411765068325],
-                    [116.38694633457945,39.927013807253026],
-                ],color:"#FFD500"}))
+            this.childScene.push(new ShiningWall({
+                scene: this.scene, mapIns: p.mapIns, renderIns: this, wallPath: [
+                    [116.38694633457945, 39.927013807253026],
+                    [116.39100183460997, 39.92691507665982],
+                    [116.39065851185606, 39.92410119489807],
+                    [116.38731111500547, 39.92411765068325],
+                    [116.38694633457945, 39.927013807253026],
+                ], color: "#FFD500"
+            }))
 
 
             this.childScene.push(new FlowPath({
-                renderIns:this,
-                scene:this.scene,
-                mapIns:this.mapIns,
-                path:[
-                    [116.3840388200073,39.925380620387735],
-                    [116.38922353003309,39.92581257536286],
-                    [116.39296521160887,39.92600592575559],
+                renderIns: this,
+                scene: this.scene,
+                mapIns: this.mapIns,
+                path: [
+                    [116.3840388200073, 39.925380620387735],
+                    [116.38922353003309, 39.92581257536286],
+                    [116.39296521160887, 39.92600592575559],
                 ],
-                height:[20,330,80],
-                size:20,
-                speed:220
+                height: [20, 330, 80],
+                size: 20,
+                speed: 220
             }))
 
             this.animate();
@@ -116,7 +123,7 @@ export class GMapRender {
 
     }
 
-    addLights(){
+    addLights() {
         // 环境光照和平行光
         let dLight = new AmbientLight(0xffffff, 1);
         // dLight.position.set(1000, -100, 900);
@@ -124,18 +131,19 @@ export class GMapRender {
 
         // this.dat.add(dLight,"itensity",-10,10);
     }
+
     /**
      *  初始化自定义图层,以及渲染器，相机
      */
-    initCustomLayer(){
+    initCustomLayer() {
         return new Promise(resolve => {
             let GlLayer = new this.AMap.GLCustomLayer({
                 // 图层的层级 默认为 120
                 zIndex: 10,
                 //图层缩放等级范围，默认 [2, 20]
-                zooms:[2,20],
+                zooms: [2, 20],
                 // 初始化的操作，创建图层过程中执行一次。
-                init: (gl:any) => {
+                init: (gl: any) => {
 
 
                     // 这里我们的地图模式是 3D，所以创建一个透视相机，相机的参数初始化可以随意设置，因为在 render 函数中，每一帧都需要同步相机参数，因此这里变得不那么重要。
@@ -146,7 +154,7 @@ export class GMapRender {
                         context: gl,  // 地图的 gl 上下文
                         // logarithmicDepthBuffer:true,
                         alpha: true,
-                        depth:false,
+                        depth: false,
                         antialias: false,
                         // canvas: gl.canvas,
                     });
@@ -215,16 +223,18 @@ export class GMapRender {
             this.mapIns.add(GlLayer);
         })
     }
-    animate(){
-        for (let i = 0; i < this.childScene.length; i++){
-            let scene=this.childScene[i];
-            scene.render(this.clock.getDelta(),this.clock.elapsedTime);
+
+    animate() {
+        for (let i = 0; i < this.childScene.length; i++) {
+            let scene = this.childScene[i];
+            scene.render(this.clock.getDelta(), this.clock.elapsedTime);
         }
         this.stats?.update()
         this.mapIns.render()
         this.labelRender?.render(this.scene, this.camera)
-        this.raf=requestAnimationFrame(this.animate.bind(this));
+        this.raf = requestAnimationFrame(this.animate.bind(this));
     }
+
     initStats() {
         //实例化
         // @ts-ignore
@@ -238,6 +248,7 @@ export class GMapRender {
         //添加到body里
         document.body.appendChild(this.stats.domElement);
     }
+
     destroy() {
         try {
             cancelAnimationFrame(this.raf);
@@ -259,76 +270,79 @@ export class GMapRender {
             console.log(e)
         }
     }
+
     //打开自定义的信息窗体
-    openInfoWindow(ins?:MakerWithCmp) {
-        if(!ins){
+    openInfoWindow(ins?: MakerWithCmp) {
+        if (!ins) {
             throw new Error("openInfoWindow 参数为空")
         }
         //将该对象的状态置为打开状态
-        ins.state="opening"
+        ins.state = "opening"
         //将经纬度转为坐标 @ts-ignore
-        let p=this.customCoords.lngLatsToCoords([ins.marker._position])
+        let p = this.customCoords.lngLatsToCoords([ins.marker._position])
         //创建组件需要挂载的dom
-        let dom=document.createElement("div");
+        let dom = document.createElement("div");
         // @ts-ignore
-        dom.id="info-window-" +ins.marker._amap_id;
-        dom.style.position='fixed'
-        let renderRoot=document.querySelector("#labelRenderer")
-        if(!renderRoot){
+        dom.id = "info-window-" + ins.marker._amap_id;
+        dom.style.position = 'fixed'
+        let renderRoot = document.querySelector("#labelRenderer")
+        if (!renderRoot) {
             throw new Error("labelRenderer 没获取到！！！");
         }
         renderRoot.appendChild(dom);
         //创建出组件对象
-        let cmp=createApp(ins.component);
+        let cmp = createApp(ins.component);
         //挂载完拿到组件实例
-        let cmpIns=cmp.mount(dom)
+        let cmpIns = cmp.mount(dom)
         const label = new CSS2DObject(dom);
         //窗体的销毁函数
-        let destroy=()=>{
+        let destroy = () => {
             // 从场景中移除对象
             this.scene.remove(label)
             //卸载组件
             cmp.unmount()
             // @ts-ignore
-            cmp=null
+            cmp = null
             // @ts-ignore
-            cmpIns=null
+            cmpIns = null
             //重置状态以便下次打开
-            ins.state=null
+            ins.state = null
         }
         //引用给到外部，方便调用
-        ins.close=destroy
+        ins.close = destroy
         /*
             1、调用组件暴露出来的方法设置附加数据
             2、传入销毁函数便于组件内部自己关闭
          */
         //@ts-ignore
         cmpIns.setData({
-            data:ins.additionalData,
+            data: ins.additionalData,
             destroy
         } as SetDataParams)
         // @ts-ignore
-        label.position.set(p[0][0],p[0][1],0);
+        label.position.set(p[0][0], p[0][1], 0);
         this.scene.add(label)
     }
+
     /**
      * 将经纬度转换为 three.js 的坐标
      * @param arr  [[116.38,39.92]]
      * @return position [[x,y]]
      */
-    latLongToPosition(arr:Array<number[]>){
-       return  this.mapIns.customCoords.lngLatsToCoords(arr)
+    latLongToPosition(arr: Array<number[]>) {
+        return this.mapIns.customCoords.lngLatsToCoords(arr)
     }
+
     //调整显示范围的显示比例,需要自己防抖
     resize() {
-        let dom=document.getElementById(this.p.AMapDomId);
-        if(dom){
-            let t={w:dom.offsetWidth,h:dom.offsetHeight};
-            this.camera.aspect = t.w/ t.h;
+        let dom = document.getElementById(this.p.AMapDomId);
+        if (dom) {
+            let t = {w: dom.offsetWidth, h: dom.offsetHeight};
+            this.camera.aspect = t.w / t.h;
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(t.w, t.h);
 
-            console.log(this.labelRender,"sssss")
+            console.log(this.labelRender, "sssss")
             this.labelRender?.labelRenderer.setSize(t.w, t.h);
         }
     }
