@@ -152,12 +152,18 @@ export class ModelAnimation extends BaseInit {
                     console.log("isMesh",child)
                     child.castShadow = true;
                     child.receiveShadow = true;
-                    child.material =tempMaterial
+                    // child.material =tempMaterial
                 }
             });
             object.position.set(-0,0,0)
             object.scale.set(0.10,0.10,0.10)
 
+            this.scene.add(object)
+
+            let obj=object.clone()
+            obj.position.set(18,0,0)
+            obj.scale.set(0.20,0.20,0.20)
+            this.scene.add(obj)
 
 
             // for(let i=0;i<3;i++){
@@ -179,11 +185,11 @@ export class ModelAnimation extends BaseInit {
             //     })
             // }
 
-            this.animationMixer = new AnimationMixer(object);
-            this.scene.add(object);
-
-            const action = this.animationMixer.clipAction(object.animations[0]);
-            action.play();
+            // this.animationMixer = new AnimationMixer(object);
+            // this.scene.add(object);
+            //
+            // const action = this.animationMixer.clipAction(object.animations[0]);
+            // action.play();
 
 
             // setTimeout(()=>{
@@ -271,9 +277,9 @@ export class ModelAnimation extends BaseInit {
             //     animationMixer.update(delta)
             // })
 
-            if (this.animationMixer) {
-                this.animationMixer.update(delta);
-            }
+            // if (this.animationMixer) {
+            //     this.animationMixer.update(delta);
+            // }
 
             this.raf=requestAnimationFrame(animate);
         }

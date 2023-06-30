@@ -82,7 +82,8 @@ export class BaseInit {
         needAudioLoader: false,
         needGLTFLoader: false,
         adjustScreenSize: false,
-        renderDomId: '#webGl'
+        renderDomId: '#webGl',
+        needDebug:true
     }) {
 
         const scene = new THREE.Scene();
@@ -110,7 +111,6 @@ export class BaseInit {
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         //场景曝光以及亮度
         renderer.toneMappingExposure = 0.6;
-
         renderer.outputEncoding = THREE.sRGBEncoding;
 
 
