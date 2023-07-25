@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import {Mesh} from "three";
 import {BaseInit, BaseInitParams} from "../../../three/classDefine/baseInit";
-import {RotationBox} from "../高德地图/hooks/childScene/RotationBox";
+import {RotationBoxScene} from "../高德地图/hooks/childScene/RotationBoxScene";
 import {ShiningWall} from "../高德地图/hooks/childScene/ShiningWall";
 import {ChildScene} from "../高德地图/types";
 

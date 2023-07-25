@@ -4,6 +4,7 @@ import {AnimationAction, AnimationClip, AnimationMixer, Object3D, ShaderMaterial
 import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
 // import dancerFbx from "/src/assets/model/sambaDancing.fbx?url"
 import dancerFbx from "/src/assets/model/热舞/WaveHipHopDance.fbx?url"
+import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 
 
 
@@ -185,11 +186,11 @@ export class ModelAnimation extends BaseInit {
             //     })
             // }
 
-            // this.animationMixer = new AnimationMixer(object);
-            // this.scene.add(object);
+            this.animationMixer = new AnimationMixer(object);
+            this.scene.add(object);
             //
-            // const action = this.animationMixer.clipAction(object.animations[0]);
-            // action.play();
+            const action = this.animationMixer.clipAction(object.animations[0]);
+            action.play();
 
 
             // setTimeout(()=>{
@@ -200,6 +201,16 @@ export class ModelAnimation extends BaseInit {
 
 
         });
+
+        const gltfLoader = new GLTFLoader();
+
+        loader.load(
+            "https://dddance.party/models/pepe2/cheering.gltf",(e)=>{
+                console.log("eee",e)
+                e.position.set(50,0,0)
+                this.scene.add(e)
+
+            })
     }
     addPlan(){
 
@@ -277,9 +288,9 @@ export class ModelAnimation extends BaseInit {
             //     animationMixer.update(delta)
             // })
 
-            // if (this.animationMixer) {
-            //     this.animationMixer.update(delta);
-            // }
+            if (this.animationMixer) {
+                this.animationMixer.update(delta);
+            }
 
             this.raf=requestAnimationFrame(animate);
         }

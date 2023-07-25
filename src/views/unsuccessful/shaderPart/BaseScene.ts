@@ -27,9 +27,9 @@ export class ShaderBaseScene extends BaseInit {
 
         // this.addPoints();
 
-        // this.addBox();
+        this.addBox();
         this.addBall();
-        this.addCube();
+        // this.addCube();
         this.addDebug();
     }
     addCube(){

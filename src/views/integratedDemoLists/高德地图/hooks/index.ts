@@ -2,7 +2,7 @@ import * as THREE from "three";
 import {AmbientLight, CameraHelper, Clock, PerspectiveCamera, Scene, WebGLRenderer} from "three";
 import {CustomCoords, GMapIns, MakerWithCmp, SetDataParams} from "../types/Gmap";
 import {ChildScene} from "../types";
-import {RotationBox} from "./childScene/RotationBox";
+import {RotationBoxScene} from "./childScene/RotationBoxScene";
 import {ShiningWall} from "./childScene/ShiningWall";
 import {CustomLabelRender} from "./renders/customLabelRender";
 import {CSS2DObject} from "three/examples/jsm/renderers/CSS2DRenderer";
@@ -42,11 +42,14 @@ export class GMapRender {
     private raf: number
     //子场景
     private childScene: ChildScene[] = []
+    //正方体旋转
+    private boxScene:RotationBoxScene
     private clock: Clock;
     private stats: Stats;
     private labelRender: CustomLabelRender
     private p: GMapMakerParams
     private dat: any
+
 
     constructor(p: GMapMakerParams) {
         this.p = p;
@@ -58,6 +61,8 @@ export class GMapRender {
         this.scene = new THREE.Scene();
         this.dat = new dat.GUI({width: 300});
 
+        this.boxScene=new RotationBoxScene(this.scene,p.mapIns,this);
+
         this.initCustomLayer().then(() => {
             //创建标签渲染器
             let dom = document.querySelector(".amap-layers");
@@ -68,11 +73,16 @@ export class GMapRender {
                 parentDom: dom
             });
 
-            this.childScene.push(new RotationBox(this.scene, p.mapIns, this, [116.38694633457945, 39.927013807253026]));
-            this.childScene.push(new RotationBox(this.scene, p.mapIns, this, [116.38731111500547, 39.92411765068325]));
-            this.childScene.push(new RotationBox(this.scene, p.mapIns, this, [116.38731111500547, 39.92411765068325]));
-            this.childScene.push(new RotationBox(this.scene, p.mapIns, this, [116.38922353003309, 39.92581257536286], 50));
+             let temp=[
+                 [116.38694633457945, 39.927013807253026],
+                 [116.38731111500547, 39.92411765068325],
+                 [116.38731111500547, 39.92411765068325],
+                 [116.38922353003309, 39.92581257536286],
+             ];
 
+             temp.forEach(v=>{
+                 this.boxScene.addBox(v)
+             })
 
             const minLatitude = 39.9;  // 最小纬度
             const maxLatitude = 40.0;  // 最大纬度
@@ -80,12 +90,13 @@ export class GMapRender {
             const maxLongitude = 116.4;  // 最大经度
 
             // 循环添加对象
-            for (let i = 0; i < 1000; i++) {
+            for (let i = 0; i < 2000; i++) {
                 // 随机生成经纬度
                 const latitude = Math.random() * (maxLatitude - minLatitude) + minLatitude;
                 const longitude = Math.random() * (maxLongitude - minLongitude) + minLongitude;
-                // 将对象添加到 childScene
-                this.childScene.push(new RotationBox(this.scene, p.mapIns, this, [longitude, latitude]));
+                // 将对象添加到
+                this.boxScene.addBox([longitude, latitude])
+
             }
 
             this.childScene.push(new ShiningWall({
@@ -139,7 +150,7 @@ export class GMapRender {
         return new Promise(resolve => {
             let GlLayer = new this.AMap.GLCustomLayer({
                 // 图层的层级 默认为 120
-                zIndex: 10,
+                zIndex: 120,
                 //图层缩放等级范围，默认 [2, 20]
                 zooms: [2, 20],
                 // 初始化的操作，创建图层过程中执行一次。
@@ -149,7 +160,8 @@ export class GMapRender {
                     // 这里我们的地图模式是 3D，所以创建一个透视相机，相机的参数初始化可以随意设置，因为在 render 函数中，每一帧都需要同步相机参数，因此这里变得不那么重要。
                     // 如果你需要 2D 地图（viewMode: '2D'），那么你需要创建一个正交相机
                     this.camera = new THREE.PerspectiveCamera(60, 500 / 500, 100, 1 << 30);
-
+                    // this.camera.near =100
+                    // this.camera.far =500
                     this.renderer = new THREE.WebGLRenderer({
                         context: gl,  // 地图的 gl 上下文
                         // logarithmicDepthBuffer:true,
@@ -157,7 +169,12 @@ export class GMapRender {
                         depth: false,
                         antialias: false,
                         // canvas: gl.canvas,
+                        logarithmicDepthBuffer:true
                     });
+
+                    this.renderer.outputEncoding=THREE.LinearEncoding;
+                    this.renderer.toneMappingExposure=1;
+                    this.renderer.toneMapping=THREE.ACESFilmicToneMapping;
 
                     // this.dat.add(this.camera,"near",-300,300).onChange(()=>{
                     //     console.log("变")
@@ -198,8 +215,11 @@ export class GMapRender {
                     // 2D 地图下使用的正交相机
                     // var { near, far, top, bottom, left, right, position, rotation } = customCoords.getCameraParams();
                     // 这里的顺序不能颠倒，否则可能会出现绘制卡顿的效果。
-                    this.camera.near = near;
-                    this.camera.far = far;
+                    this.camera.near = near/20;
+                    this.camera.far = far/20;
+                    // this.camera.near = near;
+                    // this.camera.far = far;
+                    // console.log("near: " + near + " far: " + far);
                     this.camera.fov = fov;
                     // @ts-ignore
                     this.camera.position.set(...position);
@@ -226,9 +246,9 @@ export class GMapRender {
 
     animate() {
         for (let i = 0; i < this.childScene.length; i++) {
-            let scene = this.childScene[i];
-            scene.render(this.clock.getDelta(), this.clock.elapsedTime);
+            this.childScene[i].render(this.clock.getDelta(), this.clock.elapsedTime);
         }
+        this.boxScene?.render(this.clock.getDelta(), this.clock.elapsedTime)
         this.stats?.update()
         this.mapIns.render()
         this.labelRender?.render(this.scene, this.camera)
