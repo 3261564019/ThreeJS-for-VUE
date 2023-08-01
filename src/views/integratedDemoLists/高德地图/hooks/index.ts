@@ -250,7 +250,9 @@ export class GMapRender {
         }
         this.boxScene?.render(this.clock.getDelta(), this.clock.elapsedTime)
         this.stats?.update()
-        this.mapIns.render()
+        setTimeout(()=>{
+            this.mapIns.render()
+        },0)
         this.labelRender?.render(this.scene, this.camera)
         this.raf = requestAnimationFrame(this.animate.bind(this));
     }

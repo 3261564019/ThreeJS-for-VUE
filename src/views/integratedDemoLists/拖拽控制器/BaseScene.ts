@@ -102,7 +102,7 @@ export class BaseScene extends BaseInit {
     addPlan(){
 
         const geometry = new THREE.PlaneGeometry(40, 40);
-        const material = new THREE.MeshLambertMaterial({color: 0x222222});
+        const material = new THREE.MeshPhongMaterial({color:new THREE.Color("#249444")});
         material.side=THREE.DoubleSide
         const plane = new THREE.Mesh(geometry, material);
         //设置接受阴影

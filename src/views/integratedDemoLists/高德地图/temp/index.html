@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>3dtiles</title>
+    <link rel="stylesheet" href="https://a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css"/>
+    <style>
+        html, body, #container {
+            height: 100%;
+            width: 100%;
+            background:black!important
+        }
+
+        .input-card {
+            width: 25rem;
+        }
+
+        .input-card .btn {
+            width: 7rem;
+            margin-right: .7rem;
+        }
+
+        .input-card .btn:last-child {
+            margin-right: 0;
+        }
+    </style>
+</head>
+<body>
+<div id="container" class="map" tabindex="0"></div>
+<script type="text/javascript" src="https://webapi.amap.com/maps?v=2.0&key=307b9b2fe6d626c13dc963dc24bd60e0&plugin=AMap.3DTilesLayer"></script>
+<script type="text/javascript" src='https://a.amap.com/jsapi_demos/static/data3d/lib/three.117.js'></script>
+<script type="text/javascript" src='https://a.amap.com/jsapi_demos/static/data3d/lib/GLTFLoader.117.min.js'></script>
+<script type="text/javascript">
+
+    var map = new AMap.Map("container", {
+        resizeEnable: true,
+        viewMode: '3D',
+        center: [121.502325,31.238165],
+        pitch: 90,
+        rotation: -50,
+        zoom: 16,
+        mapStyle: 'amap://styles/darkblue', // 加载自定义样式
+        features: ['bg', 'road']
+    });
+
+    // 创建 3DTilesLayer
+    var tiles = new AMap['3DTilesLayer']({
+        map: map,
+        url: '//data.mars3d.cn/3dtiles/jzw-shanghai/tileset.json', // 3d Tiles 入口文件
+        // url: 'https://www.qirenit.com/share/img/1/tileset.json', // 3d Tiles 入口文件
+        style: {
+            light: {
+                color: 'rgb(44,59,75)', // 设置光照颜色
+                intensity: 2, // 设置光照强度
+            }
+        }
+    });
+
+
+
+</script>
+</body>
+</html>
