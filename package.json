@@ -8,6 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "3d-tiles-renderer": "^0.3.20",
     "@amap/amap-jsapi-loader": "^1.0.1",
     "animation.css": "^0.1.0",
     "cannon-es": "^0.20.0",

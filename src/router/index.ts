@@ -113,7 +113,8 @@ const routes: Array<RouteRecordRaw> = [
         // component: ()=> import("@/views/流动轨迹/index.vue")
         // component: ()=> import("@/views/基本dom/index.vue")
         // component: ()=> import("@/views/map/index.vue")
-        component: ()=> import("@/views/Other/面试/vue过渡.vue")
+        // component: ()=> import("@/views/Other/面试/vue过渡.vue")
+        component: ()=> import("@/views/integratedDemoLists/倾斜投影/index.vue")
     }
     // ,{
     //     path: '/routerView',

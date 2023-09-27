@@ -35,6 +35,7 @@ export interface BaseInitParams {
     calcCursorPosition?: boolean
     //是否适配屏幕尺寸。适应
     adjustScreenSize?: Boolean
+    needDebug?: Boolean
 }
 
 export class BaseInit {
@@ -204,7 +205,7 @@ export class BaseInit {
             this.handleResize();
         }
         calc();
-        this.reSizeCallBack=debounce(calc,1000);
+        this.reSizeCallBack=debounce(calc,1000,this);
         // @ts-ignore
         window.addEventListener("resize", this.reSizeCallBack);
     }
