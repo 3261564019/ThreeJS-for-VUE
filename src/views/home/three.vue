@@ -32,6 +32,7 @@ import waterDemo from "@/assets/img/demo/waterDemo.png";
 import physics from "@/assets/img/demo/physics.png";
 import shine from "@/assets/img/demo/shine.png";
 import gmap from "@/assets/img/demo/gmap.png";
+import enable3d from "@/assets/img/demo/enable3d.png"
 
 const router=useRouter();
 
@@ -87,6 +88,10 @@ let itemList=[
     name:"结合高德地图",
     img:gmap,
     route:"/gmap"
+  },{
+    name:"enable3d",
+    img:enable3d,
+    route:"/enable3d"
   },
 ];
 
