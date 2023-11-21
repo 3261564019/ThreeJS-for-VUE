@@ -2,14 +2,17 @@ import {ExtendedObject3D, PhysicsLoader, Project, Scene3D} from 'enable3d'
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import my from "@/assets/model/111.gltf?url"
 import Stats from 'stats-js';
-import {Group, Raycaster, Vector3} from "three";
-
+import {Raycaster, Vector3} from "three";
+import * as dat from 'dat.gui'
 class MainScene extends Scene3D {
-    private shpare: any;
     private stats: any;
+    private gui: dat.GUI;
+    // @ts-ignore
+    private base;
 
     constructor() {
         super({ key: 'MainScene' })
+        this.gui=new dat.GUI({width:300});
     }
     async init() {
         this.renderer.setPixelRatio(1)
@@ -24,7 +27,7 @@ class MainScene extends Scene3D {
 
     async create() {
         // 初始化场景，显示天空盒和orbitControls
-        this.warpSpeed()
+        this.base= await this.warpSpeed()
         // 随机掉落物体
         // 开启物理世界调试工具
         this.physics.debug.enable()
@@ -54,7 +57,27 @@ class MainScene extends Scene3D {
 
         this.addHouse()
 
+        this.initDebug()
         // this.box=this.physics.add.box({ y: 14 }, { lambert: { color: '#1d9be8' } })
+    }
+    toDie(){
+        this.gui.destroy()
+        this.stats.domElement.parentNode.removeChild(this.stats.domElement);
+        this.renderer.forceContextLoss();
+        this.renderer.dispose();
+        this.scene.clear();
+        let dom=document.body.querySelector("canvas")
+        dom?.remove()
+    }
+    initDebug(){
+        let temp={
+            temp:()=>{
+                console.log("aaa",this.base)
+                console.log("this",this)
+                this.toDie()
+            }
+        }
+        this.gui.add(temp,"temp").name("场景销毁");
     }
     addHouse(){
         // extract the object factory from physics

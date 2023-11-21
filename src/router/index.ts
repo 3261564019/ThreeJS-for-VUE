@@ -79,11 +79,6 @@ const routes: Array<RouteRecordRaw> = [
         component: ()=> import("@/views/integratedDemoLists/透明图片材质/index.vue")
     },
     {
-        path: '/tempa',
-        name: 'tempa',
-        component: ()=> import("@/views/unsuccessful/面试/grid.vue")
-    },
-    {
         path: '/shaderPart',
         name: 'shaderPart',
         component: ()=> import("@/views/unsuccessful/shaderPart/index.vue")
@@ -119,7 +114,9 @@ const routes: Array<RouteRecordRaw> = [
         // component: ()=> import("@/views/map/index.vue")
         // component: ()=> import("@/views/Other/面试/vue过渡.vue")
         // component: ()=> import("@/views/integratedDemoLists/倾斜投影/index.vue")
-        component: ()=> import("@/views/enable3d/index.vue")
+        // component: ()=> import("@/views/enable3d/index.vue")
+        // component: ()=> import("@/views/integratedDemoLists/第三人称/index.vue")
+        component: ()=> import("@/views/unsuccessful/shaderPart/index.vue")
     }
     // ,{
     //     path: '/routerView',

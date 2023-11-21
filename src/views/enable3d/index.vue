@@ -3,13 +3,22 @@
 </template>
 <script setup lang="ts">
 import MainScene from "@/views/enable3d/index";
-import {onMounted} from "vue";
+import {onMounted, onUnmounted} from "vue";
 import {PhysicsLoader, Project} from "enable3d";
+
+let ins;
 
 onMounted(()=>{
   const config = { scenes: [MainScene] }
 // load the ammo.js file from the /lib folder and start the project
-  PhysicsLoader('/lib', () => new Project(config))
+  PhysicsLoader('/lib', () =>{
+    ins=new Project(config)
+    console.log("ins",ins)
+  })
+})
+
+onUnmounted(()=>{
+
 })
 
 </script>

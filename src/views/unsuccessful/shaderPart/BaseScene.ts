@@ -1,7 +1,13 @@
 import * as THREE from "three";
-import {Mesh, MeshBasicMaterial, Texture, TextureLoader, Vector3} from "three";
+import {Color, Mesh, MeshBasicMaterial, Texture, TextureLoader, Vector3} from "three";
 import {BaseInit, BaseInitParams} from "../../../three/classDefine/baseInit";
 import house from "@/assets/img/house.png"
+import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
+import my from "@/assets/model/111.gltf?url"
+import {RGBELoader} from "three/examples/jsm/loaders/RGBELoader";
+import clarens_night_02_4k from "@/assets/hdr/clarens_night_02_4k.hdr?url";
+
+
 
 export class ShaderBaseScene extends BaseInit {
 
@@ -27,10 +33,50 @@ export class ShaderBaseScene extends BaseInit {
 
         // this.addPoints();
 
-        this.addBox();
+        // this.addBox();
         this.addBall();
         // this.addCube();
         this.addDebug();
+        this.loadGltf();
+        this.loadEnv()
+    }
+    loadEnv(){
+        new RGBELoader().load(clarens_night_02_4k, (texture) => {
+            console.log("纹理对象", texture);
+
+            texture.mapping = THREE.EquirectangularReflectionMapping;
+            texture.encoding = THREE.sRGBEncoding;
+            this.scene.environment = texture;
+            this.scene.background = texture;
+
+            this.manualRender()
+        });
+    }
+    loadGltf(){
+        let loader =new GLTFLoader()
+        loader.load(my,(e)=>{
+            console.log("加载结果",e)
+
+            e.scene.children.forEach(child =>{
+                if(child.isMesh){
+                    let m=child.material
+                    if(m.name==="眼球"){
+                        m.roughness=0
+                        m.metalness=0
+                        m.color=new Color("#222")
+                        console.log("找到了",m)
+                    }
+                }
+                // let m=child.material
+                // if(child)
+            })
+
+            let s=e.scene
+            s.scale.set(2,2,2)
+            s.position.set(0,8,0)
+            // 抽象为一个简易的物理盒子
+            this.scene.add(s)
+        })
     }
     addCube(){
         // 创建顶点缓冲区
@@ -170,7 +216,13 @@ export class ShaderBaseScene extends BaseInit {
         light.position.x = 20;
         light.position.y = 30;
 
-        this.scene.add(light);
+        // this.scene.add(light);
+
+
+        const alight = new THREE.AmbientLight("#fff",0.7);
+        alight.castShadow = true;            // default false
+        this.scene.add(alight);
+
     }
 
     addTriangle() {
