@@ -1,6 +1,4 @@
-
 import * as THREE from "three";
-import gsap from 'gsap';
 import {BaseInit, BaseInitParams} from "../../three/classDefine/baseInit";
 
 export class BaseScene extends BaseInit {
@@ -62,24 +60,21 @@ export class BaseScene extends BaseInit {
     }
     init() {
 
-        this.renderer.shadowMap.enabled = true;
+        this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        this.renderer.toneMappingExposure = 0.9;
+        this.renderer.outputEncoding = THREE.LinearEncoding;
 
+        this.renderer.shadowMap.enabled = true;
         this.camera.position.set(0, 30, 40);
         //定位相机指向场景中心
         this.camera.lookAt(this.scene.position)
 
-        // const clock = new THREE.Clock();
+    }
+    animate(){
+        this.stats.update()
 
-        const animate = () => {
+        this.raf=requestAnimationFrame(this.animate.bind(this));
 
-            this.stats.update()
-
-            this.raf=requestAnimationFrame(animate);
-
-            this.renderer.render(this.scene, this.camera);
-        }
-
-        animate();
-
+        this.renderer.render(this.scene, this.camera);
     }
 }

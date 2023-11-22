@@ -43,7 +43,6 @@ export class ShaderBaseScene extends BaseInit {
     loadEnv(){
         new RGBELoader().load(clarens_night_02_4k, (texture) => {
             console.log("纹理对象", texture);
-
             texture.mapping = THREE.EquirectangularReflectionMapping;
             texture.encoding = THREE.sRGBEncoding;
             this.scene.environment = texture;
@@ -144,6 +143,9 @@ export class ShaderBaseScene extends BaseInit {
             toneMapping: 'ACESFilmicToneMapping',
             exposure: 0.9,
             encoding: 'Linear',
+            gamma:2,
+            //是否启用正确的光照计算
+            physicallyCorrectLights:false
         };
         let tons=["NoToneMapping ",'LinearToneMapping ',"ReinhardToneMapping",'CineonToneMapping',"ACESFilmicToneMapping","CustomToneMapping"]
         this.dat.add(params, 'toneMapping',tons).onChange((value:string)=>{
@@ -157,6 +159,18 @@ export class ShaderBaseScene extends BaseInit {
             // 更新渲染器的曝光程度
             this.renderer.toneMappingExposure = value;
         });
+
+        this.dat.add(params, 'gamma', 0, 10).step(0.1).onChange((value:number)=>{
+            // 更新渲染器的曝光程度
+            this.renderer.gammaFactor = value;
+        });
+
+        this.dat.add(params,'physicallyCorrectLights').name("真实光照").onChange(
+            e=>{
+                console.log("ee",e)
+                this.renderer.physicallyCorrectLights=!!e;
+            }
+        )
 
         // this.dat.add(this.renderer, 'gammaFactor', 0, 3).step(0.1).name('Gamma Factor');
 

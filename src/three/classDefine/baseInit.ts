@@ -246,7 +246,7 @@ export class BaseInit {
     }
 
     initDebug() {
-        this.dat = new dat.GUI({width: 300});
+        this.dat = new dat.GUI({width: 400});
     }
 
     //手动重新渲染
