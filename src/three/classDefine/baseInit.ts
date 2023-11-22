@@ -191,7 +191,7 @@ export class BaseInit {
         console.log("初始化后", this);
 
     }
-
+    //屏幕尺寸发生变化时进行适配，并存储可视区域宽高，用于计算射线
     addScreenReSizeListener() {
 
         let calc=()=>{

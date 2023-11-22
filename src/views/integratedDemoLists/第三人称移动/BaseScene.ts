@@ -1,33 +1,58 @@
 import * as THREE from "three";
-import {AnimationClip, AnimationMixer, Clock, Color, Group, Vector3} from "three";
+import {
+    AnimationClip,
+    AnimationMixer, BoxGeometry,
+    BufferGeometry, BufferGeometryUtils,
+    Clock,
+    Color,
+    Group,
+    Mesh,
+    MeshLambertMaterial, Object3D, Quaternion,
+    Raycaster,
+    Vector3
+} from "three";
 import {BaseInit, BaseInitParams} from "../../../three/classDefine/baseInit";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import boxMan from "@/assets/model/box_man.glb?url";
+import {Intersection} from "three/src/core/Raycaster";
+import {gsap, Power1} from 'gsap';
 
 export class BaseScene extends BaseInit {
-    animationMixer:AnimationMixer
-    clock:Clock;
-    debugData:{
+    animationMixer: AnimationMixer
+    clock: Clock;
+    debugData: {
         reSetCameraPosition: () => void;
         calcPosition: () => void;
-        actionName:string};
-    animationMap:Map<string,AnimationClip>;
-    boxMan:Group
-    cameraTargetPosition:Vector3 | null
+        actionName: string
+    };
+    animationMap: Map<string, AnimationClip>;
+    boxMan: Group
+    cameraTargetPosition: Vector3 | null
+    rayCaster: Raycaster;
+    //当前鼠标偏移量
+    mouseCoords: THREE.Vector2 = new THREE.Vector2(2, 2);
+
+    tempBox: Mesh;
+
+    rayObj: Intersection
+
     constructor() {
         super({
-            needLight:false,
-            renderDomId:"#renderDom",
-            needOrbitControls:false,
-            adjustScreenSize:true,
-            needAxesHelper:true
+            needLight: false,
+            renderDomId: "#renderDom",
+            needOrbitControls: false,
+            adjustScreenSize: true,
+            needAxesHelper: false,
+            calcCursorPosition: true,
         } as BaseInitParams);
 
-        this.clock=new Clock();
+        this.clock = new Clock();
 
-        this.debugData={
+        // @ts-ignore
+        this.debugData = {
             //当前执行的动作名称
-            actionName:"",
+            actionName: "",
+            calcPosition: this.calcCameraPosition.bind(this)
             //计算相机位置的回调
         }
 
@@ -42,51 +67,120 @@ export class BaseScene extends BaseInit {
         this.addLight();
 
         this.addBall();
+        this.initRayCaster()
 
         this.animate();
-
+        this.addTempBox();
         this.addCalcCameraPositionDebug();
+
+        window.addEventListener("click", this.onClick.bind(this))
     }
-    addCalcCameraPositionDebug(){
-        this.debugData.calcPosition=()=>{
-            const character = this.boxMan
-            const camera = this.camera;
 
-            console.log("sss",character)
-            // 计算相机的位置
-            const distance = 20; // 相机与人物的距离
-            const characterDirection = character.rotation.y; // 获取人物的朝向角度
-             // 计算相机的位置
-            // 将相机设置在人物后面并旋转180度
-            // camera.position.copy(cameraPosition);
-            // camera.rotation.y = characterDirection + Math.PI;
+    onClick() {
+        console.log(this.rayObj)
+        console.log("人物位置", this.boxMan)
 
-            this.cameraTargetPosition=new THREE.Vector3(
-                character.position.x - Math.sin(characterDirection) * distance,
-                character.position.y + 15, // 相机的高度
-                character.position.z - Math.cos(characterDirection) * distance
-            )
+        const boundingBox = new THREE.Box3().setFromObject(this.boxMan);
+        const size = new THREE.Vector3();
+        boundingBox.getSize(size);
+        console.log("大小", size)
 
-            // 将相机的目标点设置为人物模型的中心点
-           let temp= new THREE.Vector3(
-                character.position.x,
-                character.position.y + 1.5, // 人物模型的中心点高度
-                character.position.z
-            );
-            camera.lookAt(temp);
+        let man = this.boxMan.position.clone()
+        // man.y += 30
+        // 从人物指向目标点的方向向量
+        let ab = new THREE.Vector3().subVectors(this.rayObj.point, man);
+        // 将方向向量反向，以便让相机位于人物的背面
+        ab.negate();
+        let abLength = ab.length();
+        // ab.normalize();
+        let distanceFromA = 30;
+        let ac = ab.multiplyScalar(distanceFromA / abLength);
+        let c = new THREE.Vector3().addVectors(this.boxMan.position, ac);
+        if (c.y > 10) {
+            c.y = 10
         }
-        this.debugData.reSetCameraPosition=()=>{
-            this.camera.position.set(20,20,20)
+        if (c.y < 6) {
+            c.y = 6
         }
-        this.dat.add(this.debugData,"calcPosition").name("计算相机位置");
-        this.dat.add(this.debugData,"reSetCameraPosition").name("重置相机位置");
+
+
+        gsap.to(this.camera.position, {
+            duration: 1,
+            x: c.x,
+            y: c.y,
+            z: c.z,
+            ease: Power1.easeInOut, // 使用缓动函数控制速度由快至慢
+            onComplete: function () {
+                // 动画完成时执行的操作
+                console.log("Animation completed");
+            }
+        });
+
+        let start=this.boxMan.quaternion.clone()
+        const target = this.rayObj.point; // 目标点的坐标
+        const duration =1; // 动画时长（秒）
+        const quaternion = new Quaternion(); // 创建一个四元数用于存储旋转结果
+        this.boxMan.lookAt(target); // 使用 lookAt 旋转角色至目标点
+        quaternion.copy(this.boxMan.quaternion); // 复制当前的旋转状态
+        this.boxMan.quaternion.copy(start); // 将角色的旋转重置为默认状态
+
+        gsap.to(this.boxMan.quaternion, { // 使用 gsap 实现过渡效果
+            x: quaternion.x,
+            y: quaternion.y,
+            z: quaternion.z,
+            w: quaternion.w,
+            duration: duration,
+            onUpdate: () => {
+                // 在每一帧更新模型的顶点法线
+            }
+        });
     }
-    addPlan(){
+
+    addTempBox() {
+        this.tempBox = new Mesh(new BoxGeometry(2, 2, 2), new MeshLambertMaterial({color: "#447152"}))
+        this.scene.add(this.tempBox);
+    }
+
+    initRayCaster() {
+        this.rayCaster = new Raycaster()
+        window.addEventListener("mousemove", this.mouseMoveCallBack.bind(this))
+    }
+
+    mouseMoveCallBack(event: { clientX: number; clientY: number; }) {
+        this.mouseCoords.x = (event.clientX / this.screenSize.x * 2) - 1
+        this.mouseCoords.y = -(event.clientY / this.screenSize.y * 2) + 1
+    }
+
+    // 根据人物朝向，计算出相机的位置
+    calcCameraPosition() {
+        const character = this.boxMan
+        // 计算相机的位置
+        const distance = 20; // 相机与人物的距离
+        const characterDirection = character.rotation.y; // 获取人物的朝向角度
+        // 计算相机的位置
+
+        this.cameraTargetPosition = new THREE.Vector3(
+            character.position.x - Math.sin(characterDirection) * distance,
+            character.position.y + 15, // 相机的高度
+            character.position.z - Math.cos(characterDirection) * distance
+        )
+    }
+
+    addCalcCameraPositionDebug() {
+        this.debugData.reSetCameraPosition = () => {
+            this.camera.position.set(20, 20, 20)
+        }
+        this.dat.add(this.debugData, "calcPosition").name("计算相机位置");
+        this.dat.add(this.debugData, "reSetCameraPosition").name("重置相机位置");
+    }
+
+    addPlan() {
 
         const geometry = new THREE.PlaneGeometry(40, 40);
         const material = new THREE.MeshLambertMaterial({color: 0xcccccc});
 
         const plane = new THREE.Mesh(geometry, material);
+        plane.name = "groundPlane"
         //设置接受阴影
         plane.receiveShadow = true
 
@@ -99,30 +193,32 @@ export class BaseScene extends BaseInit {
         this.scene.add(plane);
 
     }
-    loadModel(){
-        let loader =new GLTFLoader()
-        this.animationMap=new Map();
-        loader.load(boxMan,(e)=> {
+
+    loadModel() {
+        let loader = new GLTFLoader()
+        this.animationMap = new Map();
+        loader.load(boxMan, (e) => {
             console.log("加载结果", e)
             let res = e.scene
-            res.name="boxMan"
-            res.scale.set(5,5,5)
-            res.traverse(child => {
+            res.name = "boxMan"
+            res.scale.set(5, 5, 5)
+            // @ts-ignore
+            res.traverse((child: THREE.Mesh) => {
                 if (child.isMesh) {
-                    child.shape = 'convex'
-                    child.castShadow = child.receiveShadow = true
-                    // https://discourse.threejs.org/t/cant-export-material-from-blender-gltf/12258
-                    child.material.roughness = 1
-                    child.material.metalness = 0
-                    child.material.color = new Color("#fff")
+                    const material = child.material as THREE.MeshStandardMaterial;
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    material.roughness = 1;
+                    material.metalness = 0;
+                    material.color = new Color("#fff");
                 }
             })
-            let temp={}
+            let temp = {}
             //将动画存到map中，动画名作为key方便调用
-            e.animations.forEach(v=>{
+            e.animations.forEach(v => {
                 // @ts-ignore
-                temp[v.name]=v.name
-                this.animationMap.set(v.name,v)
+                temp[v.name] = v.name
+                this.animationMap.set(v.name, v)
             })
 
 
@@ -133,8 +229,9 @@ export class BaseScene extends BaseInit {
             action.play();
 
 
-            this.dat.add(this.debugData,"actionName",temp).onFinishChange(
-                e=>{
+            this.dat.add(this.debugData, "actionName", temp).onFinishChange(
+                // @ts-ignore
+                e => {
                     this.animationMixer.stopAllAction(); // 停止所有正在播放的动画
                     const action = this.animationMixer.clipAction(this.animationMap.get(e) as AnimationClip);
 
@@ -142,16 +239,18 @@ export class BaseScene extends BaseInit {
                     action.clampWhenFinished = true; // 动画结束后保持在最后一帧
                     action.play();
 
-                    console.log("q",e)
+                    console.log("q", e)
                 }
             ).name("动画")
 
 
-            this.boxMan=res
-            console.log("动画列表",this.animationMap)
+            this.boxMan = res
+
+            console.log("动画列表", this.animationMap)
         })
     }
-    addLight(){
+
+    addLight() {
 
         //创建聚光灯
         const light = new THREE.SpotLight("#fff");
@@ -161,11 +260,12 @@ export class BaseScene extends BaseInit {
         this.scene.add(light);
 
 
-        const alight = new THREE.AmbientLight("#fff",0.6);
+        const alight = new THREE.AmbientLight("#fff", 0.6);
         this.scene.add(alight);
 
     }
-    addBall(){
+
+    addBall() {
 
         const sphere = new THREE.Mesh(
             new THREE.SphereGeometry(3, 33, 33),
@@ -173,11 +273,12 @@ export class BaseScene extends BaseInit {
         );
 
         sphere.position.x = 10;
-        sphere.position.y = 3;
+        sphere.position.y = 2;
         sphere.castShadow = true
 
         this.scene.add(sphere);
     }
+
     init() {
 
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -185,20 +286,39 @@ export class BaseScene extends BaseInit {
         this.renderer.outputEncoding = THREE.LinearEncoding;
 
         this.renderer.shadowMap.enabled = true;
-        this.camera.position.set(0, 30, 40);
+        this.camera.position.set(20, 20, 20)
         //定位相机指向场景中心
         this.camera.lookAt(this.scene.position)
 
     }
-    animate(){
 
-        if(this.animationMixer){
+    calcIntersect() {
+
+        let arr = this.rayCaster.intersectObjects(this.scene.children, true);
+
+        if (arr.length) {
+            // console.log("相交物体",arr)
+            if (arr[0]) {
+                // let p=arr[0].point;
+
+                this.rayObj = arr[0]
+                // this.tempBox.position.copy(p)
+                // console.log("目标位置",p)
+                // this.boxMan.lookAt(p)
+                // this.calcCameraPosition()
+            }
+        }
+    }
+
+    animate() {
+
+        if (this.animationMixer) {
             this.animationMixer.update(this.clock.getDelta());
         }
-        if(this.boxMan){
+        if (this.boxMan) {
             this.camera.lookAt(this.boxMan.position)
         }
-        if(this.cameraTargetPosition){
+        if (this.cameraTargetPosition) {
             let delta = 1;
             let speed = 0.46; // 适当调整速度系数
 
@@ -221,10 +341,18 @@ export class BaseScene extends BaseInit {
             }
         }
 
+        // this.rayCaster.setFromCamera( mouse, this.camera );
+
+        this.rayCaster.setFromCamera(this.mouseCoords, this.camera);
+        //统计相交物体
+        this.calcIntersect()
+
+
         this.stats.update()
-        this.raf=requestAnimationFrame(this.animate.bind(this));
+        this.raf = requestAnimationFrame(this.animate.bind(this));
         this.renderer.render(this.scene, this.camera);
     }
+
     destroy() {
         super.destroy();
     }
