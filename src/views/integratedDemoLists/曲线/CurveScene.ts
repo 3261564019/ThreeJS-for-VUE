@@ -50,10 +50,10 @@ export class CurveScene extends BaseInit {
             new THREE.Vector3(   20,  0,  - 20 ),
             new THREE.Vector3(  20,  20, 20 ),
             new THREE.Vector3(  - 20,  0, 20 ),
-            new THREE.Vector3(  - 20, 0, - 20,)
+            // new THREE.Vector3(  - 20, 0, - 20,)
         ] );
         //让曲线自动闭合
-        curve.closed=true;
+        curve.closed=false;
         this.curve=curve;
         //取该曲线平均距离的100个点的位置
         const points = curve.getPoints( 100 );
@@ -139,7 +139,7 @@ export class CurveScene extends BaseInit {
                 let lookAtVec=tangent.add(position);
                 this.brick.lookAt(lookAtVec);
 
-                this.camera.lookAt(lookAtVec);
+                // this.camera.lookAt(lookAtVec);
                 // this.camera.position.copy(position);
 
             }

@@ -2,7 +2,7 @@ import * as THREE from "three";
 import {
     AnimationClip,
     AnimationMixer, BoxGeometry,
-    BufferGeometry, BufferGeometryUtils,
+    BufferGeometry, BufferGeometryUtils, CatmullRomCurve3,
     Clock,
     Color,
     Group,
@@ -16,11 +16,15 @@ import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import boxMan from "@/assets/model/box_man.glb?url";
 import {Intersection} from "three/src/core/Raycaster";
 import {gsap, Power1} from 'gsap';
+import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 
+// 注册MotionPath插件
+gsap.registerPlugin(MotionPathPlugin);
 export class BaseScene extends BaseInit {
     animationMixer: AnimationMixer
     clock: Clock;
     debugData: {
+        testCurve: () => void;
         reSetCameraPosition: () => void;
         calcPosition: () => void;
         actionName: string
@@ -40,7 +44,7 @@ export class BaseScene extends BaseInit {
         super({
             needLight: false,
             renderDomId: "#renderDom",
-            needOrbitControls: false,
+            needOrbitControls: true,
             adjustScreenSize: true,
             needAxesHelper: false,
             calcCursorPosition: true,
@@ -73,7 +77,7 @@ export class BaseScene extends BaseInit {
         this.addTempBox();
         this.addCalcCameraPositionDebug();
 
-        window.addEventListener("click", this.onClick.bind(this))
+        // window.addEventListener("click", this.onClick.bind(this))
     }
 
     onClick() {
@@ -93,22 +97,27 @@ export class BaseScene extends BaseInit {
         ab.negate();
         let abLength = ab.length();
         // ab.normalize();
-        let distanceFromA = 30;
+        let distanceFromA = 20;
         let ac = ab.multiplyScalar(distanceFromA / abLength);
         let c = new THREE.Vector3().addVectors(this.boxMan.position, ac);
-        if (c.y > 10) {
+        if (c.y > 18) {
+            c.y = 18
+        }
+        if (c.y < 10) {
             c.y = 10
         }
-        if (c.y < 6) {
-            c.y = 6
-        }
 
+        const path = {
+            path: [
+                this.camera.position.clone(), // 相机当前位置
+                c.clone()
+            ],
+            curviness: 40, // 曲线的曲率，调整这个值可以改变路径的弧度
+        };
 
         gsap.to(this.camera.position, {
             duration: 1,
-            x: c.x,
-            y: c.y,
-            z: c.z,
+            motionPath: path,
             ease: Power1.easeInOut, // 使用缓动函数控制速度由快至慢
             onComplete: function () {
                 // 动画完成时执行的操作
@@ -168,10 +177,64 @@ export class BaseScene extends BaseInit {
 
     addCalcCameraPositionDebug() {
         this.debugData.reSetCameraPosition = () => {
-            this.camera.position.set(20, 20, 20)
+            // this.camera.position.set(0, 40, 40)
+            this.tempBox.position.set(0,0,20)
+        }
+        this.debugData.testCurve = () => {
+
+            /**
+             * 1、生成轨迹曲线
+             * 2、渲染时有轨迹线则根据线段向指定位置移动，在接近目标位置时速度放缓
+             * 3、运动过程中如果目标点发送变化需要清楚当前移动的状态，设置新状态，以便将相机移动至新地点
+             */
+
+            // const path = {
+            //     path: [
+            //         new Vector3(0,0,20),
+            //         new Vector3(20,0,0),
+            //         new Vector3(0,0,-20)
+            //     ]
+            // };
+            //
+            // gsap.to(this.tempBox.position, {
+            //     duration:3,
+            //     motionPath: path,
+            //     ease: Power1.easeInOut, // 使用缓动函数控制速度由快至慢
+            //     onUpdate: () => {
+            //         // 在每一帧更新模型的顶点法线
+            //         // this.camera.lookAt(0,5,0)
+            //         console.log("更新")
+            //     },
+            //     onComplete: function () {
+            //         // 动画完成时执行的操作
+            //         console.log("Animation completed");
+            //     }
+            // });
+
+
+                //用Catmull-Rom算法， 从一系列的点创建一条平滑的三维样条曲线
+            const curve = new CatmullRomCurve3( [
+                    new Vector3(0,0,20),
+                    new Vector3(20,0,0),
+                    new Vector3(0,0,-20)
+                    // new THREE.Vector3(  - 20, 0, - 20,)
+                ] );
+            //让曲线自动闭合
+            curve.closed=false;
+            //取该曲线平均距离的100个点的位置
+            const points = curve.getPoints( 100 );
+            //通过点队列设置该 BufferGeometry 的 attribute。
+            const geometry = new THREE.BufferGeometry().setFromPoints( points );
+            //线条材质
+            const material = new THREE.LineBasicMaterial( { color: 0xff0000 } );
+            //创建图形并加入场景
+            const curveObject = new THREE.Line( geometry, material );
+            this.scene.add(curveObject);
+
         }
         this.dat.add(this.debugData, "calcPosition").name("计算相机位置");
         this.dat.add(this.debugData, "reSetCameraPosition").name("重置相机位置");
+        this.dat.add(this.debugData, "testCurve").name("临时测试曲线");
     }
 
     addPlan() {
@@ -286,7 +349,7 @@ export class BaseScene extends BaseInit {
         this.renderer.outputEncoding = THREE.LinearEncoding;
 
         this.renderer.shadowMap.enabled = true;
-        this.camera.position.set(20, 20, 20)
+        this.camera.position.set(0, 20, 20)
         //定位相机指向场景中心
         this.camera.lookAt(this.scene.position)
 

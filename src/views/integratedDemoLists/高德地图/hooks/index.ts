@@ -1,5 +1,15 @@
 import * as THREE from "three";
-import {AmbientLight, CameraHelper, Clock, PerspectiveCamera, Scene, WebGLRenderer} from "three";
+import {
+    AmbientLight, AxesHelper,
+    CameraHelper,
+    Clock, Color,
+    DirectionalLightHelper, Mesh,
+    MeshLambertMaterial, MeshPhysicalMaterial,
+    PerspectiveCamera,
+    Scene,
+    TorusKnotGeometry,
+    WebGLRenderer
+} from "three";
 import {CustomCoords, GMapIns, MakerWithCmp, SetDataParams} from "../types/Gmap";
 import {ChildScene} from "../types";
 import {RotationBoxScene} from "./childScene/RotationBoxScene";
@@ -12,6 +22,8 @@ import * as dat from 'dat.gui';
 // @ts-ignore
 import Stats from 'stats-js';
 import {FlowPath} from "./childScene/FlowPath";
+import city from "@/assets/model/city.glb?url"
+import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 
 /*
  * 构造自定义图层的参数
@@ -50,6 +62,13 @@ export class GMapRender {
     private p: GMapMakerParams
     private dat: any
 
+    //调整材质的配置集合
+    glassFolder:any
+    //测试大楼的材质
+    tempMaterial:MeshPhysicalMaterial
+    private Torus:Mesh<TorusKnotGeometry, MeshPhysicalMaterial>;
+
+    lastMapRenderTime:number
 
     constructor(p: GMapMakerParams) {
         this.p = p;
@@ -132,14 +151,115 @@ export class GMapRender {
 
         this.initStats();
 
-    }
+        this.createTempMaterial();
 
+        this.loadModel();
+
+        this.scene.add(new AxesHelper(200))
+
+    }
+    createTempMaterial(){
+
+        this.glassFolder=this.dat.addFolder('测试材质');
+
+        this.tempMaterial = new MeshPhysicalMaterial({
+            color:"#e87d0d",
+            opacity: 0.5, // 设置透明度
+            transparent: true, // 开启透明度
+            roughness: 0.2, // 设置玻璃表面的粗糙程度
+            metalness: 0.5, // 设置玻璃的金属感
+        });
+
+        this.glassFolder.addColor(this.tempMaterial,"color").onChange(
+            (p: { r: number; g: number; b: number; })=>{
+                //通过color 的 set 方法来改变材质的颜色
+                console.log("颜色改变",p);
+                console.log(this)
+                this.tempMaterial.color=new Color(p.r,p.g,p.b);
+                this.tempMaterial.needsUpdate=true
+            }
+        ).name("材质颜色");
+
+        const geometry = new TorusKnotGeometry( 10, 3, 100, 16 );
+        const sphere = new Mesh( geometry, this.tempMaterial );
+        this.scene.add(sphere)
+        sphere.position.set(786,821,359)
+
+        this.glassFolder.add(sphere.position,"x",-1000,1000,1).name("x")
+        this.glassFolder.add(sphere.position,"y",-1000,1000,1).name("y")
+        this.glassFolder.add(sphere.position,"z",-1000,1000,1).name("z")
+
+        this.Torus=sphere
+
+        this.glassFolder.add(this.tempMaterial,"opacity",0,1,0.01).name("opacity")
+        this.glassFolder.add(this.tempMaterial,"roughness",0,1,0.01).name("roughness")
+        this.glassFolder.add(this.tempMaterial,"metalness",0,1,0.01).name("metalness")
+        this.glassFolder.add(this.tempMaterial,"ior",0,3,0.01).name("ior")
+        this.glassFolder.add(this.tempMaterial,"reflectivity",0,1,0.01).name("reflectivity")
+
+    }
+    loadModel(){
+        let loader = new GLTFLoader()
+        let material=new MeshLambertMaterial({color:"#fff"})
+        loader.load(city, (e) => {
+            console.log("模型加载结果", e)
+
+            let res = e.scene
+
+            res.traverse((item)=>{
+                item.receiveShadow=true
+                item.castShadow=true
+                //@ts-ignore
+                if(item.isMesh){
+                    // 将 v 断言为 Mesh 类型
+                    const v = item as Mesh;
+                    v.material=material
+                    if(v.userData.name==="Areas:building.972"){
+                        v.material=this.tempMaterial
+                        console.log("ss",v)
+                    }
+                }
+            })
+
+            res.name = "boxMan"
+            res.rotation.x=Math.PI /2
+
+            res.position.x=-176.2
+            res.position.y=-20
+
+            this.dat.add(res.position,"x",-500,500,0.1)
+            this.dat.add(res.position,"z",-500,500,0.1)
+            this.dat.add(res.position,"y",-500,500,0.1)
+
+            console.log("所在位置",res.position)
+            this.scene.add(res)
+        })
+    }
     addLights() {
         // 环境光照和平行光
-        let dLight = new AmbientLight(0xffffff, 1);
+        let aLight = new AmbientLight(0xffffff, 0.4);
         // dLight.position.set(1000, -100, 900);
-        this.scene.add(dLight);
+        this.scene.add(aLight);
+        const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+        directionalLight.castShadow=true
+        directionalLight.position.set(2000,-5000,500)
 
+
+        let look=()=> {
+            directionalLight.lookAt(
+                -176.2,-20,0)
+        }
+
+        this.dat.add(directionalLight.position,"x",-3000,3000,0.1).name("灯光x").onChange(()=>{
+            console.log("xxx")
+            look()
+        })
+        this.dat.add(directionalLight.position,"z",-3000,3000,0.1).name("灯光z").onChange()
+        this.dat.add(directionalLight.position,"y",-3000,3000,0.1).name("灯光y").onChange()
+
+
+        this.scene.add( directionalLight );
+        this.scene.add(new DirectionalLightHelper(directionalLight))
         // this.dat.add(dLight,"itensity",-10,10);
     }
 
@@ -172,9 +292,10 @@ export class GMapRender {
                         logarithmicDepthBuffer:true
                     });
 
-                    this.renderer.outputEncoding=THREE.LinearEncoding;
-                    this.renderer.toneMappingExposure=1;
-                    this.renderer.toneMapping=THREE.ACESFilmicToneMapping;
+                    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+                    this.renderer.toneMappingExposure = 0.9;
+                    this.renderer.outputEncoding = THREE.LinearEncoding;
+                    this.renderer.shadowMap.enabled=true
 
                     // this.dat.add(this.camera,"near",-300,300).onChange(()=>{
                     //     console.log("变")
@@ -245,15 +366,27 @@ export class GMapRender {
     }
 
     animate() {
-        for (let i = 0; i < this.childScene.length; i++) {
-            this.childScene[i].render(this.clock.getDelta(), this.clock.elapsedTime);
+        let delta = this.clock.getDelta();
+        let elapsedTime = this.clock.elapsedTime;
+
+        // 合并旋转操作，根据时间间隔实现匀速旋转
+        const rotationSpeed = 0.02;
+        this.Torus.rotateZ(rotationSpeed);
+        this.Torus.rotateX(rotationSpeed);
+        this.Torus.rotateY(rotationSpeed);
+
+        // 避免重复获取属性
+        const childSceneLength = this.childScene.length;
+        for (let i = 0; i < childSceneLength; i++) {
+            this.childScene[i].render(delta, elapsedTime);
         }
-        this.boxScene?.render(this.clock.getDelta(), this.clock.elapsedTime)
-        this.stats?.update()
-        setTimeout(()=>{
-            this.mapIns.render()
-        },0)
-        this.labelRender?.render(this.scene, this.camera)
+        this.boxScene?.render(delta, elapsedTime);
+        this.stats?.update();
+
+            this.mapIns.render();
+            this.labelRender?.render(this.scene, this.camera);
+            this.lastMapRenderTime = elapsedTime;
+
         this.raf = requestAnimationFrame(this.animate.bind(this));
     }
 
@@ -363,8 +496,6 @@ export class GMapRender {
             this.camera.aspect = t.w / t.h;
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(t.w, t.h);
-
-            console.log(this.labelRender, "sssss")
             this.labelRender?.labelRenderer.setSize(t.w, t.h);
         }
     }

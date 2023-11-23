@@ -73,7 +73,7 @@ function initMap() {
     console.log(AMap)
 
 
-    let center= [116.38922353003309,39.92581257536286]
+    let center= [121.40268523905561,28.644147120817046]
 
     mapIns = new AMap.Map("RootContainer", {  //设置地图容器id
       center,
@@ -81,10 +81,13 @@ function initMap() {
       zoom: 17,
       viewMode: '3D',
       mapStyle: 'amap://styles/grey',
+      showBuildingBlock:false,
       pitch: 50,
     });
 
     // addMarker()
+    var satelliteLayer = new AMap.TileLayer.Satellite();
+    mapIns.add(satelliteLayer);
 
     threeIns=new GMapRender({
       mapIns,
