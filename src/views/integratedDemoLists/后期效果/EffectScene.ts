@@ -7,6 +7,8 @@ import {OutlinePass} from "three/examples/jsm/postprocessing/OutlinePass";
 import {ShaderPass} from "three/examples/jsm/postprocessing/ShaderPass";
 import {FXAAShader} from "three/examples/jsm/shaders/FXAAShader";
 import {Clock, Mesh} from "three";
+import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
+import my from "@/assets/model/111.gltf?url"
 
 export class EffectScene extends BaseInit {
     // @ts-ignore
@@ -41,7 +43,21 @@ export class EffectScene extends BaseInit {
 
         this.initEffectComposer()
 
+        this.loadModel();
+
         this.animate();
+    }
+    loadModel(){
+        let loader =new GLTFLoader()
+        loader.load(my,(e)=> {
+            console.log("加载结果", e)
+
+            e.scene.position.set(0,3,0)
+
+            this.outLinePath.selectedObjects.push(e.scene)
+
+            this.scene.add(e.scene)
+        })
     }
     initEffectComposer() {
         //初始化效果组合器
@@ -67,15 +83,11 @@ export class EffectScene extends BaseInit {
         //选中模型隐藏部分边界颜色
         this.outLinePath.hiddenEdgeColor = new THREE.Color("#e47d0e");
         this.composer.addPass(this.outLinePath);
-
-
         // 去掉锯齿
         this.FXAAShaderPass = new ShaderPass(FXAAShader);
         this.FXAAShaderPass.uniforms['resolution'].value.set(1 / window.innerWidth, 1 / window.innerHeight);
         // FXAAShaderPass.renderToScreen = true;
         this.composer.addPass(this.FXAAShaderPass);
-
-
         this.outLinePath.selectedObjects.push(this.ball);
     }
     addPlan(){
@@ -103,8 +115,8 @@ export class EffectScene extends BaseInit {
             new THREE.MeshLambertMaterial({color: "#fff"})
         );
 
-        sphere.position.x = 0;
-        sphere.position.y = 3;
+        sphere.position.set(10,0,0)
+
         sphere.castShadow = true
 
         this.ball=sphere

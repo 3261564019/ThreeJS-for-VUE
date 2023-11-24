@@ -29,9 +29,6 @@ class MainScene extends Scene3D {
         // 初始化场景，显示天空盒和orbitControls
         this.base= await this.warpSpeed()
         // 随机掉落物体
-        // 开启物理世界调试工具
-        this.physics.debug.enable()
-
         //对刚体施加力
         // this.shpare=this.add.box({y: 10, width: 6, height: 6}, {lambert: {color: 'hotpink'}});
 
@@ -75,8 +72,18 @@ class MainScene extends Scene3D {
                 console.log("aaa",this.base)
                 console.log("this",this)
                 this.toDie()
-            }
+            },
+            debug:false
         }
+        this.gui.add(temp,'debug').name("开启调试").onChange(
+            e=>{
+                if(e){
+                    this.physics.debug.enable()
+                }else{
+                    this.physics.debug.disable()
+                }
+            }
+        )
         this.gui.add(temp,"temp").name("场景销毁");
     }
     addHouse(){

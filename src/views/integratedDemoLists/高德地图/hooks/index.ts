@@ -333,14 +333,9 @@ export class GMapRender {
                     this.customCoords.setCenter(this.centerPosition);
                     // @ts-ignore
                     let {near, far, fov, up, lookAt, position} = this.customCoords.getCameraParams();
-                    // 2D 地图下使用的正交相机
-                    // var { near, far, top, bottom, left, right, position, rotation } = customCoords.getCameraParams();
-                    // 这里的顺序不能颠倒，否则可能会出现绘制卡顿的效果。
+
                     this.camera.near = near/20;
                     this.camera.far = far/20;
-                    // this.camera.near = near;
-                    // this.camera.far = far;
-                    // console.log("near: " + near + " far: " + far);
                     this.camera.fov = fov;
                     // @ts-ignore
                     this.camera.position.set(...position);
@@ -349,13 +344,7 @@ export class GMapRender {
                     // @ts-ignore
                     this.camera.lookAt(...lookAt);
                     this.camera.updateProjectionMatrix();
-                    // 2D 地图使用的正交相机参数赋值
-                    // camera.top = top;
-                    // camera.bottom = bottom;
-                    // camera.left = left;
-                    // camera.right = right;
-                    // camera.position.set(...position);
-                    // camera.updateProjectionMatrix();
+
                     this.renderer.render(this.scene, this.camera);
 
                     this.renderer.resetState();

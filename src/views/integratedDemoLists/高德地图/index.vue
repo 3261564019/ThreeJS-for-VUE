@@ -80,7 +80,7 @@ function initMap() {
       zooms: [2, 20],
       zoom: 17,
       viewMode: '3D',
-      mapStyle: 'amap://styles/grey',
+      // mapStyle: 'amap://styles/grey',
       showBuildingBlock:false,
       pitch: 50,
     });

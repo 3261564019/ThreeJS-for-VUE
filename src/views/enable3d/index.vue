@@ -11,6 +11,7 @@ let ins;
 onMounted(()=>{
   const config = { scenes: [MainScene] }
 // load the ammo.js file from the /lib folder and start the project
+  //加载ammo
   PhysicsLoader('/lib', () =>{
     ins=new Project(config)
     console.log("ins",ins)
