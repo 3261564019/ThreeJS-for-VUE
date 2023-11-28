@@ -375,12 +375,12 @@ export class BaseScene extends BaseInit {
 
     animate() {
 
-        if (this.animationMixer) {
-            this.animationMixer.update(this.clock.getDelta());
-        }
+
         if (this.boxMan) {
             this.camera.lookAt(this.boxMan.position)
         }
+
+        //如果有相机需要移动到的目标位置，相机则不断向目标位置移动
         if (this.cameraTargetPosition) {
             let delta = 1;
             let speed = 0.46; // 适当调整速度系数
@@ -404,8 +404,7 @@ export class BaseScene extends BaseInit {
             }
         }
 
-        // this.rayCaster.setFromCamera( mouse, this.camera );
-
+        //根据鼠标位置更新射线坐标
         this.rayCaster.setFromCamera(this.mouseCoords, this.camera);
         //统计相交物体
         this.calcIntersect()
@@ -413,6 +412,10 @@ export class BaseScene extends BaseInit {
 
         this.stats.update()
         this.raf = requestAnimationFrame(this.animate.bind(this));
+
+        if (this.animationMixer) {
+            this.animationMixer.update(this.clock.getDelta());
+        }
         this.renderer.render(this.scene, this.camera);
     }
 

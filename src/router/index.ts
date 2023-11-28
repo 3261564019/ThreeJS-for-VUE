@@ -83,6 +83,11 @@ const routes: Array<RouteRecordRaw> = [
         name: 'shaderPart',
         component: ()=> import("@/views/unsuccessful/shaderPart/index.vue")
     },
+    {
+        path: '/ammo',
+        name: 'ammo',
+        component: ()=> import("@/views/unsuccessful/AmmoJS/index.vue")
+    },
     // {
     //     path: '/sb',
     //     name: 'sb',
