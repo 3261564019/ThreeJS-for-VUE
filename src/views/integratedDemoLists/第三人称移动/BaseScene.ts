@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import {
+    AnimationAction,
     AnimationClip,
     AnimationMixer, BoxGeometry,
     BufferGeometry, BufferGeometryUtils, CatmullRomCurve3,
@@ -16,10 +17,10 @@ import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import boxMan from "@/assets/model/box_man.glb?url";
 import {Intersection} from "three/src/core/Raycaster";
 import {gsap, Power1} from 'gsap';
-import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
+import {CharacterControls} from "./characterControls";
 
-// 注册MotionPath插件
-gsap.registerPlugin(MotionPathPlugin);
+const  keysPressed={}
+
 export class BaseScene extends BaseInit {
     animationMixer: AnimationMixer
     clock: Clock;
@@ -29,7 +30,7 @@ export class BaseScene extends BaseInit {
         calcPosition: () => void;
         actionName: string
     };
-    animationMap: Map<string, AnimationClip>;
+    animationMap: Map<string, AnimationAction>;
     boxMan: Group
     cameraTargetPosition: Vector3 | null
     rayCaster: Raycaster;
@@ -40,6 +41,10 @@ export class BaseScene extends BaseInit {
 
     rayObj: Intersection
 
+    personControl: CharacterControls
+    private keydown: (e: KeyboardEvent) => void;
+    private keyup: OmitThisParameter<(e: KeyboardEvent) => void>;
+
     constructor() {
         super({
             needLight: false,
@@ -49,6 +54,12 @@ export class BaseScene extends BaseInit {
             needAxesHelper: false,
             calcCursorPosition: true,
         } as BaseInitParams);
+
+        this.control.minDistance = 5
+        this.control.maxDistance = 15
+        // this.control.enableDamping=true
+        this.control.maxPolarAngle = Math.PI / 2 - 0.05
+        this.control.update();
 
         this.clock = new Clock();
 
@@ -73,11 +84,14 @@ export class BaseScene extends BaseInit {
         this.addBall();
         this.initRayCaster()
 
+
         this.animate();
-        this.addTempBox();
+        // this.addTempBox();
         this.addCalcCameraPositionDebug();
 
         // window.addEventListener("click", this.onClick.bind(this))
+
+        this.addKeyEvent();
     }
 
     onClick() {
@@ -125,9 +139,9 @@ export class BaseScene extends BaseInit {
             }
         });
 
-        let start=this.boxMan.quaternion.clone()
+        let start = this.boxMan.quaternion.clone()
         const target = this.rayObj.point; // 目标点的坐标
-        const duration =1; // 动画时长（秒）
+        const duration = 1; // 动画时长（秒）
         const quaternion = new Quaternion(); // 创建一个四元数用于存储旋转结果
         this.boxMan.lookAt(target); // 使用 lookAt 旋转角色至目标点
         quaternion.copy(this.boxMan.quaternion); // 复制当前的旋转状态
@@ -178,7 +192,7 @@ export class BaseScene extends BaseInit {
     addCalcCameraPositionDebug() {
         this.debugData.reSetCameraPosition = () => {
             // this.camera.position.set(0, 40, 40)
-            this.tempBox.position.set(0,0,20)
+            this.tempBox.position.set(0, 0, 20)
         }
         this.debugData.testCurve = () => {
 
@@ -188,47 +202,47 @@ export class BaseScene extends BaseInit {
              * 3、运动过程中如果目标点发送变化需要清楚当前移动的状态，设置新状态，以便将相机移动至新地点
              */
 
-            // const path = {
-            //     path: [
-            //         new Vector3(0,0,20),
-            //         new Vector3(20,0,0),
-            //         new Vector3(0,0,-20)
-            //     ]
-            // };
-            //
-            // gsap.to(this.tempBox.position, {
-            //     duration:3,
-            //     motionPath: path,
-            //     ease: Power1.easeInOut, // 使用缓动函数控制速度由快至慢
-            //     onUpdate: () => {
-            //         // 在每一帧更新模型的顶点法线
-            //         // this.camera.lookAt(0,5,0)
-            //         console.log("更新")
-            //     },
-            //     onComplete: function () {
-            //         // 动画完成时执行的操作
-            //         console.log("Animation completed");
-            //     }
-            // });
+                // const path = {
+                //     path: [
+                //         new Vector3(0,0,20),
+                //         new Vector3(20,0,0),
+                //         new Vector3(0,0,-20)
+                //     ]
+                // };
+                //
+                // gsap.to(this.tempBox.position, {
+                //     duration:3,
+                //     motionPath: path,
+                //     ease: Power1.easeInOut, // 使用缓动函数控制速度由快至慢
+                //     onUpdate: () => {
+                //         // 在每一帧更新模型的顶点法线
+                //         // this.camera.lookAt(0,5,0)
+                //         console.log("更新")
+                //     },
+                //     onComplete: function () {
+                //         // 动画完成时执行的操作
+                //         console.log("Animation completed");
+                //     }
+                // });
 
 
                 //用Catmull-Rom算法， 从一系列的点创建一条平滑的三维样条曲线
-            const curve = new CatmullRomCurve3( [
-                    new Vector3(0,0,20),
-                    new Vector3(20,0,0),
-                    new Vector3(0,0,-20)
+            const curve = new CatmullRomCurve3([
+                    new Vector3(0, 0, 20),
+                    new Vector3(20, 0, 0),
+                    new Vector3(0, 0, -20)
                     // new THREE.Vector3(  - 20, 0, - 20,)
-                ] );
+                ]);
             //让曲线自动闭合
-            curve.closed=false;
+            curve.closed = false;
             //取该曲线平均距离的100个点的位置
-            const points = curve.getPoints( 100 );
+            const points = curve.getPoints(100);
             //通过点队列设置该 BufferGeometry 的 attribute。
-            const geometry = new THREE.BufferGeometry().setFromPoints( points );
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
             //线条材质
-            const material = new THREE.LineBasicMaterial( { color: 0xff0000 } );
+            const material = new THREE.LineBasicMaterial({color: 0xff0000});
             //创建图形并加入场景
-            const curveObject = new THREE.Line( geometry, material );
+            const curveObject = new THREE.Line(geometry, material);
             this.scene.add(curveObject);
 
         }
@@ -276,31 +290,32 @@ export class BaseScene extends BaseInit {
                     material.color = new Color("#fff");
                 }
             })
+
+            this.animationMixer = new AnimationMixer(res);
+
             let temp = {}
             //将动画存到map中，动画名作为key方便调用
             e.animations.forEach(v => {
                 // @ts-ignore
                 temp[v.name] = v.name
-                this.animationMap.set(v.name, v)
+                this.animationMap.set(v.name, this.animationMixer.clipAction(v))
             })
 
-
-            this.animationMixer = new AnimationMixer(res);
             this.scene.add(res)
 
-            const action = this.animationMixer.clipAction(e.animations[0]);
-            action.play();
 
 
             this.dat.add(this.debugData, "actionName", temp).onFinishChange(
                 // @ts-ignore
                 e => {
                     this.animationMixer.stopAllAction(); // 停止所有正在播放的动画
-                    const action = this.animationMixer.clipAction(this.animationMap.get(e) as AnimationClip);
-
-                    action.setLoop(THREE.LoopOnce, 0); // 设置循环模式为只播放一次
-                    action.clampWhenFinished = true; // 动画结束后保持在最后一帧
-                    action.play();
+                    // const action = this.animationMixer.clipAction(this.animationMap.get(e));
+                    let action=this.animationMap.get(e)
+                    // @ts-ignore
+                    action.play()
+                    // action.setLoop(THREE.LoopOnce, 0); // 设置循环模式为只播放一次
+                    // action.clampWhenFinished = true; // 动画结束后保持在最后一帧
+                    // action.play();
 
                     console.log("q", e)
                 }
@@ -310,6 +325,9 @@ export class BaseScene extends BaseInit {
             this.boxMan = res
 
             console.log("动画列表", this.animationMap)
+
+
+            this.personControl = new CharacterControls('idle', this.boxMan, this.animationMixer, this.animationMap, this.control, this.camera)
         })
     }
 
@@ -375,10 +393,8 @@ export class BaseScene extends BaseInit {
 
     animate() {
 
+        let delta=this.clock.getDelta()
 
-        if (this.boxMan) {
-            this.camera.lookAt(this.boxMan.position)
-        }
 
         //如果有相机需要移动到的目标位置，相机则不断向目标位置移动
         if (this.cameraTargetPosition) {
@@ -404,6 +420,10 @@ export class BaseScene extends BaseInit {
             }
         }
 
+        if(this.personControl){
+            this.personControl.update(delta,keysPressed)
+        }
+
         //根据鼠标位置更新射线坐标
         this.rayCaster.setFromCamera(this.mouseCoords, this.camera);
         //统计相交物体
@@ -414,12 +434,36 @@ export class BaseScene extends BaseInit {
         this.raf = requestAnimationFrame(this.animate.bind(this));
 
         if (this.animationMixer) {
-            this.animationMixer.update(this.clock.getDelta());
+            this.animationMixer.update(delta);
         }
         this.renderer.render(this.scene, this.camera);
     }
 
     destroy() {
         super.destroy();
+
+        document.removeEventListener("keydown", this.keydown)
+        document.removeEventListener("keyup", this.keyup)
     }
+
+    private addKeyEvent() {
+        //键盘按下
+        this.keydown=((e: KeyboardEvent)=>{
+            if (e.shiftKey && this.personControl) {
+                this.personControl.switchRunToggle()
+            } else {
+                (keysPressed as any)[e.key.toLowerCase()] = true
+            }
+        }).bind(this)
+
+        //键盘弹起
+        this.keyup=((e: KeyboardEvent)=>{
+            (keysPressed as any)[e.key.toLowerCase()]=false
+
+        }).bind(this)
+
+        document.addEventListener("keydown",this.keydown, false)
+        document.addEventListener("keyup",this.keyup, false)
+    }
+
 }
