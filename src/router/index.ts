@@ -105,6 +105,10 @@ const routes: Array<RouteRecordRaw> = [
         path: '/physics',
         name: 'physics',
         component: ()=> import("@/views/integratedDemoLists/物理/index.vue")
+    }, {
+        path: '/webVR',
+        name: 'webVR',
+        component: ()=> import("@/views/integratedDemoLists/webVR/index.vue")
     },{
         path: '/temp',
         name: 'temp',
