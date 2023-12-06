@@ -5,7 +5,9 @@ import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
 // import dancerFbx from "/src/assets/model/sambaDancing.fbx?url"
 import dancerFbx from "/src/assets/model/热舞/WaveHipHopDance.fbx?url"
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
-
+import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
+import {load} from "@amap/amap-jsapi-loader";
+import girl from "@/assets/model/111.gltf?url"
 
 
 function clone( source:any ) {
@@ -138,7 +140,18 @@ export class ModelAnimation extends BaseInit {
 
         // this.addBall();
 
-        this.addModel()
+        // this.addModel()
+
+        this.loadMyModel();
+    }
+    loadMyModel(){
+        const loader = new GLTFLoader();
+        loader.load(girl,(res)=>{
+            console.log("模型对象res",res)
+            res.scene.position.y=10
+            this.scene.add(res.scene)
+        })
+
     }
     addModel(){
 
@@ -246,7 +259,10 @@ export class ModelAnimation extends BaseInit {
         light.position.x = 20;
         light.position.y = 30;
 
-        this.scene.add(light);
+        const ambientLight = new THREE.AmbientLight("#fff"); // 柔和的白光
+
+
+        this.scene.add(ambientLight);
     }
     addBall(){
 

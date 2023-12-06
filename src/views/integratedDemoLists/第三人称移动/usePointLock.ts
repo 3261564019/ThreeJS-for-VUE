@@ -22,7 +22,7 @@ export function UsePointLock(ins:BaseScene){
          * 向上y减小，向下y增大
          */
         let x=-event.movementX /10
-        let y=event.movementY /10
+        let y=-event.movementY /20
 
         console.log(event.movementX,event.movementY)
         let direction=new Vector3()
@@ -34,11 +34,23 @@ export function UsePointLock(ins:BaseScene){
         // console.log("aaa",x,angle)
         //绕着y轴旋转
         direction.applyAxisAngle(new Vector3(0,1,0),x)
-        //上下的话绕着x轴旋转
-        direction.applyAxisAngle(new Vector3(1,0,0),y)
+        /**
+         * 上下的话绕着x轴旋转
+         *
+         */
+        const localXAxis = new Vector3(1, 0, 0); // 模型的本地X轴方向向量
+        ins.boxMan.localToWorld(localXAxis); // 将本地坐标系中的向量转换为世界坐标系
+        // localXAxis.multiplyScalar(-1)
+        // localXAxis.normalize()
+        direction.applyAxisAngle(localXAxis,y)
+
+        console.log("ddd",direction)
 
         let res=extendVector3(direction,ins.boxMan.position,20)
-        cameraPosition=res;
+        if(res.y<18){
+            cameraPosition=res;
+
+        }
 
         console.log("res",res)
         // ins.camera.position.add(res)
@@ -85,7 +97,10 @@ export function UsePointLock(ins:BaseScene){
             // direction.applyAxisAngle(new Vector3(0,1,0),Math.PI/2)
             /**
              * 绕着x轴旋转  角度正值
-             * 45°是在人物背后 90°是人物头顶 135°人物前方  180度为人物正前方
+             * 45°是在人物背后          1/4 PI
+             * 90°是人物头顶            2/4 PI
+             * 135°人物前方             3/4 PI      0.75
+             * 180度为人物正前方        4/4 PI
              */
             direction.applyAxisAngle(new Vector3(1,0,0),Math.PI*0.75)
             /**
@@ -100,6 +115,14 @@ export function UsePointLock(ins:BaseScene){
             // // // res.y=10
             // // console.log("目标位置",res)
             ins.camera.position.copy(res)
+        },
+        calcLocalToWorld:()=>{
+            // ins.boxMan.rotation.y=Math.PI/2
+            const localXAxis = new Vector3(1, 0, 0); // 模型的本地X轴方向向量
+            ins.boxMan.localToWorld(localXAxis); // 将本地坐标系中的向量转换为世界坐标系
+            //得到的局部坐标系是向模型左手方向的
+
+            console.log(localXAxis);
         }
     }
 
@@ -107,15 +130,16 @@ export function UsePointLock(ins:BaseScene){
 
     ins.dat.add(debugData, "calcMousePosition").name("计算鼠标位置");
     ins.dat.add(debugData, "calcYAxis").name("计算Y轴");
+    ins.dat.add(debugData, "calcLocalToWorld").name("模型局部坐标系x朝向");
 
     dom.addEventListener( 'mousemove', mousemove);
     dom.addEventListener( 'mousedown', mouseDown);
     //
     let render=(delta:number)=>{
         if(cameraPosition){
-            ins.camera.position.x+=(cameraPosition.x - ins.camera.position.x) * delta *10;
-            ins.camera.position.y+=(cameraPosition.y - ins.camera.position.y) * delta *10;
-            ins.camera.position.z+=(cameraPosition.z - ins.camera.position.z) * delta *10;
+            ins.camera.position.x+=(cameraPosition.x - ins.camera.position.x) * delta *20;
+            ins.camera.position.y+=(cameraPosition.y - ins.camera.position.y) * delta *20;
+            ins.camera.position.z+=(cameraPosition.z - ins.camera.position.z) * delta *20;
         }
     }
 

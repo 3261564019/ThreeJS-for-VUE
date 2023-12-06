@@ -344,7 +344,7 @@ export class BaseScene extends BaseInit {
                 }
             ).name("动画")
 
-
+            res.rotation.y=Math.PI
             this.boxMan = res
 
             console.log("动画列表", this.animationMap)
