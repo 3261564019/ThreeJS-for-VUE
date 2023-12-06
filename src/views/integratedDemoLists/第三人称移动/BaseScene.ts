@@ -18,6 +18,7 @@ import boxMan from "@/assets/model/box_man.glb?url";
 import {Intersection} from "three/src/core/Raycaster";
 import {gsap, Power1} from 'gsap';
 import {CharacterControls} from "./characterControls";
+import {UsePointLock} from "./usePointLock";
 
 const  keysPressed={}
 
@@ -25,6 +26,7 @@ export class BaseScene extends BaseInit {
     animationMixer: AnimationMixer
     clock: Clock;
     debugData: {
+        rotation: () => void;
         testCurve: () => void;
         reSetCameraPosition: () => void;
         calcPosition: () => void;
@@ -44,6 +46,8 @@ export class BaseScene extends BaseInit {
     personControl: CharacterControls
     private keydown: (e: KeyboardEvent) => void;
     private keyup: OmitThisParameter<(e: KeyboardEvent) => void>;
+    private pointIns:any;
+
 
     constructor() {
         super({
@@ -51,13 +55,13 @@ export class BaseScene extends BaseInit {
             renderDomId: "#renderDom",
             needOrbitControls: true,
             adjustScreenSize: true,
-            needAxesHelper: false,
+            needAxesHelper: true,
             calcCursorPosition: true,
         } as BaseInitParams);
 
         this.control.minDistance = 5
         this.control.maxDistance = 15
-        // this.control.enableDamping=true
+        this.control.enableDamping=false
         this.control.maxPolarAngle = Math.PI / 2 - 0.05
         this.control.update();
 
@@ -84,6 +88,7 @@ export class BaseScene extends BaseInit {
         this.addBall();
         this.initRayCaster()
 
+        this.pointIns=UsePointLock(this)
 
         this.animate();
         // this.addTempBox();
@@ -92,6 +97,24 @@ export class BaseScene extends BaseInit {
         // window.addEventListener("click", this.onClick.bind(this))
 
         this.addKeyEvent();
+
+        const angle = Math.atan2(0, 10); // 返回的角度是弧度值
+        const degrees = angle * (180 / Math.PI); // 将弧度转换为度数
+        console.log("度数",degrees)
+
+
+        this.debugData.rotation=()=>{
+            // let rotateQuaternion=new Quaternion()
+            // rotateQuaternion.setFromAxisAngle(new Vector3(0,0,1),Math.PI/2)
+            // this.boxMan.quaternion.rotateTowards(rotateQuaternion,1)
+            let t=new Vector3(1,0,0)
+            t.normalize()
+            t.applyAxisAngle(new Vector3(0,1,0),Math.PI)
+            console.log(Math.abs(t.z))
+            console.log("ttt",t)
+        }
+        this.dat.add(this.debugData, "rotation").name("模型旋转");
+
     }
 
     onClick() {
@@ -234,7 +257,7 @@ export class BaseScene extends BaseInit {
                     // new THREE.Vector3(  - 20, 0, - 20,)
                 ]);
             //让曲线自动闭合
-            curve.closed = false;
+            // curve.closed = false;
             //取该曲线平均距离的100个点的位置
             const points = curve.getPoints(100);
             //通过点队列设置该 BufferGeometry 的 attribute。
@@ -300,7 +323,7 @@ export class BaseScene extends BaseInit {
                 temp[v.name] = v.name
                 this.animationMap.set(v.name, this.animationMixer.clipAction(v))
             })
-
+            // res.rotation.y=Math.PI
             this.scene.add(res)
 
 
@@ -326,7 +349,7 @@ export class BaseScene extends BaseInit {
 
             console.log("动画列表", this.animationMap)
 
-
+            this.control.enableDamping=true
             this.personControl = new CharacterControls('idle', this.boxMan, this.animationMixer, this.animationMap, this.control, this.camera)
         })
     }
@@ -366,8 +389,8 @@ export class BaseScene extends BaseInit {
         this.renderer.toneMappingExposure = 0.9;
         this.renderer.outputEncoding = THREE.LinearEncoding;
 
-        this.renderer.shadowMap.enabled = true;
-        this.camera.position.set(0, 20, 20)
+        // this.renderer.shadowMap.enabled = true;
+        this.camera.position.set(0, 180, 180)
         //定位相机指向场景中心
         this.camera.lookAt(this.scene.position)
 
@@ -395,31 +418,6 @@ export class BaseScene extends BaseInit {
 
         let delta=this.clock.getDelta()
 
-
-        //如果有相机需要移动到的目标位置，相机则不断向目标位置移动
-        if (this.cameraTargetPosition) {
-            let delta = 1;
-            let speed = 0.46; // 适当调整速度系数
-
-            // 计算相机位置的增量
-            let direction = new THREE.Vector3();
-            // 通过subVectors()方法将目标位置减去相机位置，得到从相机位置出发指向目标位置的向量
-            direction.subVectors(this.cameraTargetPosition, this.camera.position).normalize();
-            // 计算当前位置距目标位置的距离
-            let distance = this.camera.position.distanceTo(this.cameraTargetPosition);
-            // displacement表示了相机在当前帧应该沿着方向向量移动的位移量。
-            let displacement = direction.multiplyScalar(Math.min(distance, speed * delta));
-            // 将相机的当前位置与位移向量displacement相加，以实现相机沿着方向向量移动指定的距离。
-            this.camera.position.add(displacement);
-
-            if (distance <= displacement.length()) { // 判断相机是否已经接近目标位置
-                this.camera.position.copy(this.cameraTargetPosition); // 将相机位置直接设置为目标位置
-                this.cameraTargetPosition = null; // 清空目标位置
-            } else {
-                this.camera.position.add(displacement); // 更新相机位置
-            }
-        }
-
         if(this.personControl){
             this.personControl.update(delta,keysPressed)
         }
@@ -428,20 +426,23 @@ export class BaseScene extends BaseInit {
         this.rayCaster.setFromCamera(this.mouseCoords, this.camera);
         //统计相交物体
         this.calcIntersect()
-
-
         this.stats.update()
-        this.raf = requestAnimationFrame(this.animate.bind(this));
 
         if (this.animationMixer) {
             this.animationMixer.update(delta);
         }
+
+        this.pointIns.render(delta)
+        // console.log(this.camera.position)
+        // console.log(this.boxMan.position)
+        this.control.update()
         this.renderer.render(this.scene, this.camera);
+        this.raf = requestAnimationFrame(this.animate.bind(this));
     }
 
     destroy() {
         super.destroy();
-
+        this.pointIns.destroy()
         document.removeEventListener("keydown", this.keydown)
         document.removeEventListener("keyup", this.keyup)
     }

@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import {BaseInit, BaseInitParams} from "../../../three/classDefine/baseInit";
 import pic from "@/assets/img/panoramic/DJI_0684.jpg?url"
-import {Power2,Power1} from "gsap";
+import {Power1} from "gsap";
 import {Mesh, MeshBasicMaterial, SphereGeometry} from "three";
 import gsap from 'gsap';
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
@@ -19,15 +19,8 @@ export class BaseScene extends BaseInit {
 
         this.init();
 
-        // this.addPlan();
-
-        this.addLight();
-
         this.addBall();
 
-        this.animate()
-        
-        this.enter()
     }
     enterScene() {
         // 获取相机坐标
@@ -42,112 +35,84 @@ export class BaseScene extends BaseInit {
             fov:this.camera.fov,
             cz: 0,
             cy:this.camera.position.y,
-            r:0
+            r:this.ball.rotation.y
         }
-
-        // this.camera.fov = 50;
-
-        this.dat.add(this.camera,"fov",-180,180,0.01).name("fov").onChange(e=>{
-            this.camera.updateProjectionMatrix();
-        })
-
-        // this.camera.lookAt(0,0,1000)
 
         console.log("相机位置",this.camera.position)
 
-        // this.camera.position.set(0,0,0)
+        let camera = this.camera;
+        let ball = this.ball;
 
-        gsap.to(t, {
+        let tween=gsap.to(t, {
             cy: 0,
             cz:1200,
-            duration: 2.5,
-            r:Math.PI,
+            duration: 2,
+            r:Math.PI+(Math.PI/2),
             ease:Power1.easeOut,
             onUpdate: ()=>{
                 // 更新相机位置和视角大小
-                this.camera.position.y = t.cy;
-                this.camera.position.z = t.cz;
-                // this.camera.fov = t.fov;
-                // this.camera.updateProjectionMatrix();
+                camera.position.y = t.cy;
+                camera.position.z = t.cz;
                 // 旋转效果
-                this.ball.rotation.y += 0.01;
+                ball.rotation.y =t.r;
                 // 更新看向位置
-                const target = new THREE.Vector3(0, 0, 0);
-                this.camera.lookAt(target);
+                camera.lookAt(0,0,0);
             },
-            onComplete: function() {
-                gsap.killTweensOf(this);
+            onComplete: ()=> {
+                tween.kill()
+                this.control.enableRotate=true
+                this.control.minPolarAngle = Math.PI/4;
+                this.control.maxPolarAngle = Math.PI;
             }
         });
+
+        this.dat.add(this.camera,"fov",-180,180,0.01).name("fov").onChange(()=>{
+            this.camera.updateProjectionMatrix();
+        })
     }
     enter(){
         let p={
-            fov: 170,
+            fov: 179.9,
             ars: 40,
             rot: 0,
         }
-        let that=this
+        let camera = this.camera;
+        let ball = this.ball;
+
         let tween = gsap.to(p, {
             fov: 30,
             ars: 0,
             rot: Math.PI,
-            duration: 2.3,
-            ease: Power2.easeOut,
+            duration: 2.3 ,
+            ease: Power1.easeIn,
             onUpdate:()=>{
                 // 视角由大到小
-                this.camera.fov = p.fov;
-                this.camera.updateProjectionMatrix();
+                camera.fov = p.fov;
+                camera.updateProjectionMatrix();
                 // 旋转
-                this.ball.rotation.y = p.rot;
+                ball.rotation.y = p.rot;
             },
             onComplete:()=>{
                 tween.kill()
                 // 旋转入场动画
-                that.enterScene()
+                this.enterScene()
             }
         });
     }
-    addPlan(){
-
-        const geometry = new THREE.PlaneGeometry(40, 40);
-        const material = new THREE.MeshLambertMaterial({color:"#ae8643"});
-        material.side=THREE.DoubleSide
-        const plane = new THREE.Mesh(geometry, material);
-        //设置接受阴影
-        plane.receiveShadow = true
-
-        plane.rotation.x = -0.5 * Math.PI;
-        plane.position.x = 0;
-        plane.position.y = 0;
-        plane.position.z = 0;
-
-        //添加地板容器
-        this.scene.add(plane);
-
-    }
-    addLight(){
-
-        //创建聚光灯
-        const light = new THREE.SpotLight("#fff");
-        light.castShadow = true;            // default false
-        light.position.x = 20;
-        light.position.y = 30;
-
-        this.scene.add(light);
-    }
     addBall(){
-
         // 初始化球体
-        var geometry = new THREE.SphereGeometry(1200  , 1200  , 1200  );
+        let geometry = new THREE.SphereGeometry(1200  , 1200  , 1200  );
         geometry.scale(-1, 1, 1);
+        let map=new THREE.TextureLoader().load(pic)
+        map.minFilter = THREE.LinearFilter;
         // 创建材质并设置全景图
-        var material = new THREE.MeshBasicMaterial({
-            map: new THREE.TextureLoader().load(pic)
+        let material = new THREE.MeshBasicMaterial({
+            map,
+            reflectivity: 1
         });
         // 全景图贴在球体上
         this.ball = new THREE.Mesh(geometry, material);
-        this.ball.rotation.y=-Math.PI/2
-        // this.ball.rotation.x=-Math.PI/2
+        // this.ball.rotation.y=-Math.PI/2
 
         this.dat.add(this.ball.rotation,"x",-6,6,0.01).name("x")
         this.dat.add(this.ball.rotation,"y",-6,6,0.01).name("y")
@@ -157,14 +122,17 @@ export class BaseScene extends BaseInit {
         this.ball.position.set(0,2,0)
         // 添加到场景
         this.scene.add(this.ball);
+
+        //贴图加载完了，才开始渲染并播放进场动画
+        this.animate()
+        this.enter()
     }
     init() {
-
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = 0.9;
         this.renderer.outputEncoding = THREE.LinearEncoding;
         this.renderer.shadowMap.enabled = true;
-
+        this.dat.close()
         this.camera=new THREE.PerspectiveCamera(170, window.innerWidth / window.innerHeight, 0.1, 10000);
         // //定位相机指向场景中心
         this.camera.position.set(0,  1200, 0);
@@ -173,18 +141,18 @@ export class BaseScene extends BaseInit {
         this.control.rotateSpeed = -0.4;
         this.control.minDistance=260
         this.control.maxDistance=2600
-        this.control.dampingFactor=0.07
-
+        //图片没加载完之前不允许旋转
+        this.control.enableRotate=false
+        this.control.enablePan=false
         this.dat.add(this.control,"minDistance",-500,500,0.01).name("minDistance")
         this.dat.add(this.control,"maxDistance",-500,3000,0.01).name("maxDistance")
-
+        this.dat.add(this.renderer,"toneMappingExposure",-2,2,0.01).name("曝光")
         this.control.enableDamping=true
     }
     animate(){
         this.stats.update()
-
-        this.raf=requestAnimationFrame(this.animate.bind(this));
         this.control.update()
         this.renderer.render(this.scene, this.camera);
+        this.raf=requestAnimationFrame(this.animate.bind(this));
     }
 }
