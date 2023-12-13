@@ -126,7 +126,8 @@ const routes: Array<RouteRecordRaw> = [
         // component: ()=> import("@/views/enable3d/index.vue")
         // component: ()=> import("@/views/integratedDemoLists/第三人称/index.vue")
         // component: ()=> import("@/views/unsuccessful/shaderPart/index.vue")
-        component: ()=> import("@/views/integratedDemoLists/第三人称移动/index.vue")
+        // component: ()=> import("@/views/integratedDemoLists/第三人称移动/index.vue")
+        component: ()=> import("@/views/integratedDemoLists/SketchBoxControl/index.vue")
     }
     // ,{
     //     path: '/routerView',

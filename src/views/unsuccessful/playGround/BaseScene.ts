@@ -1,11 +1,12 @@
 import * as THREE from "three";
-import {BaseInit, BaseInitParams} from "../../three/classDefine/baseInit";
+import {BaseInit, BaseInitParams} from "../../../three/classDefine/baseInit";
 
 export class BaseScene extends BaseInit {
     constructor() {
         super({
-            needLight:false,
-            renderDomId:"#renderDom"
+            needLight: false,
+            renderDomId:"#renderDom",
+            needOrbitControls:true
         } as BaseInitParams);
 
         this.initDebug();
@@ -17,12 +18,18 @@ export class BaseScene extends BaseInit {
         this.addLight();
 
         this.addBall();
+        this.animate()
+
+        setInterval(()=>{
+            this.animate()
+        },1/30*1000)
     }
-    addPlan(){
+
+    addPlan() {
 
         const geometry = new THREE.PlaneGeometry(40, 40);
-        const material = new THREE.MeshLambertMaterial({color: 0x222222});
-        material.side=THREE.DoubleSide
+        const material = new THREE.MeshLambertMaterial({color: "#ccc"});
+        material.side = THREE.DoubleSide
         const plane = new THREE.Mesh(geometry, material);
         //设置接受阴影
         plane.receiveShadow = true
@@ -36,7 +43,8 @@ export class BaseScene extends BaseInit {
         this.scene.add(plane);
 
     }
-    addLight(){
+
+    addLight() {
 
         //创建聚光灯
         const light = new THREE.SpotLight("#fff");
@@ -46,7 +54,8 @@ export class BaseScene extends BaseInit {
 
         this.scene.add(light);
     }
-    addBall(){
+
+    addBall() {
 
         const sphere = new THREE.Mesh(
             new THREE.SphereGeometry(3, 33, 33),
@@ -59,6 +68,7 @@ export class BaseScene extends BaseInit {
 
         this.scene.add(sphere);
     }
+
     init() {
 
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -71,11 +81,16 @@ export class BaseScene extends BaseInit {
         this.camera.lookAt(this.scene.position)
 
     }
-    animate(){
+
+    animate() {
+
+        // this.stats.begin();
+
+        // this.raf = requestAnimationFrame(this.animate.bind(this));
+
+        // this.renderer.render(this.scene, this.camera);
+
+        // this.stats.end();
         this.stats.update()
-
-        this.raf=requestAnimationFrame(this.animate.bind(this));
-
-        this.renderer.render(this.scene, this.camera);
     }
 }

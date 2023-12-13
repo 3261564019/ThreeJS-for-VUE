@@ -1,14 +1,15 @@
 import * as THREE from "three";
-import {BaseInit, BaseInitParams} from "../../three/classDefine/baseInit";
+import {BaseInit, BaseInitParams} from "./core/baseInit";
 
 export class BaseScene extends BaseInit {
     constructor() {
         super({
-            needLight:false,
-            renderDomId:"#renderDom"
+            renderDomId:"#renderDom",
+            needDebug:true,
+            needStats:true,
+            needOrbitControls:true,
+            adjustScreenSize:true
         } as BaseInitParams);
-
-        this.initDebug();
 
         this.init();
 
@@ -17,6 +18,8 @@ export class BaseScene extends BaseInit {
         this.addLight();
 
         this.addBall();
+
+        this.animate()
     }
     addPlan(){
 
@@ -59,12 +62,7 @@ export class BaseScene extends BaseInit {
 
         this.scene.add(sphere);
     }
-    init() {
-
-        this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        this.renderer.toneMappingExposure = 0.9;
-        this.renderer.outputEncoding = THREE.LinearEncoding;
-
+    init() { 
         this.renderer.shadowMap.enabled = true;
         this.camera.position.set(0, 30, 40);
         //定位相机指向场景中心
@@ -72,10 +70,11 @@ export class BaseScene extends BaseInit {
 
     }
     animate(){
+
+        this.control.update()
+        this.renderer.render(this.scene, this.camera);
         this.stats.update()
 
-        this.raf=requestAnimationFrame(this.animate.bind(this));
-
-        this.renderer.render(this.scene, this.camera);
+        requestAnimationFrame(this.animate.bind(this));
     }
 }
