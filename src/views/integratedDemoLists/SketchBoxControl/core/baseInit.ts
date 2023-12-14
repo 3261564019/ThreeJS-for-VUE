@@ -22,7 +22,7 @@ export interface BaseInitParams {
     calcCursorPosition?: boolean
     //是否适配屏幕尺寸。适应
     adjustScreenSize?: Boolean
-    //是否
+    //是否初始化dat.gui
     needDebug?: Boolean
 }
 export class BaseInit {
@@ -119,6 +119,10 @@ export class BaseInit {
             this.initStats();
         }
 
+        if(params.needDebug){
+            this.initDebug();
+        }
+
         //适配屏幕尺寸
         this.scene = scene;
         this.camera = camera;
@@ -173,7 +177,8 @@ export class BaseInit {
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(w, h);
         }catch (e) {
-            console.log("适配尺寸报错了",e);
+            // @ts-ignore
+            console.log("适配尺寸报错",e.message);
         }
     }
     private initDebug() {
@@ -181,7 +186,7 @@ export class BaseInit {
     }
     destroy(){
         try {
-            this.dat.destroy()
+            this.dat?.destroy()
             this.renderer.forceContextLoss();
             this.renderer.dispose();
             this.scene.clear();
@@ -196,7 +201,8 @@ export class BaseInit {
             this.renderer = null;
             this.stats.domElement.parentNode.removeChild(this.stats.domElement);
         }catch (e) {
-            console.log("释放资源时报错",e)
+            // @ts-ignore
+            console.log("释放资源时报错",e.message)
         }
     }
 }

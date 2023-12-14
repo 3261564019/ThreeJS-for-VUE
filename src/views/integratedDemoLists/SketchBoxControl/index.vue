@@ -6,12 +6,12 @@
 
 <script setup>
 import {onMounted, onUnmounted} from "vue";
-import {BaseScene} from "./BaseScene";
+import {SketchBoxScene} from "./SketchBoxScene";
 
 let ins;
 
 onMounted(()=>{
-  ins=new BaseScene()
+  ins=new SketchBoxScene()
 })
 onUnmounted(()=>{
   ins.destroy();

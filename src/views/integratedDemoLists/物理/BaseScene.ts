@@ -122,6 +122,7 @@ export class physicsBaseScene extends BaseInit {
 
         const clock = new THREE.Clock();
         // @ts-ignore
+        clock.getElapsedTime()
         const animate = () => {
             let delta=clock.getDelta();
 
