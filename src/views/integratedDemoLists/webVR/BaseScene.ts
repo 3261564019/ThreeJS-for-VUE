@@ -46,7 +46,7 @@ export class BaseScene extends BaseInit {
         let tween=gsap.to(t, {
             cy: 0,
             cz:1200,
-            duration: 2,
+            duration: 2.3,
             r:Math.PI+(Math.PI/2),
             ease:Power1.easeOut,
             onUpdate: ()=>{
@@ -56,7 +56,7 @@ export class BaseScene extends BaseInit {
                 // 旋转效果
                 ball.rotation.y =t.r;
                 // 更新看向位置
-                camera.lookAt(0,0,0);
+                // camera.lookAt(0,0,0);
             },
             onComplete: ()=> {
                 tween.kill()
@@ -101,14 +101,18 @@ export class BaseScene extends BaseInit {
     }
     addBall(){
         // 初始化球体
-        let geometry = new THREE.SphereGeometry(1200  , 1200  , 1200  );
+        let geometry = new THREE.SphereGeometry(1200  , 90  , 90  );
+        // let geometry = new THREE.BoxGeometry(1200  , 1200  , 1200  );
         geometry.scale(-1, 1, 1);
         let map=new THREE.TextureLoader().load(pic)
         map.minFilter = THREE.LinearFilter;
         // 创建材质并设置全景图
         let material = new THREE.MeshBasicMaterial({
             map,
-            reflectivity: 1
+            // color:"#F00",
+            reflectivity: 1,
+            lightMapIntensity:10,
+            wireframe: false
         });
         // 全景图贴在球体上
         this.ball = new THREE.Mesh(geometry, material);
@@ -125,6 +129,7 @@ export class BaseScene extends BaseInit {
 
         //贴图加载完了，才开始渲染并播放进场动画
         this.animate()
+
         this.enter()
     }
     init() {

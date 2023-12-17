@@ -1,11 +1,14 @@
 import * as THREE from "three";
 import {BaseInit, BaseInitParams} from "./core/baseInit";
 import {WordPhysics} from "./physics/WordPhysics";
-import {Clock, Color} from "three";
+import {Clock, Color, LoadingManager} from "three";
+import {Character} from "./core/character";
 
 export class SketchBoxScene extends BaseInit {
     physicsIns:WordPhysics
     clock:Clock
+    loadMana:LoadingManager
+    characterIns:Character
 
     constructor() {
         super({
@@ -15,20 +18,22 @@ export class SketchBoxScene extends BaseInit {
             needOrbitControls:true,
             adjustScreenSize:true
         } as BaseInitParams);
-
+        //初始化资源加载管理器
+        this.initLoadManager()
         //设置渲染器相机相关参数
         this.init();
         //创建物理世界
         this.physicsIns=new WordPhysics(this)
+        this.characterIns=new Character(this)
+
+        Promise.all([this.characterIns.load()]).then(()=>{
+            this.animate()
+        })
 
         this.addPlan();
-
         this.addLight();
-
         this.addBall();
-
         this.clock=new Clock()
-        this.animate()
     }
     addPlan(){
 
@@ -81,11 +86,11 @@ export class SketchBoxScene extends BaseInit {
         try {
             let delta=this.clock.getDelta()
             let elapsedTime=this.clock.getElapsedTime()
-
             this.control.update()
             this.renderer.render(this.scene, this.camera);
             this.stats.update()
             this.physicsIns.render(delta,elapsedTime)
+            this.characterIns.render(delta,elapsedTime)
 
             requestAnimationFrame(this.animate.bind(this));
         }catch (e) {
@@ -96,5 +101,26 @@ export class SketchBoxScene extends BaseInit {
     destroy() {
         super.destroy();
         this.physicsIns.destroy()
+    }
+
+    private initLoadManager() {
+        this.loadMana=new LoadingManager()
+        this.loadMana.onStart = function ( url, itemsLoaded, itemsTotal ) {
+            console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+        };
+
+        this.loadMana.onLoad =()=>{
+            console.log( 'Loading complete!');
+
+
+        };
+
+        this.loadMana.onProgress = function ( url, itemsLoaded, itemsTotal ) {
+            console.log( 'Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+        };
+
+        this.loadMana.onError = function ( url ) {
+            console.log( 'There was an error loading ' + url );
+        };
     }
 }

@@ -1,7 +1,8 @@
 import * as CANNON from "cannon-es";
 import CannonDebugger from 'cannon-es-debugger'
 import {SketchBoxScene} from "../SketchBoxScene";
-export class WordPhysics{
+import {Updatable} from "../type";
+export class WordPhysics implements Updatable{
     world:CANNON.World
     //主类的引用
     ins:SketchBoxScene
@@ -9,7 +10,7 @@ export class WordPhysics{
     constructor(ins:SketchBoxScene) {
         this.ins=ins
         let world=new CANNON.World();
-        world.gravity.set(0, -9.81, 0);
+        world.gravity.set(0, -9.820, 0);
         world.broadphase = new CANNON.SAPBroadphase(world);
         world.allowSleep = true;
 
@@ -30,7 +31,7 @@ export class WordPhysics{
         this.debug= new CannonDebugger(this.ins.scene, this.world)
     }
     addGround(){
-        const floorSize = new CANNON.Vec3(40, 0.1, 40); // 指定平面的大小
+        const floorSize = new CANNON.Vec3(40, 1, 40); // 指定平面的大小
 
         const floorShape = new CANNON.Box(new CANNON.Vec3(
             floorSize.x * 0.5,
@@ -39,6 +40,7 @@ export class WordPhysics{
         ));
 
         const floorBody = new CANNON.Body({ shape: floorShape });
+        floorBody.position.set(0,-0.5,0)
         // floorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI * 0.5);
 
         this.world.addBody(floorBody);
@@ -46,7 +48,7 @@ export class WordPhysics{
     render(delta:number,elapsedTime:number){
         try {
             this.debug.update()
-            this.world.step(delta,elapsedTime)
+            this.world.step(delta)
         }catch (e) {
             // @ts-ignore
             console.log("物理渲染报错",e.message)
