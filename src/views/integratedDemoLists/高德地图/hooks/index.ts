@@ -109,13 +109,12 @@ export class GMapRender {
             const maxLongitude = 116.4;  // 最大经度
 
             // 循环添加对象
-            for (let i = 0; i < 2000; i++) {
+            for (let i = 0; i < 3000; i++) {
                 // 随机生成经纬度
                 const latitude = Math.random() * (maxLatitude - minLatitude) + minLatitude;
                 const longitude = Math.random() * (maxLongitude - minLongitude) + minLongitude;
                 // 将对象添加到
                 this.boxScene.addBox([longitude, latitude])
-
             }
 
             this.childScene.push(new ShiningWall({
@@ -285,17 +284,17 @@ export class GMapRender {
                     this.renderer = new THREE.WebGLRenderer({
                         context: gl,  // 地图的 gl 上下文
                         // logarithmicDepthBuffer:true,
-                        alpha: true,
-                        depth: false,
-                        antialias: false,
+                        // alpha: true,
+                        // depth: false,
+                        // antialias: false,
                         // canvas: gl.canvas,
-                        logarithmicDepthBuffer:true
+                        // logarithmicDepthBuffer:true
                     });
 
                     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
                     this.renderer.toneMappingExposure = 0.9;
                     this.renderer.outputEncoding = THREE.LinearEncoding;
-                    this.renderer.shadowMap.enabled=true
+                    // this.renderer.shadowMap.enabled=true
 
                     // this.dat.add(this.camera,"near",-300,300).onChange(()=>{
                     //     console.log("变")
@@ -333,9 +332,9 @@ export class GMapRender {
                     this.customCoords.setCenter(this.centerPosition);
                     // @ts-ignore
                     let {near, far, fov, up, lookAt, position} = this.customCoords.getCameraParams();
-
-                    this.camera.near = near/20;
-                    this.camera.far = far/20;
+                    // console.log(near, far, fov)
+                    this.camera.near = near/30;
+                    this.camera.far = far/30;
                     this.camera.fov = fov;
                     // @ts-ignore
                     this.camera.position.set(...position);
@@ -344,9 +343,7 @@ export class GMapRender {
                     // @ts-ignore
                     this.camera.lookAt(...lookAt);
                     this.camera.updateProjectionMatrix();
-
                     this.renderer.render(this.scene, this.camera);
-
                     this.renderer.resetState();
                 },
             });

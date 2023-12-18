@@ -110,6 +110,10 @@ const routes: Array<RouteRecordRaw> = [
         name: 'webVR',
         component: ()=> import("@/views/integratedDemoLists/webVR/index.vue")
     },{
+        path: '/characterControls',
+        name: 'characterControls',
+        component: ()=> import("@/views/integratedDemoLists/第三人称移动/index.vue")
+    },{
         path: '/temp',
         name: 'temp',
         // component: ()=> import("@/views/面试/变量提升.vue")
@@ -124,10 +128,10 @@ const routes: Array<RouteRecordRaw> = [
         // component: ()=> import("@/views/Other/面试/vue过渡.vue")
         // component: ()=> import("@/views/integratedDemoLists/倾斜投影/index.vue")
         // component: ()=> import("@/views/enable3d/index.vue")
-        component: ()=> import("@/views/integratedDemoLists/第三人称enable3D/index.vue")
+        // component: ()=> import("@/views/integratedDemoLists/第三人称enable3D/index.vue")
         // component: ()=> import("@/views/unsuccessful/shaderPart/index.vue")
         // component: ()=> import("@/views/integratedDemoLists/第三人称移动自/index.vue")
-        // component: ()=> import("@/views/integratedDemoLists/SketchBoxControl/index.vue")
+        component: ()=> import("@/views/integratedDemoLists/SketchBoxControl/index.vue")
         // component: ()=> import("@/views/integratedDemoLists/第三人称/index.vue")
     },{
         path: '/webVR',
@@ -137,7 +141,7 @@ const routes: Array<RouteRecordRaw> = [
         path: '/SketchBoxControl',
         name: 'SketchBoxControl',
         component: ()=> import("@/views/integratedDemoLists/SketchBoxControl/index.vue")
-    },
+    }
     // ,{
     //     path: '/routerView',
     //     name: 'RouterView',

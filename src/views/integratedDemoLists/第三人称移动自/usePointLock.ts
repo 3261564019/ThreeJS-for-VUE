@@ -11,48 +11,51 @@ function extendVector3(direction:Vector3, position:Vector3, distance:number) {
 export function UsePointLock(ins:BaseScene){
     let dom=ins.renderer.domElement
     let cameraPosition:Vector3
+    //鼠标是否点击目标区域并聚焦
+    let focused:boolean=false
+
 
     let mouseDown=()=>{
         dom.requestPointerLock()
+        focused=true
     }
 
     let mousemove=(event:MouseEvent)=>{
+        if(!focused){
+            return
+        }
         /**
          * 向右x增大，向左x减小
          * 向上y减小，向下y增大
          */
         let x=-event.movementX /10
         let y=-event.movementY /20
-
-        console.log(event.movementX,event.movementY)
+        console.log("--------------------------------------------------")
+        console.log(x,y)
         let direction=new Vector3()
         //先只处理x的,x轴的变化是相机绕着y轴运动
         ins.camera.getWorldDirection(direction)
         direction.multiplyScalar(-1)
         direction.normalize()
-        // let angle=x/5000
-        // console.log("aaa",x,angle)
+        console.log("相机朝向",direction)
+        console.log("计算出本地需要移动的度数",x * (180 / Math.PI))
         //绕着y轴旋转
         direction.applyAxisAngle(new Vector3(0,1,0),x)
+        console.log("绕着Y轴旋转后的向量",direction)
         /**
          * 上下的话绕着x轴旋转
-         *
          */
         const localXAxis = new Vector3(1, 0, 0); // 模型的本地X轴方向向量
         ins.boxMan.localToWorld(localXAxis); // 将本地坐标系中的向量转换为世界坐标系
-        // localXAxis.multiplyScalar(-1)
-        // localXAxis.normalize()
-        direction.applyAxisAngle(localXAxis,y)
-
-        console.log("ddd",direction)
+        console.log("x轴本地坐标的朝向",localXAxis)
+        direction.applyAxisAngle(localXAxis,-y)
+        console.log("沿着本地坐标系x轴旋转后",direction)
 
         let res=extendVector3(direction,ins.boxMan.position,20)
-        if(res.y<18){
+        // if(res.y<18){
             cameraPosition=res;
-
-        }
-
-        console.log("res",res)
+        // }
+        console.log("相机坐标",res)
         // ins.camera.position.add(res)
 
         // gsap.to(ins.camera.position, {
@@ -117,12 +120,45 @@ export function UsePointLock(ins:BaseScene){
             ins.camera.position.copy(res)
         },
         calcLocalToWorld:()=>{
+            ins.boxMan.rotation.y=Math.PI/2
+
+            let direction=new Vector3()
+            //先只处理x的,x轴的变化是相机绕着y轴运动
+            ins.camera.getWorldDirection(direction)
+            // direction.multiplyScalar(-1)
+            direction.normalize()
+
+            direction=new Vector3(1,0,0)
+            console.log("相机朝向",direction)
             // ins.boxMan.rotation.y=Math.PI/2
             const localXAxis = new Vector3(1, 0, 0); // 模型的本地X轴方向向量
             ins.boxMan.localToWorld(localXAxis); // 将本地坐标系中的向量转换为世界坐标系
-            //得到的局部坐标系是向模型左手方向的
+            console.log("本地坐标系x轴的朝向：",localXAxis);
 
-            console.log(localXAxis);
+            /**
+             * 得到的局部坐标系是向模型左手方向的
+             *
+             * 相机的朝向沿着模型本地坐标系的x轴转45°
+             *
+             * 如果这里的旋转角度不取反的话，旋转完以后 是从正x轴向y轴的方向开始计算的
+             * {
+             *     "x": -2.8076118445748826,
+             *     "y": -3.5355339059327378,
+             *     "z": -1.6258839764163453e-15
+             * }
+             */
+            direction.applyAxisAngle(localXAxis,Math.PI/4)
+
+            console.log("旋转完以后",direction)
+
+            let res=extendVector3(direction,ins.boxMan.position,80)
+
+            console.log("相机位置",res)
+
+            ins.camera.position.copy(res)
+
+            // direction.applyAxisAngle(localXAxis,y)
+
         }
     }
 
@@ -132,8 +168,14 @@ export function UsePointLock(ins:BaseScene){
     ins.dat.add(debugData, "calcYAxis").name("计算Y轴");
     ins.dat.add(debugData, "calcLocalToWorld").name("模型局部坐标系x朝向");
 
-    dom.addEventListener( 'mousemove', mousemove);
-    dom.addEventListener( 'mousedown', mouseDown);
+
+    let mouseExit=(event: { type: string; })=>{
+        focused = document.pointerLockElement !== null;
+    }
+
+    // dom.addEventListener( 'mousemove', mousemove);
+    // dom.addEventListener( 'mousedown', mouseDown);
+    document.addEventListener('pointerlockchange', mouseExit);
     //
     let render=(delta:number)=>{
         if(cameraPosition){
@@ -145,6 +187,7 @@ export function UsePointLock(ins:BaseScene){
 
     let destroy=()=>{
         dom.removeEventListener("mousedown",mouseDown)
+        document.removeEventListener("pointerlockchange",mouseExit)
         // @ts-ignore
         dom=null
     }

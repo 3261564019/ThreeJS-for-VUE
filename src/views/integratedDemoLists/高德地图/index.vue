@@ -74,6 +74,7 @@ function initMap() {
 
 
     let center= [121.40268523905561,28.644147120817046]
+    // let center= [116.54, 39.79]
 
     mapIns = new AMap.Map("RootContainer", {  //设置地图容器id
       center,

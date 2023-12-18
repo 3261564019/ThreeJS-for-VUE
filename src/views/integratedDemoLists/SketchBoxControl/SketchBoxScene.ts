@@ -26,7 +26,9 @@ export class SketchBoxScene extends BaseInit {
         this.physicsIns=new WordPhysics(this)
         this.characterIns=new Character(this)
 
-        Promise.all([this.characterIns.load()]).then(()=>{
+        Promise.all([
+            this.characterIns.load(),
+        ]).then(()=>{
             this.animate()
         })
 

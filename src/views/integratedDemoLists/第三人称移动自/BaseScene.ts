@@ -71,7 +71,7 @@ export class BaseScene extends BaseInit {
         this.debugData = {
             //当前执行的动作名称
             actionName: "",
-            calcPosition: this.calcCameraPosition.bind(this)
+            // calcPosition: this.calcCameraPosition.bind(this)
             //计算相机位置的回调
         }
 
@@ -92,7 +92,6 @@ export class BaseScene extends BaseInit {
 
         this.animate();
         // this.addTempBox();
-        this.addCalcCameraPositionDebug();
 
         // window.addEventListener("click", this.onClick.bind(this))
 
@@ -196,84 +195,6 @@ export class BaseScene extends BaseInit {
         this.mouseCoords.x = (event.clientX / this.screenSize.x * 2) - 1
         this.mouseCoords.y = -(event.clientY / this.screenSize.y * 2) + 1
     }
-
-    // 根据人物朝向，计算出相机的位置
-    calcCameraPosition() {
-        const character = this.boxMan
-        // 计算相机的位置
-        const distance = 20; // 相机与人物的距离
-        const characterDirection = character.rotation.y; // 获取人物的朝向角度
-        // 计算相机的位置
-
-        this.cameraTargetPosition = new THREE.Vector3(
-            character.position.x - Math.sin(characterDirection) * distance,
-            character.position.y + 15, // 相机的高度
-            character.position.z - Math.cos(characterDirection) * distance
-        )
-    }
-
-    addCalcCameraPositionDebug() {
-        this.debugData.reSetCameraPosition = () => {
-            // this.camera.position.set(0, 40, 40)
-            this.tempBox.position.set(0, 0, 20)
-        }
-        this.debugData.testCurve = () => {
-
-            /**
-             * 1、生成轨迹曲线
-             * 2、渲染时有轨迹线则根据线段向指定位置移动，在接近目标位置时速度放缓
-             * 3、运动过程中如果目标点发送变化需要清楚当前移动的状态，设置新状态，以便将相机移动至新地点
-             */
-
-                // const path = {
-                //     path: [
-                //         new Vector3(0,0,20),
-                //         new Vector3(20,0,0),
-                //         new Vector3(0,0,-20)
-                //     ]
-                // };
-                //
-                // gsap.to(this.tempBox.position, {
-                //     duration:3,
-                //     motionPath: path,
-                //     ease: Power1.easeInOut, // 使用缓动函数控制速度由快至慢
-                //     onUpdate: () => {
-                //         // 在每一帧更新模型的顶点法线
-                //         // this.camera.lookAt(0,5,0)
-                //         console.log("更新")
-                //     },
-                //     onComplete: function () {
-                //         // 动画完成时执行的操作
-                //         console.log("Animation completed");
-                //     }
-                // });
-
-
-                //用Catmull-Rom算法， 从一系列的点创建一条平滑的三维样条曲线
-            const curve = new CatmullRomCurve3([
-                    new Vector3(0, 0, 20),
-                    new Vector3(20, 0, 0),
-                    new Vector3(0, 0, -20)
-                    // new THREE.Vector3(  - 20, 0, - 20,)
-                ]);
-            //让曲线自动闭合
-            // curve.closed = false;
-            //取该曲线平均距离的100个点的位置
-            const points = curve.getPoints(100);
-            //通过点队列设置该 BufferGeometry 的 attribute。
-            const geometry = new THREE.BufferGeometry().setFromPoints(points);
-            //线条材质
-            const material = new THREE.LineBasicMaterial({color: 0xff0000});
-            //创建图形并加入场景
-            const curveObject = new THREE.Line(geometry, material);
-            this.scene.add(curveObject);
-
-        }
-        this.dat.add(this.debugData, "calcPosition").name("计算相机位置");
-        this.dat.add(this.debugData, "reSetCameraPosition").name("重置相机位置");
-        this.dat.add(this.debugData, "testCurve").name("临时测试曲线");
-    }
-
     addPlan() {
 
         const geometry = new THREE.PlaneGeometry(40, 40);

@@ -1,7 +1,8 @@
 import {SketchBoxScene} from "../SketchBoxScene";
-import boxMax from "@/assets/model/box_man.glb?url"
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import boxMan from "@/assets/model/box_man.glb?url";
+import girl from "@/assets/model/111.gltf?url";
+import gt from "@/assets/model/gt.glb?url";
 import {MeshRigid} from "../../物理/types";
 import {AnimationAction, AnimationMixer} from "three";
 import {Updatable} from "../type";
@@ -79,6 +80,54 @@ export class Character implements Updatable {
                     this.animationMap.get("idle").play()
 
                     resolve(1)
+                }
+            )
+
+
+            loader.load(
+                gt,
+                (res) => {
+                    console.log("g加载结果", res)
+                    const body = new CANNON.Body({ mass: 1 });
+
+                    res.scene.traverse(child => {
+                        // @ts-ignore
+                        if (child.isMesh) {
+                            console.log(child)
+                            // @ts-ignore
+                            const bufferGeometry = child.geometry; // 这里是你的BufferGeometry
+
+                            // 从BufferGeometry中获取顶点数据和索引
+                            const positions = bufferGeometry.getAttribute('position').array;
+                            const indices = bufferGeometry.getIndex().array;
+
+                            // 转换顶点数据为CANNON.Vec3类型的向量数组
+                            const vertices = [];
+                            for (let i = 0; i < positions.length; i += 3) {
+                                const vertex = new CANNON.Vec3(positions[i], positions[i + 1], positions[i + 2]);
+                                vertices.push(vertex);
+                            }
+
+                            // 组织面数据
+                            const faces = [];
+                            for (let i = 0; i < indices.length; i += 3) {
+                                faces.push([indices[i], indices[i + 1], indices[i + 2]]);
+                            }
+
+                            // 创建CANNON.ConvexPolyhedron
+                            const convexPolyhedron = new CANNON.ConvexPolyhedron({ vertices, faces });
+
+                            // 假设已经有一个CANNON.World实例 world
+                            // 创建刚体并添加到物理世界中
+                            body.addShape(convexPolyhedron);
+
+                        }
+                    })
+                    body.position.set(0,10,0)
+                    this.ins.physicsIns.world.addBody(body);
+
+                    res.scene.position.set(-3,5,0)
+                    this.ins.scene.add(res.scene)
                 }
             )
         })
