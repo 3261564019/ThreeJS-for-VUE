@@ -34,12 +34,12 @@ export class SketchBoxScene extends BaseInit {
 
         this.addPlan();
         this.addLight();
-        this.addBall();
+        // this.addBall();
         this.clock=new Clock()
     }
     addPlan(){
 
-        const geometry = new THREE.PlaneGeometry(40, 40);
+        const geometry = new THREE.PlaneGeometry(140, 140);
         const material = new THREE.MeshLambertMaterial({color:new Color("#aaa")});
         material.side=THREE.DoubleSide
         const plane = new THREE.Mesh(geometry, material);

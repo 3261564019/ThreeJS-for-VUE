@@ -7,7 +7,7 @@ import {
 }  from "enable3d";
 import {ThirdPersonControls} from "./thirdPersonControls.js";
 import boxMax from "@/assets/model/box_man.glb?url"
-import bookModel from "@/assets/model/book.glb?url"
+import bookModel from "@/assets/model/world.glb?url"
 import {Vector3} from "three";
 import * as dat from 'dat.gui';
 import Stats from 'stats-js';
@@ -101,7 +101,7 @@ class MainScene extends Scene3D {
             const book = new ExtendedObject3D()
             book.name = 'scene'
             book.add(scene)
-            this.add.existing(book)
+            // this.add.existing(book)
 
             // add animations
             // sadly only the flags animations works
@@ -119,26 +119,30 @@ class MainScene extends Scene3D {
                     child.material.metalness = 0
                     child.material.roughness = 1
 
-                    if (/mesh/i.test(child.name)) {
 
-                        console.log("child",child)
+                    if (child.userData.hasOwnProperty('data')) {
+                        if (child.userData.data === 'physics') {
+                            if (child.userData.hasOwnProperty('type')) {
+                                console.log("child", child)
 
-                        this.physics.add.existing(child, {
-                            shape: 'concave',
-                            mass: 0,
-                            collisionFlags: 1,
-                            autoCenter: false
-                        })
-                        /**
-                         * setAngularFactor（设置角速度因子）是一种用于控制刚体旋转的方法。它通常用于调整刚体在受力或碰撞时的旋转行为。
-                         * 如果您将角速度因子设置为(0, 1, 0)，则表示刚体只能绕Y轴旋转，而在X轴和Z轴上将被禁止旋转。这样可以实现类似于锁定某个轴的效果。
-                         */
-                        child.body.setAngularFactor(0, 0, 0)
-                        /**
-                         * 类似于setAngularFactor方法，但是控制的是刚体在每个轴上的线速度。
-                         * 如果您将线速度因子设置为(0, 1, 0)，则表示刚体只能沿着Y轴方向移动，而在X轴和Z轴方向上将被禁止移动。这样可以实现类似于锁定某个轴的效果。
-                         */
-                        child.body.setLinearFactor(0, 0, 0)
+                                this.physics.add.existing(child, {
+                                    shape: 'concave',
+                                    mass: 0,
+                                    collisionFlags: 1,
+                                    autoCenter: false
+                                })
+                                /**
+                                 * setAngularFactor（设置角速度因子）是一种用于控制刚体旋转的方法。它通常用于调整刚体在受力或碰撞时的旋转行为。
+                                 * 如果您将角速度因子设置为(0, 1, 0)，则表示刚体只能绕Y轴旋转，而在X轴和Z轴上将被禁止旋转。这样可以实现类似于锁定某个轴的效果。
+                                 */
+                                child.body.setAngularFactor(0, 0, 0)
+                                /**
+                                 * 类似于setAngularFactor方法，但是控制的是刚体在每个轴上的线速度。
+                                 * 如果您将线速度因子设置为(0, 1, 0)，则表示刚体只能沿着Y轴方向移动，而在X轴和Z轴方向上将被禁止移动。这样可以实现类似于锁定某个轴的效果。
+                                 */
+                                child.body.setLinearFactor(0, 0, 0)
+                            }
+                        }
                     }
                 }
             })
@@ -152,7 +156,7 @@ class MainScene extends Scene3D {
             this.man.rotateY(Math.PI + 0.1) // a hack
             this.man.add(man)
             this.man.rotation.set(0, Math.PI * 1.5, 0)
-            this.man.position.set(35, 0, 0)
+            this.man.position.set(35, 50, 0)
             // add shadow
             this.man.traverse(child => {
                 if (child.isMesh) {

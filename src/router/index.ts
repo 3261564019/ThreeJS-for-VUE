@@ -112,7 +112,7 @@ const routes: Array<RouteRecordRaw> = [
     },{
         path: '/characterControls',
         name: 'characterControls',
-        component: ()=> import("@/views/integratedDemoLists/第三人称移动/index.vue")
+        component: ()=> import("@/views/integratedDemoLists/第三人称移动自/index.vue")
     },{
         path: '/temp',
         name: 'temp',

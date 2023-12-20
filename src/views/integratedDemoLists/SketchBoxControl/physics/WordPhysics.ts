@@ -31,7 +31,7 @@ export class WordPhysics implements Updatable{
         this.debug= new CannonDebugger(this.ins.scene, this.world)
     }
     addGround(){
-        const floorSize = new CANNON.Vec3(40, 1, 40); // 指定平面的大小
+        const floorSize = new CANNON.Vec3(140, 10, 140); // 指定平面的大小
 
         const floorShape = new CANNON.Box(new CANNON.Vec3(
             floorSize.x * 0.5,
@@ -40,7 +40,7 @@ export class WordPhysics implements Updatable{
         ));
 
         const floorBody = new CANNON.Body({ shape: floorShape });
-        floorBody.position.set(0,-0.5,0)
+        floorBody.position.set(0,-5,0)
         // floorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI * 0.5);
 
         this.world.addBody(floorBody);
