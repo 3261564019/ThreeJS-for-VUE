@@ -33,7 +33,7 @@ export class Character implements Updatable {
     private move: Boolean;
     private canJump: Boolean=true;
     private rotationY: number;
-
+    private velocityQuaternion:Vector3=new Vector3(0,0,1)
     private temp:Quaternion
 
     constructor(ins: SketchBoxScene) {
@@ -126,6 +126,9 @@ export class Character implements Updatable {
                 (res) => {
                     console.log("加载结果", res)
                     let t = res.scene.children[0]
+                    const axesHelper = new THREE.AxesHelper(2); // 参数表示坐标轴的长度
+                    t.add(axesHelper)
+
                     // t.scale.set(2, 2, 2)
 
                     t.traverse(child => {
@@ -152,9 +155,9 @@ export class Character implements Updatable {
                     })
 
 
-                    const radius = 0.25; // 球体半径
+                    const radius = 0.20; // 球体半径
 
-                    const sphereShape = new CANNON.Box(new CANNON.Vec3(0.2,0.2,0.2));
+                    const sphereShape = new CANNON.Sphere(radius);
 
                     const body = new CANNON.Body({
                         mass: 1, // 质量
@@ -167,11 +170,20 @@ export class Character implements Updatable {
 
                     let p={
                         rotation:()=>{
-                            console.log("aaa")
-                            body.velocity.x=20
-                            var force = new CANNON.Vec3(10, 0, 0);
-                            var worldPoint = new CANNON.Vec3(0.1, 0, 0); // 刚体的底部中心位置
-                            body.applyForce(force, worldPoint);
+
+                            // body.velocity.x=1
+
+                            let t=new Vector3(0,0,1)
+
+                            const q = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), MathUtils.degToRad(45));
+
+                            console.log(q)
+
+                            this.velocityQuaternion.z=-1
+                            // var force = new CANNON.Vec3(0.1, 0, 0);
+                            // var worldPoint = new CANNON.Vec3(0.1, 0, 0); // 刚体的底部中心位置
+                            // body.applyForce(force, worldPoint);
+
                             // gsap.to
                         }
                     }
@@ -211,9 +223,6 @@ export class Character implements Updatable {
                         })
                     }
 
-
-                    const axesHelper = new THREE.AxesHelper(2); // 参数表示坐标轴的长度
-                    t.add(axesHelper)
                     this.current={
                         body,
                         mesh:t
@@ -277,6 +286,13 @@ export class Character implements Updatable {
             let {mesh:man,body}=this.current
 
 
+            if(this.velocityQuaternion){
+                this.velocityQuaternion.normalize()
+                body.velocity.x=this.velocityQuaternion.x
+                body.velocity.z=this.velocityQuaternion.z
+            }
+
+
             // if(this.rotationY>0){
             //     man.rotation.y=MathUtils.lerp(man.rotation.y,this.rotationY,0.02)
             // }
@@ -293,7 +309,8 @@ export class Character implements Updatable {
             // let p=body.position
             // man.position.set(p.x,p.y,p.z)
             let p = body.position;
-            let targetPosition = new Vector3(p.x, p.y-0.22, p.z);
+            // let targetPosition = new Vector3(p.x, p.y-0.22, p.z+0.1);
+            let targetPosition = new Vector3(p.x, p.y, p.z);
             man.position.lerp(targetPosition, 0.1);
             /**
              * Player Jump

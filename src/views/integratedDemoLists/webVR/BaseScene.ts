@@ -106,14 +106,41 @@ export class BaseScene extends BaseInit {
         geometry.scale(-1, 1, 1);
         let map=new THREE.TextureLoader().load(pic)
         map.minFilter = THREE.LinearFilter;
+        map.encoding  = THREE.sRGBEncoding;
         // 创建材质并设置全景图
-        let material = new THREE.MeshBasicMaterial({
-            map,
-            // color:"#F00",
-            reflectivity: 1,
-            lightMapIntensity:10,
-            wireframe: false
+        // let material = new THREE.MeshBasicMaterial({
+        //     map,
+        //     // color:"#F00",
+        //     reflectivity: 1,
+        //     lightMapIntensity:10,
+        //     wireframe: false
+        // });
+
+        const material = new THREE.ShaderMaterial({
+            uniforms: {
+                map: { value: map },
+                exposure: { value:3.5 } // 调整亮度的值，可以根据需求调整
+            },
+            vertexShader: `
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+            fragmentShader: `
+             uniform sampler2D map;
+            uniform float exposure;
+            varying vec2 vUv;
+            void main() {
+                vec4 texel = texture2D(map, vUv);
+                texel.xyz = 1.0 - exp(-exposure * texel.xyz); // 调整曝光
+                gl_FragColor = texel;
+            }
+        `
         });
+
+
         // 全景图贴在球体上
         this.ball = new THREE.Mesh(geometry, material);
         // this.ball.rotation.y=-Math.PI/2
