@@ -33,7 +33,7 @@ export class Character implements Updatable {
     private move: Boolean;
     private canJump: Boolean=true;
     private rotationY: number;
-    private velocityQuaternion:Vector3=new Vector3(0,0,1)
+    private velocityQuaternion:Vector3=new Vector3(0,0,0)
     private temp:Quaternion
 
     constructor(ins: SketchBoxScene) {
@@ -155,14 +155,15 @@ export class Character implements Updatable {
                     })
 
 
-                    const radius = 0.20; // 球体半径
 
-                    const sphereShape = new CANNON.Sphere(radius);
+                    const radius = 0.2; // 圆柱体底面半径
+                    const height = 1; // 圆柱体高度
+                    const cylinderShape = new CANNON.Cylinder(radius, radius, height, 8);
 
                     const body = new CANNON.Body({
                         mass: 1, // 质量
                         position: new CANNON.Vec3(0, 5, 0), // 位置
-                        shape: sphereShape, // 形状
+                        shape: cylinderShape, // 形状
                     });
 
                     // 设置旋转因子为零，阻止刚体旋转
@@ -173,21 +174,35 @@ export class Character implements Updatable {
 
                             // body.velocity.x=1
 
-                            let t=new Vector3(0,0,1)
 
-                            const q = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), MathUtils.degToRad(45));
+                            let q=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), MathUtils.degToRad(90));
+                            var direction = new THREE.Vector3(1, 0, 0); // 指向 x 轴的单位向量
+                            direction.applyQuaternion(q);
 
-                            console.log(q)
+                            console.log(direction.normalize())
 
-                            this.velocityQuaternion.z=-1
+                            // this.velocityQuaternion.z*=-1
                             // var force = new CANNON.Vec3(0.1, 0, 0);
                             // var worldPoint = new CANNON.Vec3(0.1, 0, 0); // 刚体的底部中心位置
                             // body.applyForce(force, worldPoint);
 
                             // gsap.to
+                        },
+                        jump:()=>{
+                            body.velocity.y=4
+                            const force = new CANNON.Vec3(0, 2, 0); // 在y轴上施加100的力
+                            const bottomCenter = new CANNON.Vec3(0, -height/2, 0); // 圆柱体底部中心位置
+                            body.applyForce(force, bottomCenter);
+                        },
+                        stop:()=>{
+                            console.log("释放")
+                            this.velocityQuaternion=new Vector3(0,0,0)
+                            body.velocity.set(0, 0, 0); // 清除线性加速度
                         }
                     }
                     this.ins.dat.add(p,"rotation").name("旋转")
+                    this.ins.dat.add(p,"jump").name("跳跃")
+                    this.ins.dat.add(p,"stop").name("释放力度")
 
                     this.ins.physicsIns.world.addBody(body)
 
@@ -286,10 +301,13 @@ export class Character implements Updatable {
             let {mesh:man,body}=this.current
 
 
+            man.getWorldDirection(this.velocityQuaternion)
+
+
             if(this.velocityQuaternion){
-                this.velocityQuaternion.normalize()
-                body.velocity.x=this.velocityQuaternion.x
+                // this.velocityQuaternion.normalize()
                 body.velocity.z=this.velocityQuaternion.z
+                body.velocity.x=this.velocityQuaternion.x
             }
 
 
@@ -310,8 +328,9 @@ export class Character implements Updatable {
             // man.position.set(p.x,p.y,p.z)
             let p = body.position;
             // let targetPosition = new Vector3(p.x, p.y-0.22, p.z+0.1);
-            let targetPosition = new Vector3(p.x, p.y, p.z);
-            man.position.lerp(targetPosition, 0.1);
+            let targetPosition = new Vector3(p.x, p.y-0.51, p.z);
+            // man.position.lerp(targetPosition, 0.1);
+            man.position.copy(targetPosition);
             /**
              * Player Jump
              */
