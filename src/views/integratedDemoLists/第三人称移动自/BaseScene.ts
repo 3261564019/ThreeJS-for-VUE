@@ -271,7 +271,7 @@ export class BaseScene extends BaseInit {
             console.log("动画列表", this.animationMap)
 
             this.control.enableDamping=true
-            this.personControl = new CharacterControls('idle', this.boxMan, this.animationMixer, this.animationMap, this.control, this.camera)
+            this.personControl = new CharacterControls('idle', this.boxMan, this.animationMixer, this.animationMap, this.control, this.camera,this)
         })
     }
 
@@ -339,6 +339,7 @@ export class BaseScene extends BaseInit {
 
         let delta=this.clock.getDelta()
 
+
         if(this.personControl){
             this.personControl.update(delta,keysPressed)
         }
@@ -350,7 +351,7 @@ export class BaseScene extends BaseInit {
         this.stats.update()
 
         if (this.animationMixer) {
-            this.animationMixer.update(delta);
+            this.animationMixer.update(delta/2);
         }
 
         this.pointIns.render(delta)
