@@ -41,6 +41,11 @@ function throttle(fn, interval) {
     }
 }
 
+function timeOut(fn:Function,time:number){
+    let timer=setTimeout(()=>{
+        fn()
+        clearTimeout(timer)
+    },time)
+}
 
-
-export {debounce,throttle}
+export {debounce,throttle,timeOut}

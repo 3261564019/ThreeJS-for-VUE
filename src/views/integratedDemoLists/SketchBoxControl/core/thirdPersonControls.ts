@@ -74,6 +74,9 @@ class ThirdPersonControls {
 
     }
     update(deltaX:number=0, deltaY:number=0) {
+
+        // console.log(deltaX,deltaY)
+
         const target = this.target.position.clone().add(this.offset);
         this.theta -= deltaX * (this.sensitivity.x / 2);
         this.theta %= 360;

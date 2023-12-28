@@ -2,7 +2,7 @@ import {SketchBoxScene} from "../SketchBoxScene";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import boxMan from "@/assets/model/box_man.glb?url";
 import {AnimationAction, AnimationMixer, Color, MathUtils, Object3D, Quaternion, Vector3} from "three";
-import {Updatable} from "../type";
+import {KeyAction, Updatable} from "../type";
 import * as CANNON from "cannon-es";
 // @ts-ignore
 import {threeToCannon} from "./three-to-cannon.js"
@@ -11,6 +11,8 @@ import {PointerDrag, PointerLock} from "enable3d";
 import * as THREE from "three";
 import {createBoxManBody} from "../hooks/body/character";
 import {captureBoxMan} from "../hooks/mesh/character";
+import {AnimationControl} from "./animationControl";
+import {timeOut} from "../../../../utils";
 
 
 /**
@@ -18,33 +20,35 @@ import {captureBoxMan} from "../hooks/mesh/character";
  */
 const isTouchDevice = 'ontouchstart' in window
 
+console.log("isTouchDevice",isTouchDevice)
 export class Character implements Updatable {
 
     ins: SketchBoxScene
     private current:{mesh:Object3D,body:CANNON.Body};
     private animationMixer: AnimationMixer;
-    private animationName:string
-    animationMap: Map<string, AnimationAction>;
     private controls: ThirdPersonControls;
     private moveTop: number=0;
     private moveRight: any=0;
-    private keys: { a: { isDown: boolean }; s: { isDown: boolean }; d: { isDown: boolean }; w: { isDown: boolean }; space: { isDown: boolean } };
+    private keys:KeyAction;
+    //刚体的速率
+    private velocityQuaternion:Vector3=new Vector3(0,0,0)
+    //人物的朝向
+    private forwardQuaternion: Quaternion;
+    //动画控制器
+    private aControl:AnimationControl
+    //是否初始化完成，可以进行渲染
+    private initEd:Boolean
 
-    private move: Boolean=false;
+
     //是否能进行跳跃
     private canJump: Boolean=true;
-
-    private velocityQuaternion:Vector3=new Vector3(0,0,0)
-    private forwardQuaternion: Quaternion;
+    //是否在移动，即按wasd
+    private move:Boolean=false
 
     constructor(ins: SketchBoxScene) {
-        this.animationMap = new Map()
         this.ins = ins
-
-
         this.moveTop = 0
         this.moveRight = 0
-
         this.addKeys()
     }
     addKeys(){
@@ -83,6 +87,8 @@ export class Character implements Updatable {
                     }
                     break
             }
+
+            this.checkMove()
             //计算人物移动的力度
             this.calcCharacterForward()
             //根据按键情况计算任务朝向
@@ -91,6 +97,10 @@ export class Character implements Updatable {
 
         document.addEventListener('keydown', e => press(e, true))
         document.addEventListener('keyup', e => press(e, false))
+    }
+    checkMove(){
+        let keys=this.keys
+        this.move = keys.w.isDown || keys.a.isDown || keys.s.isDown || keys.d.isDown;
     }
     calcCharacterRotation(){
         //拿到人物朝向
@@ -110,11 +120,6 @@ export class Character implements Updatable {
         this.forwardQuaternion=new Quaternion().setFromAxisAngle(new Vector3(0,1,0),angle)
 
     }
-    play(action:string){
-        this.animationName=action
-        // @ts-ignore
-        this.animationMap.get(action).play()
-    }
     getAngle(z:number, x:number) {
         let angle = Math.atan2(z, x);
         if (angle < 0) {
@@ -130,46 +135,29 @@ export class Character implements Updatable {
                 (res) => {
                     console.log("加载结果", res)
                     let t =res.scene.children[0];
+
+                    t.rotateY(MathUtils.degToRad(-90))
+
                     captureBoxMan(t)
 
                     // @ts-ignore
                     this.animationMixer = new AnimationMixer(res.scene);
 
-                    let temp = {}
+                    let map=new Map()
                     //将动画存到map中，动画名作为key方便调用
                     res.animations.forEach(v => {
-                        // @ts-ignore
-                        temp[v.name] = v.name
-                        this.animationMap.set(v.name, this.animationMixer.clipAction(v))
+                        map.set(v.name, this.animationMixer.clipAction(v))
                     })
 
                     let body=createBoxManBody()
 
+                    this.aControl=new AnimationControl(map,this.animationMixer,this)
+                    this.aControl.init()
 
-                    // 设置旋转因子为零，阻止刚体旋转
-
-                    let p={
-                        rotation:()=>{
-
-                        },
-                        jump:()=>{
-                            this.jump()
-                        },
-                        stop:()=>{
-                            console.log("释放")
-                            this.velocityQuaternion=new Vector3(0,0,0)
-                            body.velocity.set(0, 0, 0); // 清除线性加速度
-                        }
-                    }
-                    this.ins.dat.add(p,"rotation").name("旋转")
-                    this.ins.dat.add(p,"jump").name("跳跃")
-                    this.ins.dat.add(p,"stop").name("释放力度")
 
                     this.ins.physicsIns.world.addBody(body)
 
                     this.ins.scene.add(t)
-
-                    this.play("idle")
 
 
                     this.controls = new ThirdPersonControls(this.ins.camera, t, {
@@ -191,10 +179,6 @@ export class Character implements Updatable {
                                 // console.log(delta)
                                 this.moveTop = -delta.y
                                 this.moveRight = delta.x
-
-                                // @ts-ignore
-                                // f()
-
                             }
                         })
                     }
@@ -203,6 +187,10 @@ export class Character implements Updatable {
                         body,
                         mesh:t
                     }
+
+                    this.addDebug()
+
+                    this.initEd=true
                     resolve(1)
                 }
             )
@@ -263,47 +251,59 @@ export class Character implements Updatable {
             meshQ.w
         );
         // let targetPosition = new Vector3(p.x, p.y-0.51, p.z);
-        // man.position.lerp(targetPosition, 0.1);
-        man.position.copy(targetPosition);
+        man.position.lerp(targetPosition, 0.5);
+        // man.position.copy(targetPosition);
     }
     render(delta: number, elapsedTime: number): void {
-        this.animationMixer.update(delta);
-        if(this.current){
-            /**
-             * Update Controls
-             */
+        if(this.initEd){
+
             this.controls.update(this.moveRight * 3, -this.moveTop * 3)
             if (!isTouchDevice) this.moveRight = this.moveTop = 0
+
 
             let {mesh:man,body}=this.current
 
             //获取人物的朝向
             man.getWorldDirection(this.velocityQuaternion)
 
-            //如果有刚体加速度
-            if(this.velocityQuaternion){
-                body.velocity.z=this.velocityQuaternion.z*2
-                body.velocity.x=this.velocityQuaternion.x*2
+            //滞空或者行走时施加速度
+            if(this.move || !this.canJump){
+                let scale=5
+
+                //如果在跳跃,力度需要小一些
+                if(!this.canJump){
+                    scale=2
+                }
+
+                body.velocity.z=this.velocityQuaternion.z*scale
+                body.velocity.x=this.velocityQuaternion.x*scale
             }
 
             //如果有计算得出的人物朝向，
             if(this.forwardQuaternion){
                 man.quaternion.rotateTowards(this.forwardQuaternion,0.2)
             }
+
             //更新旋转和位置
             this.updateMeshBody(body,man)
+            this.aControl.render(delta,elapsedTime)
+            //更新鼠标控制器
+            this.controls.update(this.moveRight * 3, -this.moveTop * 3)
         }
     }
 
     private jump() {
         let body=this.current.body
         body.velocity.y=4
-        const force = new CANNON.Vec3(0, 2, 0); // 在y轴上施加100的力
+        const force = new CANNON.Vec3(0, 9, 0); // 在y轴上施加100的力
         const bottomCenter = new CANNON.Vec3(0, -0.5, 0); // 圆柱体底部中心位置
         body.applyForce(force, bottomCenter);
-        setTimeout(()=>{
+
+        this.aControl.jump()
+
+        timeOut(()=>{
             this.canJump=true
-        },860)
+        },900)
     }
 
     private calcCharacterForward() {
@@ -312,5 +312,25 @@ export class Character implements Updatable {
         if(keysPressed.w.isDown){
             // force.z -= moveForce;
         }
+    }
+
+    private addDebug() {
+
+        let p={
+            rotation:()=>{
+
+            },
+            jump:()=>{
+                this.jump()
+            },
+            stop:()=>{
+                console.log("释放")
+                this.velocityQuaternion=new Vector3(0,0,0)
+                this.current.body.velocity.set(0, 0, 0); // 清除线性加速度
+            }
+        }
+        this.ins.dat.add(p,"rotation").name("旋转")
+        this.ins.dat.add(p,"jump").name("跳跃")
+        this.ins.dat.add(p,"stop").name("释放力度")
     }
 }
