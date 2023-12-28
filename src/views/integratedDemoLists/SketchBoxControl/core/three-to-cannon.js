@@ -300,39 +300,26 @@ function createTrimeshShape (geometry) {
  * Returns a single geometry for the given object. If the object is compound,
  * its geometries are automatically merged.
  * @param {THREE.Object3D} object
- * @return {THREE.Geometry}
+ * @return {THREE.BufferGeometry}
  */
 function getGeometry(object) {
-  var matrix, mesh,meshes = getMeshes(object)
+  let matrix, mesh,meshes = getMeshes(object)
   let combined = new THREE.BufferGeometry();
   let tmp = new THREE.BufferGeometry()
-  console.log("matrix",matrix)
-  console.log("mesh",mesh)
-  console.log("meshes",meshes)
 
   if (meshes.length === 0) return null;
 
   if (meshes.length === 1) {
 
-    var position = new THREE.Vector3(),
-        quaternion = new THREE.Quaternion(),
-        scale = new THREE.Vector3();
+    let position = new THREE.Vector3()
+    let quaternion = new THREE.Quaternion()
+    let scale = new THREE.Vector3(20,20,20)
 
+    tmp = meshes[0].geometry.clone();
 
-    if (meshes[0].geometry.isBufferGeometry) {
-      if (meshes[0].geometry.attributes.position
-          && meshes[0].geometry.attributes.position.itemSize > 2) {
-        console.log("meshes[0].geometry",meshes[0].geometry)
-        tmp=meshes[0].geometry
-      }
-    } else {
-      tmp = meshes[0].geometry.clone();
-    }
-
-    tmp.metadata = meshes[0].geometry.metadata;
     meshes[0].updateMatrixWorld();
     meshes[0].matrixWorld.decompose(position, quaternion, scale);
-    console.log("seeeeeeeeeeee")
+    //
     return tmp.scale(scale.x, scale.y, scale.z);
   }
 

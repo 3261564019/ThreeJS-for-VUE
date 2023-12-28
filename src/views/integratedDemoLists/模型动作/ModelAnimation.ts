@@ -5,9 +5,9 @@ import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
 // import dancerFbx from "/src/assets/model/sambaDancing.fbx?url"
 import dancerFbx from "/src/assets/model/热舞/WaveHipHopDance.fbx?url"
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
-import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import {load} from "@amap/amap-jsapi-loader";
 import girl from "@/assets/model/111.gltf?url"
+import boxMan from "@/assets/model/box_man.glb?url"
 
 
 function clone( source:any ) {
@@ -113,23 +113,18 @@ export class ModelAnimation extends BaseInit {
     // 动画混合器
     animationMixer:AnimationMixer
     //animationList
-    animationList:Array<{
-        obj:Object3D,
-        animationMixer:AnimationMixer,
-        action:AnimationAction
-    }>;
+    animationList: Map<string, AnimationAction> = new Map();
 
 
     constructor() {
         super({
-            needLight:false,
+            needLight:true,
             renderDomId:"#webGl",
             needOrbitControls:true,
             needAxesHelper:true,
             renderBg:"#282c34"
         } as BaseInitParams);
 
-        this.animationList=[];
         this.initDebug();
 
         this.init();
@@ -142,7 +137,9 @@ export class ModelAnimation extends BaseInit {
 
         // this.addModel()
 
-        this.loadMyModel();
+        // this.loadMyModel();
+
+        this.loadBoxMan();
     }
     loadMyModel(){
         const loader = new GLTFLoader();
@@ -152,6 +149,65 @@ export class ModelAnimation extends BaseInit {
             this.scene.add(res.scene)
         })
 
+    }
+    loadBoxMan(){
+        const loader = new GLTFLoader();
+        loader.load(boxMan,(res)=>{
+            console.log("模型对象res",res)
+            res.scene.scale.set(10,10,10)
+            res.scene.position.y=1
+            this.animationMixer =new AnimationMixer(res.scene);
+            res.animations.forEach((v)=>{
+                this.animationList.set(v.name,this.animationMixer.clipAction(v))
+            })
+            this.scene.add(res.scene)
+            this.debugBoxMan();
+
+        })
+    }
+    debugBoxMan(){
+        let temp={
+            idle:()=>{
+                this.animationList.get("idle").play()
+            },
+            currentAction:"",
+            test1:()=>{
+                //jump_running stop
+
+
+                // 加载并播放第一个动作
+                const action1 = this.animationList.get("jump_running");
+                // @ts-ignore
+                action1.play();
+
+                // 加载并准备第二个动作
+                const action2 = this.animationList.get("stop");
+                // @ts-ignore
+                action1.fadeOut(1)
+                // @ts-ignore
+                action2.reset().fadeIn(1).play()
+
+
+            }
+        }
+        let names={}
+        let keysIterator=this.animationList.keys()
+
+        // 遍历迭代器并输出所有键
+        for (let key of keysIterator) {
+            // @ts-ignore
+            names[key]=key
+            // console.log(key)
+        }
+
+        this.dat.add(temp,"currentAction", names).onFinishChange(e=>{
+            console.log(e)
+            this.animationMixer.stopAllAction(); // 停止所有正在播放的动画
+
+            this.animationList.get(e).play()
+        })
+        this.dat.add(temp,"idle").name("休息")
+        this.dat.add(temp,"test1").name("变换")
     }
     addModel(){
 
