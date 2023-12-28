@@ -8,7 +8,7 @@ import {
 import {ThirdPersonControls} from "./thirdPersonControls.js";
 import boxMax from "@/assets/model/box_man.glb?url"
 import bookModel from "@/assets/model/world.glb?url"
-import {Vector3} from "three";
+import {AxesHelper, Vector3} from "three";
 import * as dat from 'dat.gui';
 import Stats from 'stats-js';
 
@@ -94,6 +94,8 @@ class MainScene extends Scene3D {
             }
         });
 
+        this.scene.add(new AxesHelper(20))
+
         const addBook = async () => {
             const object = await this.load.gltf('book')
             const scene = object.scenes[0]
@@ -155,8 +157,8 @@ class MainScene extends Scene3D {
             this.man.name = 'man'
             this.man.rotateY(Math.PI + 0.1) // a hack
             this.man.add(man)
-            this.man.rotation.set(0, Math.PI * 1.5, 0)
-            this.man.position.set(35, 50, 0)
+            // this.man.rotation.set(0, Math.PI * 1.5, 0)
+            this.man.position.set(0, 50, 0)
             // add shadow
             this.man.traverse(child => {
                 if (child.isMesh) {

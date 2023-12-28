@@ -1,5 +1,7 @@
-import {AnimationAction, AnimationClip, AnimationMixer, Camera, Group, Quaternion, Vector3} from "three";
+import {AnimationAction, AnimationClip, AnimationMixer, Camera, Clock, Group, Quaternion, Vector3} from "three";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
+import {BaseScene} from "./BaseScene";
+import * as THREE from "three";
 
 export class CharacterControls {
     //是否在冲刺
@@ -21,7 +23,7 @@ export class CharacterControls {
     runVelocity = 10
     walkVelocity = 4
 
-    constructor(currentAction: string, model: Group, mixer: AnimationMixer, animationsMap: Map<string, AnimationAction>, orbitControl: OrbitControls, camera: Camera) {
+    constructor(currentAction: string, model: Group, mixer: AnimationMixer, animationsMap: Map<string, AnimationAction>, orbitControl: OrbitControls, camera: Camera,ins:BaseScene) {
         this.currentAction = currentAction;
         this.model = model;
         this.mixer = mixer;
@@ -30,11 +32,60 @@ export class CharacterControls {
         this.camera = camera;
         //播放一开始的动画
         this.animationsMap.forEach((value, key) => {
+            value.setLoop(THREE.LoopOnce,1)
             if (key === currentAction) {
                 value.play()
             }
         })
 
+        let temp={
+            fade:()=>{
+                this.mixer.stopAllAction(); // 停止所有正在播放的动画
+
+                console.log("aaa")
+                //jump_idle  falling  stop
+                // 创建 AnimationAction 并添加到 AnimationMixer 中
+                const action1 = this.animationsMap.get("jump_idle");
+                const action2 = this.animationsMap.get("falling");
+                const action3 = this.animationsMap.get("stop");
+                let arr=[action1,action2,action3]
+
+                arr.forEach(e=>{
+                    e.reset()
+                })
+
+                /**
+                 * fadeIn   在传入的时间间隔内，逐渐将此动作的权重（weight）由0升到1。
+                 * fadeOut  在传入的时间间隔内，逐渐将此动作的权重（weight）由1降至0。此方法可链式调用
+                 */
+                //让第一个动画播放慢一点，保证和滞空时手的位置对上，不至于举太高
+                action1.setEffectiveTimeScale(0.8);
+                //动画3的持续时间是0.66s 将其加快1.2倍也就是 0.528s播完
+                action3.setEffectiveTimeScale(1.2);
+                // 播放起跳动画
+                action1.play();
+                let t1=setTimeout(()=>{
+                    // 过渡两个动画的权重，并开始播放第二个动画
+                    // 此时因为过渡的原因，动画1会经过3s平滑的到2
+                    action1.crossFadeTo(action2, 0.4, false);
+                    action2.play()
+                    let t2=setTimeout(()=>{
+                        // 过渡到落地动画并设置过渡时间为0.3秒
+                        action2.crossFadeTo(action3, 0.3, false);
+                        action3.play()
+
+                        clearTimeout(t2)
+                    },400)
+
+                    clearTimeout(t1)
+                },300)
+                // 第一个定时器的0.4，第二个0.3s，第三个需要0.52 该动作共需要 1.22s
+
+            }
+        }
+
+
+        ins.dat.add(temp,"fade").name("过渡")
         console.log("哈哈哈",this.directionOffset({w:true}))
     }
 
@@ -95,7 +146,7 @@ export class CharacterControls {
             this.updateCameraTarget(moveX,moveZ)
         }
 
-        this.mixer.update(delta)
+        this.mixer.update(delta/3)
     }
 
     private directionOffset(keysPressed: any) {

@@ -15,7 +15,8 @@ export class SketchBoxScene extends BaseInit {
             renderDomId:"#renderDom",
             needDebug:true,
             needStats:true,
-            needOrbitControls:true,
+            needOrbitControls:false,
+            needAxesHelper:true,
             adjustScreenSize:true
         } as BaseInitParams);
         //初始化资源加载管理器
@@ -80,24 +81,24 @@ export class SketchBoxScene extends BaseInit {
     }
     init() { 
         this.renderer.shadowMap.enabled = true;
-        this.camera.position.set(0, 30, 40);
+        this.renderer.shadowMap.type=THREE.PCFSoftShadowMap
+        // this.camera.position.set(0, 30, -40);
         //定位相机指向场景中心
         this.camera.lookAt(this.scene.position)
     }
     animate(){
         try {
             let delta=this.clock.getDelta()
+            // delta/=3
             let elapsedTime=this.clock.getElapsedTime()
-            this.control.update()
             this.renderer.render(this.scene, this.camera);
             this.stats.update()
             this.physicsIns.render(delta,elapsedTime)
             this.characterIns.render(delta,elapsedTime)
-
             requestAnimationFrame(this.animate.bind(this));
         }catch (e) {
             // @ts-ignore
-            console.log("图像渲染报错",e.message)
+            console.log("图像渲染报错",e)
         }
     }
     destroy() {
