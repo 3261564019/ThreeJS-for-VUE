@@ -7,12 +7,14 @@ import * as CANNON from "cannon-es";
 // @ts-ignore
 import {threeToCannon} from "./three-to-cannon.js"
 import {ThirdPersonControls} from "./thirdPersonControls";
-import {PointerDrag, PointerLock} from "enable3d";
+import {PointerDrag} from "enable3d";
 import * as THREE from "three";
 import {createBoxManBody} from "../hooks/body/character";
 import {captureBoxMan} from "../hooks/mesh/character";
 import {AnimationControl} from "./animationControl";
 import {timeOut} from "../../../../utils";
+import gsap from 'gsap';
+import {PointerLock} from "./PointerLock";
 
 
 /**
@@ -40,10 +42,14 @@ export class Character implements Updatable {
     private initEd:Boolean
 
 
-    //是否能进行跳跃
-    private canJump: Boolean=true;
+    //是否能进行跳跃为false代表正在播放跳跃的动画
+    public canJump: boolean=true;
     //是否在移动，即按wasd
-    private move:Boolean=false
+    private move:boolean=false
+    //角色刚体是否在睡眠
+    private sleeping:Boolean=false
+    //起跳时，是否同时有按方向键
+    private jumpMove:boolean|null=null
 
     constructor(ins: SketchBoxScene) {
         this.ins = ins
@@ -69,18 +75,28 @@ export class Character implements Updatable {
             switch (keyCode) {
                 case 87: // w
                     this.keys.w.isDown = isDown
+                    this.walk()
                     break
                 case 83: // s
                     this.keys.s.isDown = isDown
+                    this.walk()
                     break
                 case 65: // a
                     this.keys.a.isDown = isDown
+                    this.walk()
                     break
                 case 68: // d
                     this.keys.d.isDown = isDown
+                    this.walk()
                     break
                 case 32: // 空格
-                    if(this.canJump){
+                    //能进行跳跃，且按下了空格键
+                    if(this.canJump && isDown){
+                        this.jumpMove=this.checkMove()
+                        /**
+                         * 因为在渲染时判断的这个字段，如果为false意为在空中，会加加速度
+                         * 单独起跳不需要加加速度，因此判断是否单独起跳需要在更新canJump前
+                         */
                         this.canJump=false
                         this.keys.space.isDown = isDown
                         this.jump()
@@ -89,6 +105,12 @@ export class Character implements Updatable {
             }
 
             this.checkMove()
+            /**
+             * 如果键盘松开时没有在移动，也不在跳跃过程中需要执行stop动画
+             */
+            if(!isDown && !this.move && this.canJump){
+                this.aControl.stop()
+            }
             //计算人物移动的力度
             this.calcCharacterForward()
             //根据按键情况计算任务朝向
@@ -98,9 +120,11 @@ export class Character implements Updatable {
         document.addEventListener('keydown', e => press(e, true))
         document.addEventListener('keyup', e => press(e, false))
     }
+    //wasd是否按下
     checkMove(){
         let keys=this.keys
         this.move = keys.w.isDown || keys.a.isDown || keys.s.isDown || keys.d.isDown;
+        return this.move
     }
     calcCharacterRotation(){
         //拿到人物朝向
@@ -183,6 +207,21 @@ export class Character implements Updatable {
                         })
                     }
 
+                    body.addEventListener("sleepy",()=>{
+                        console.log("进入睡眠")
+                        this.sleeping=true
+
+                        body.force.set(0, 0, 0);
+                        body.torque.set(0, 0, 0);
+                        body.velocity.set(0, 0, 0);
+                        body.angularVelocity.set(0, 0, 0);
+                    })
+                    body.addEventListener("wakeup",()=>{
+                        console.log("刚体唤醒")
+                        this.sleeping=false
+
+                    })
+
                     this.current={
                         body,
                         mesh:t
@@ -263,8 +302,7 @@ export class Character implements Updatable {
 
             let {mesh:man,body}=this.current
 
-            //获取人物的朝向
-            man.getWorldDirection(this.velocityQuaternion)
+
 
             //滞空或者行走时施加速度
             if(this.move || !this.canJump){
@@ -274,14 +312,22 @@ export class Character implements Updatable {
                 if(!this.canJump){
                     scale=2
                 }
+                /**
+                 * 保证原地起跳时位置不移动
+                 */
+                if(!this.jumpMove){
+                    scale=0
+                }
 
                 body.velocity.z=this.velocityQuaternion.z*scale
                 body.velocity.x=this.velocityQuaternion.x*scale
             }
 
-            //如果有计算得出的人物朝向，
-            if(this.forwardQuaternion){
-                man.quaternion.rotateTowards(this.forwardQuaternion,0.2)
+            //如果有计算得出的人物朝向，并且有在按方向键，人物需要转向方向键的方向
+            if(this.move && this.forwardQuaternion){
+                //获取人物的朝向
+                man.getWorldDirection(this.velocityQuaternion)
+                man.quaternion.rotateTowards(this.forwardQuaternion,0.06)
             }
 
             //更新旋转和位置
@@ -292,18 +338,28 @@ export class Character implements Updatable {
         }
     }
 
+    private walk() {
+        this.jumpMove=true
+        //如果在睡眠需要施加一定的力进行唤醒
+        if(this.sleeping){
+            let body=this.current.body
+            const force = new CANNON.Vec3(0, 1, 0); // 在y轴上施加100的力
+            const bottomCenter = new CANNON.Vec3(0, -0.5, 0); // 圆柱体底部中心位置
+            body.applyForce(force, bottomCenter);
+        }
+        this.aControl.walk()
+    }
     private jump() {
         let body=this.current.body
         body.velocity.y=4
         const force = new CANNON.Vec3(0, 9, 0); // 在y轴上施加100的力
         const bottomCenter = new CANNON.Vec3(0, -0.5, 0); // 圆柱体底部中心位置
-        body.applyForce(force, bottomCenter);
-
         this.aControl.jump()
-
+        body.applyForce(force, bottomCenter);
+        //跳跃动画播一次大约需要1s，此处需要冗余
         timeOut(()=>{
             this.canJump=true
-        },900)
+        },1010)
     }
 
     private calcCharacterForward() {

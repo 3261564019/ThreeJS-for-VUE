@@ -23,6 +23,7 @@ export class CharacterControls {
     runVelocity = 10
     walkVelocity = 4
 
+
     constructor(currentAction: string, model: Group, mixer: AnimationMixer, animationsMap: Map<string, AnimationAction>, orbitControl: OrbitControls, camera: Camera,ins:BaseScene) {
         this.currentAction = currentAction;
         this.model = model;
@@ -40,7 +41,8 @@ export class CharacterControls {
 
         let temp={
             fade:()=>{
-                this.mixer.stopAllAction(); // 停止所有正在播放的动画
+                // this.mixer.stopAllAction(); // 停止所有正在播放的动画
+
 
                 console.log("aaa")
                 //jump_idle  falling  stop
@@ -51,8 +53,13 @@ export class CharacterControls {
                 let arr=[action1,action2,action3]
 
                 arr.forEach(e=>{
-                    e.reset()
+                    e.reset(); // 重置动画状态到初始帧
                 })
+
+
+                const idle = this.animationsMap.get("idle");
+
+
 
                 /**
                  * fadeIn   在传入的时间间隔内，逐渐将此动作的权重（weight）由0升到1。
@@ -62,6 +69,12 @@ export class CharacterControls {
                 action1.setEffectiveTimeScale(0.8);
                 //动画3的持续时间是0.66s 将其加快1.2倍也就是 0.528s播完
                 action3.setEffectiveTimeScale(1.2);
+
+                idle.play()
+                idle.crossFadeTo(action1, 0.3, false);
+
+                let t0=setTimeout(()=>{
+
                 // 播放起跳动画
                 action1.play();
                 let t1=setTimeout(()=>{
@@ -70,6 +83,9 @@ export class CharacterControls {
                     action1.crossFadeTo(action2, 0.4, false);
                     action2.play()
                     let t2=setTimeout(()=>{
+
+                        if(this)
+
                         // 过渡到落地动画并设置过渡时间为0.3秒
                         action2.crossFadeTo(action3, 0.3, false);
                         action3.play()
@@ -79,6 +95,9 @@ export class CharacterControls {
 
                     clearTimeout(t1)
                 },300)
+            },300)
+
+
                 // 第一个定时器的0.4，第二个0.3s，第三个需要0.52 该动作共需要 1.22s
 
             }

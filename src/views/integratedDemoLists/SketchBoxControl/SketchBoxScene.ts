@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import {BaseInit, BaseInitParams} from "./core/baseInit";
 import {WordPhysics} from "./physics/WordPhysics";
-import {Clock, Color, LoadingManager} from "three";
+import {AmbientLight, Clock, Color, LoadingManager} from "three";
 import {Character} from "./core/character";
 
 export class SketchBoxScene extends BaseInit {
@@ -35,7 +35,6 @@ export class SketchBoxScene extends BaseInit {
 
         this.addPlan();
         this.addLight();
-        // this.addBall();
         this.clock=new Clock()
     }
     addPlan(){
@@ -57,31 +56,21 @@ export class SketchBoxScene extends BaseInit {
 
     }
     addLight(){
+        // this.renderer.physicallyCorrectLights=true
 
         //创建聚光灯
-        const light = new THREE.SpotLight("#fff");
+        const light = new THREE.SpotLight("#fff",1);
         light.castShadow = true;            // default false
-        light.position.x = 20;
-        light.position.y = 30;
-
+        light.position.x = 0;
+        light.position.y = 10;
+        light.position.z = -10;
+        light.lookAt(0,0,0)
         this.scene.add(light);
+
     }
-    addBall(){
-
-        const sphere = new THREE.Mesh(
-            new THREE.SphereGeometry(3, 33, 33),
-            new THREE.MeshLambertMaterial({color: "#fff"})
-        );
-
-        sphere.position.x = 10;
-        sphere.position.y = 3;
-        sphere.castShadow = true
-
-        this.scene.add(sphere);
-    }
-    init() { 
+    init() {
         this.renderer.shadowMap.enabled = true;
-        this.renderer.shadowMap.type=THREE.PCFSoftShadowMap
+        // this.renderer.shadowMap.type=THREE.BasicShadowMap
         // this.camera.position.set(0, 30, -40);
         //定位相机指向场景中心
         this.camera.lookAt(this.scene.position)

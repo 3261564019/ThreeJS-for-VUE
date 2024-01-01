@@ -7,6 +7,8 @@ export class WordPhysics implements Updatable{
     //主类的引用
     ins:SketchBoxScene
     debug:any
+    //是否需要调试
+    needDebug:boolean
     constructor(ins:SketchBoxScene) {
         this.ins=ins
         let world=new CANNON.World();
@@ -25,6 +27,15 @@ export class WordPhysics implements Updatable{
         this.addGround()
         //添加物理的调试工具
         this.initDebug()
+
+        let t={
+            change:()=>{
+                this.needDebug=!this.needDebug
+
+                console.log(this.needDebug)
+            }
+        }
+        this.ins.dat.add(t,"change").name("切换物理调试")
     }
     initDebug(){
         // @ts-ignore
@@ -47,7 +58,9 @@ export class WordPhysics implements Updatable{
     }
     render(delta:number,elapsedTime:number){
         try {
-            this.debug.update()
+            if(this.needDebug){
+                this.debug.update()
+            }
             this.world.step(delta)
         }catch (e) {
             // @ts-ignore

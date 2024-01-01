@@ -63,7 +63,7 @@ export class BaseInit {
             antialias: true,
             logarithmicDepthBuffer:true
         });
-
+        renderer.physicallyCorrectLights=false
         //获取挂载节点
         let dom=document.querySelector(params.renderDomId)
         if(dom){
