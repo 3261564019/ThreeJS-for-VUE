@@ -16,7 +16,7 @@ export function createBoxManBody(){
 
     const body = new CANNON.Body({
         mass: 1, // 质量
-        position: new CANNON.Vec3(0, 5, 0), // 位置
+        position: new CANNON.Vec3(0, 30, 0), // 位置
     });
 
     //圆柱体向前倾斜以便更好模拟任务形态

@@ -2,16 +2,26 @@ import * as CANNON from "cannon-es";
 import CannonDebugger from 'cannon-es-debugger'
 import {SketchBoxScene} from "../SketchBoxScene";
 import {Updatable} from "../type";
-export class WordPhysics implements Updatable{
-    world:CANNON.World
+import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
+import world from "@/assets/model/world.glb?url"
+// @ts-ignore
+import {threeToCannon as threeToCannonCore } from "../core/three-to-cannon.js";
+
+import { threeToCannon, ShapeType } from 'three-to-cannon';
+
+import {threeToCannonQuaternion} from "../core/threeToCannon";
+
+export class WordPhysics implements Updatable {
+    world: CANNON.World
     //主类的引用
-    ins:SketchBoxScene
-    debug:any
+    ins: SketchBoxScene
+    debug: any
     //是否需要调试
-    needDebug:boolean
-    constructor(ins:SketchBoxScene) {
-        this.ins=ins
-        let world=new CANNON.World();
+    needDebug: boolean = true
+
+    constructor(ins: SketchBoxScene) {
+        this.ins = ins
+        let world = new CANNON.World();
         world.gravity.set(0, -9.820, 0);
         world.broadphase = new CANNON.SAPBroadphase(world);
         world.allowSleep = true;
@@ -20,28 +30,30 @@ export class WordPhysics implements Updatable{
          * GSSolver（Gauss-Seidel Solver）是一种用于解决刚体间接触约束的求解器。它主要用于处理物体之间的碰撞和接触问题。
          */
         const solver = new CANNON.GSSolver();
-        solver.iterations=10
-        world.solver=solver
+        solver.iterations = 10
+        world.solver = solver
 
-        this.world=world
-        this.addGround()
+        this.world = world
+        // this.addGround()
         //添加物理的调试工具
-        this.initDebug()
+        // this.initDebug()
 
-        let t={
-            change:()=>{
-                this.needDebug=!this.needDebug
+        let t = {
+            change: () => {
+                this.needDebug = !this.needDebug
 
                 console.log(this.needDebug)
             }
         }
-        this.ins.dat.add(t,"change").name("切换物理调试")
+        this.ins.dat.add(t, "change").name("切换物理调试")
     }
-    initDebug(){
+
+    initDebug() {
         // @ts-ignore
-        this.debug= new CannonDebugger(this.ins.scene, this.world)
+        this.debug = new CannonDebugger(this.ins.scene, this.world)
     }
-    addGround(){
+
+    addGround() {
         const floorSize = new CANNON.Vec3(140, 10, 140); // 指定平面的大小
 
         const floorShape = new CANNON.Box(new CANNON.Vec3(
@@ -50,26 +62,27 @@ export class WordPhysics implements Updatable{
             floorSize.z * 0.5
         ));
 
-        const floorBody = new CANNON.Body({ shape: floorShape });
-        floorBody.position.set(0,-5,0)
+        const floorBody = new CANNON.Body({shape: floorShape});
+        floorBody.position.set(0, -5, 0)
         // floorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI * 0.5);
 
         this.world.addBody(floorBody);
     }
-    render(delta:number,elapsedTime:number){
+
+    render(delta: number, elapsedTime: number) {
         try {
-            if(this.needDebug){
-                this.debug.update()
+            if (this.needDebug) {
+                // this.debug.update()
             }
             this.world.step(delta)
-        }catch (e) {
+        } catch (e) {
             // @ts-ignore
-            console.log("物理渲染报错",e.message)
+            console.log("物理渲染报错", e.message)
         }
     }
 
     destroy() {
-        this.debug=null
+        this.debug = null
         // 释放所有刚体和约束的资源
         this.world.bodies.forEach(body => this.world.removeBody(body));
         this.world.constraints.forEach(constraint => this.world.removeConstraint(constraint));
@@ -78,5 +91,69 @@ export class WordPhysics implements Updatable{
         this.world.constraints.length = 0;
         // @ts-ignore
         this.world = null;
+    }
+
+    load() {
+        return new Promise(resolve => {
+            // resolve(1)
+            // return
+            let loader = new GLTFLoader(this.ins.loadMana)
+            loader.load(world, (res) => {
+
+                console.log("g加载结果", res)
+                // @ts-ignore
+                // const {shape,offset,orientation} = threeToCannon(res.scene, {type: ShapeType.MESH});
+                // body.addShape(shape,offset,orientation);
+                // body.position.set(0,20,1)
+                // this.ins.physicsIns.world.addBody(body);
+                // res.scene.position.set(-3,5,0)
+                // this.ins.scene.add(res.scene)
+
+                res.scene.traverse((child) => {
+                    if (child.hasOwnProperty('userData')) {
+                        if (child.userData.hasOwnProperty('data')) {
+                            if (child.userData.data === 'physics') {
+                                child.visible=false
+                                if (child.userData.hasOwnProperty('type')) {
+
+                                    if (child.userData.type === 'box') {
+
+                                        console.log(child,"box")
+                                        const body = new CANNON.Body({mass: 0});
+
+                                        const result = threeToCannon(child, {type: ShapeType.BOX});
+                                        // let size=new CANNON.Vec3(child.scale.x, child.scale.y, child.scale.z))
+                                        // let shape = new CANNON.Box(size);
+                                        // @ts-ignore
+                                        body.addShape(result.shape);
+
+                                        body.position.set(child.position.x, child.position.y, child.position.z)
+                                        body.quaternion = threeToCannonQuaternion(child.quaternion)
+                                        this.ins.physicsIns.world.addBody(body)
+
+
+                                    } else if (child.userData.type === 'trimesh') {
+
+                                        let res = threeToCannonCore(child, {type: threeToCannonCore.Type.MESH})
+                                        const body = new CANNON.Body({mass: 0});
+                                        body.addShape(res)
+                                        body.position.set(child.position.x, child.position.y, child.position.z)
+                                        body.quaternion = threeToCannonQuaternion(child.quaternion)
+                                        // console.log("转换结果",res)
+                                        this.ins.physicsIns.world.addBody(body)
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                })
+                // console.log("最终的body",body)
+                // body.position.set(0,50,0)
+
+                this.ins.scene.add(res.scene)
+                resolve(1)
+            })
+        });
     }
 }

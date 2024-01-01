@@ -1,4 +1,4 @@
-import {BufferGeometry, Mesh, Object3D} from "three";
+import {BufferGeometry, Mesh, Object3D, Quaternion} from "three";
 import * as CANNON from "cannon-es";
 
 /**
@@ -38,4 +38,8 @@ function threeMeshToCannon() {
 
 }
 
-export {createTriMeshShape,getMeshes}
+function threeToCannonQuaternion(threeQuaternion:Quaternion) {
+    return new CANNON.Quaternion(threeQuaternion.x, threeQuaternion.y, threeQuaternion.z, threeQuaternion.w);
+}
+
+export {createTriMeshShape,getMeshes,threeToCannonQuaternion}

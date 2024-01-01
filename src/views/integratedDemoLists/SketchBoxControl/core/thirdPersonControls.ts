@@ -74,7 +74,8 @@ class ThirdPersonControls {
 
     }
     update(deltaX:number=0, deltaY:number=0) {
-
+        deltaX/=6
+        deltaY/=6
         // console.log(deltaX,deltaY)
 
         const target = this.target.position.clone().add(this.offset);

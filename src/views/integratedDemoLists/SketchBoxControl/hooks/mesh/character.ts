@@ -11,7 +11,8 @@ export function captureBoxMan(t:Object3D) {
     t.traverse(child => {
         // @ts-ignore
         if (child.isMesh) {
-            child.castShadow = child.receiveShadow = true
+            child.castShadow =  true
+            // child.receiveShadow =
             // https://discourse.threejs.org/t/cant-export-material-from-blender-gltf/12258
             // @ts-ignore
             child.material.roughness = 1

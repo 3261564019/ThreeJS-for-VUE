@@ -29,6 +29,7 @@ export class SketchBoxScene extends BaseInit {
 
         Promise.all([
             this.characterIns.load(),
+            this.physicsIns.load()
         ]).then(()=>{
             this.animate()
         })
@@ -52,24 +53,28 @@ export class SketchBoxScene extends BaseInit {
         plane.position.z = 0;
 
         //添加地板容器
-        this.scene.add(plane);
+        // this.scene.add(plane);
 
     }
     addLight(){
         // this.renderer.physicallyCorrectLights=true
 
         //创建聚光灯
-        const light = new THREE.SpotLight("#fff",1);
-        light.castShadow = true;            // default false
-        light.position.x = 0;
-        light.position.y = 10;
-        light.position.z = -10;
-        light.lookAt(0,0,0)
-        this.scene.add(light);
+        // const light = new THREE.SpotLight("#fff",1);
+        // light.castShadow = true;            // default false
+        // light.position.x = 0;
+        // light.position.y = 10;
+        // light.position.z = -10;
+        // light.lookAt(0,0,0)
+        // this.scene.add(light);
 
+        let light=new AmbientLight("#fff",1)
+        this.scene.add(light);
     }
     init() {
-        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.enabled = false;
+        this.renderer.setPixelRatio(0.6);
+
         // this.renderer.shadowMap.type=THREE.BasicShadowMap
         // this.camera.position.set(0, 30, -40);
         //定位相机指向场景中心
