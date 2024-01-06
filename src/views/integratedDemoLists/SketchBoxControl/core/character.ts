@@ -174,6 +174,7 @@ export class Character implements Updatable {
                     })
 
                     let body=createBoxManBody()
+                    body.material=this.ins.physicsIns.cmm.getMaterial("character")
 
                     this.aControl=new AnimationControl(map,this.animationMixer,this)
                     this.aControl.init()
@@ -327,7 +328,7 @@ export class Character implements Updatable {
             if(this.move && this.forwardQuaternion){
                 //获取人物的朝向
                 man.getWorldDirection(this.velocityQuaternion)
-                man.quaternion.rotateTowards(this.forwardQuaternion,0.06)
+                man.quaternion.rotateTowards(this.forwardQuaternion,0.5)
             }
 
             //更新旋转和位置

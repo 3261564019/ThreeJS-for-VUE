@@ -73,7 +73,7 @@ export class SketchBoxScene extends BaseInit {
     }
     init() {
         this.renderer.shadowMap.enabled = false;
-        this.renderer.setPixelRatio(0.6);
+        this.renderer.setPixelRatio(1);
 
         // this.renderer.shadowMap.type=THREE.BasicShadowMap
         // this.camera.position.set(0, 30, -40);

@@ -10,6 +10,8 @@ import {threeToCannon as threeToCannonCore } from "../core/three-to-cannon.js";
 import { threeToCannon, ShapeType } from 'three-to-cannon';
 
 import {threeToCannonQuaternion} from "../core/threeToCannon";
+import {Mesh} from "three";
+import {CannonMaterialManager} from "./CannonMaterialManager";
 
 export class WordPhysics implements Updatable {
     world: CANNON.World
@@ -18,6 +20,8 @@ export class WordPhysics implements Updatable {
     debug: any
     //是否需要调试
     needDebug: boolean = true
+    //CannonMaterialManager
+    cmm: CannonMaterialManager;
 
     constructor(ins: SketchBoxScene) {
         this.ins = ins
@@ -25,6 +29,8 @@ export class WordPhysics implements Updatable {
         world.gravity.set(0, -9.820, 0);
         world.broadphase = new CANNON.SAPBroadphase(world);
         world.allowSleep = true;
+
+        this.cmm=new CannonMaterialManager(world)
 
         /**
          * GSSolver（Gauss-Seidel Solver）是一种用于解决刚体间接触约束的求解器。它主要用于处理物体之间的碰撞和接触问题。
@@ -37,7 +43,7 @@ export class WordPhysics implements Updatable {
         // this.addGround()
         //添加物理的调试工具
         // this.initDebug()
-
+        //
         let t = {
             change: () => {
                 this.needDebug = !this.needDebug
@@ -101,13 +107,6 @@ export class WordPhysics implements Updatable {
             loader.load(world, (res) => {
 
                 console.log("g加载结果", res)
-                // @ts-ignore
-                // const {shape,offset,orientation} = threeToCannon(res.scene, {type: ShapeType.MESH});
-                // body.addShape(shape,offset,orientation);
-                // body.position.set(0,20,1)
-                // this.ins.physicsIns.world.addBody(body);
-                // res.scene.position.set(-3,5,0)
-                // this.ins.scene.add(res.scene)
 
                 res.scene.traverse((child) => {
                     if (child.hasOwnProperty('userData')) {
@@ -118,12 +117,10 @@ export class WordPhysics implements Updatable {
 
                                     if (child.userData.type === 'box') {
 
-                                        console.log(child,"box")
                                         const body = new CANNON.Body({mass: 0});
+                                        body.material=this.cmm.getMaterial("ground")
 
                                         const result = threeToCannon(child, {type: ShapeType.BOX});
-                                        // let size=new CANNON.Vec3(child.scale.x, child.scale.y, child.scale.z))
-                                        // let shape = new CANNON.Box(size);
                                         // @ts-ignore
                                         body.addShape(result.shape);
 
@@ -136,20 +133,18 @@ export class WordPhysics implements Updatable {
 
                                         let res = threeToCannonCore(child, {type: threeToCannonCore.Type.MESH})
                                         const body = new CANNON.Body({mass: 0});
+                                        body.material=this.cmm.getMaterial("ground")
+
                                         body.addShape(res)
                                         body.position.set(child.position.x, child.position.y, child.position.z)
                                         body.quaternion = threeToCannonQuaternion(child.quaternion)
-                                        // console.log("转换结果",res)
                                         this.ins.physicsIns.world.addBody(body)
-
                                     }
                                 }
                             }
                         }
                     }
                 })
-                // console.log("最终的body",body)
-                // body.position.set(0,50,0)
 
                 this.ins.scene.add(res.scene)
                 resolve(1)

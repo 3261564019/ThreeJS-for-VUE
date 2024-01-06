@@ -1,7 +1,8 @@
-import {ChildScene} from "../../types";
+
 import {BoxGeometry, CatmullRomCurve3, Mesh, MeshBasicMaterial, Scene, Vector3} from "three";
 import {GMapIns} from "../../types/Gmap";
 import {GMapRender} from "../index";
+import {ChildScene} from "./type/ChildScene";
 
 export interface FlowPathParams{
     scene: Scene

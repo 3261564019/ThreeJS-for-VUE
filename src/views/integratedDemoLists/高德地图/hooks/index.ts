@@ -11,7 +11,6 @@ import {
     WebGLRenderer
 } from "three";
 import {CustomCoords, GMapIns, MakerWithCmp, SetDataParams} from "../types/Gmap";
-import {ChildScene} from "../types";
 import {RotationBoxScene} from "./childScene/RotationBoxScene";
 import {ShiningWall} from "./childScene/ShiningWall";
 import {CustomLabelRender} from "./renders/customLabelRender";
@@ -24,6 +23,7 @@ import Stats from 'stats-js';
 import {FlowPath} from "./childScene/FlowPath";
 import city from "@/assets/model/city.glb?url"
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
+import {ChildScene} from "./childScene/type/ChildScene";
 
 /*
  * 构造自定义图层的参数

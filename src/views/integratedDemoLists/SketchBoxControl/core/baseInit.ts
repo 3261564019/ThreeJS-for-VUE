@@ -56,7 +56,7 @@ export class BaseInit {
 
         const scene = new THREE.Scene();
         //创建相机对象  可视范围常用（45-75）  长宽比 近截面（near）和远截面（far）。 当物体某些部分比摄像机的远截面远或者比近截面近的时候，该这些部分将不会被渲染到场景中。
-        const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 2000);
+        const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 2000);
         // 创建挂载器
         const renderer = new THREE.WebGLRenderer({
             //开启抗锯齿

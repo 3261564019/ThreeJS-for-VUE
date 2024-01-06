@@ -1,10 +1,12 @@
-import {ChildScene} from "../../types";
+
 import {BufferAttribute, BufferGeometry, Scene, Texture} from "three";
 import {GMapIns} from "../../types/Gmap";
 import {GMapRender} from "../index";
 import * as THREE from "three";
 // @ts-ignore
 import {generateVecData,hexToRgba} from "@/views/integratedDemoLists/高德地图/hooks/util/index.js"
+import {ChildScene} from "./type/ChildScene";
+
 
 export interface ShiningWallConstructParams{
     scene: Scene

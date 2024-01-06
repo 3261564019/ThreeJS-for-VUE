@@ -1,9 +1,11 @@
-import {ChildScene} from "../../types";
+
 import * as THREE from "three";
 import {BoxGeometry, Mesh, MeshPhongMaterial, Scene, TextureLoader} from "three";
 import {GMapIns} from "../../types/Gmap";
 import {GMapRender} from "../index";
 import workerJs from "./workers/RotationBox.js?url"
+import {ChildScene} from "./type/ChildScene";
+
 export class RotationBoxScene extends ChildScene {
     private meshes: Array<Mesh> = []
     private readonly boxGeometry: BoxGeometry;
