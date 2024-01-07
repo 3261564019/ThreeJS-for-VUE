@@ -12,6 +12,7 @@ import { threeToCannon, ShapeType } from 'three-to-cannon';
 import {threeToCannonQuaternion} from "../core/threeToCannon";
 import {Mesh} from "three";
 import {CannonMaterialManager} from "./CannonMaterialManager";
+import {setupMeshProperties} from "../hooks/mesh/character";
 
 export class WordPhysics implements Updatable {
     world: CANNON.World
@@ -36,7 +37,7 @@ export class WordPhysics implements Updatable {
          * GSSolver（Gauss-Seidel Solver）是一种用于解决刚体间接触约束的求解器。它主要用于处理物体之间的碰撞和接触问题。
          */
         const solver = new CANNON.GSSolver();
-        solver.iterations = 10
+        solver.iterations = 1
         world.solver = solver
 
         this.world = world
@@ -51,7 +52,7 @@ export class WordPhysics implements Updatable {
                 console.log(this.needDebug)
             }
         }
-        this.ins.dat.add(t, "change").name("切换物理调试")
+        // this.ins.dat.add(t, "change").name("切换物理调试")
     }
 
     initDebug() {
@@ -109,6 +110,16 @@ export class WordPhysics implements Updatable {
                 console.log("g加载结果", res)
 
                 res.scene.traverse((child) => {
+                    //@ts-ignore
+                    if(child.isMesh){
+                        child.receiveShadow=true
+                        child.castShadow=true
+                        // @ts-ignore
+                        this.ins.skyLight.csm.setupMaterial(child.material);
+
+                        setupMeshProperties(child)
+                    }
+
                     if (child.hasOwnProperty('userData')) {
                         if (child.userData.hasOwnProperty('data')) {
                             if (child.userData.data === 'physics') {

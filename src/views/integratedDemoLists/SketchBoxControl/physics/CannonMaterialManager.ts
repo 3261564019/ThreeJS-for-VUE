@@ -19,7 +19,7 @@ export class CannonMaterialManager {
             character,
             {
                 //摩擦力
-                friction:0.2,
+                friction:12,
 
                 //回弹力度
                 // restitution:0.2,
@@ -27,6 +27,7 @@ export class CannonMaterialManager {
                 //增加这个值会使得碰撞后物体的反弹更强烈，减少这个值则会导致反弹效果减弱。
                 //很小会很软，类似水的材质 90 左右会回弹
                 // contactEquationStiffness:500,
+                // frictionEquationStiffness:900
             }
         )
 

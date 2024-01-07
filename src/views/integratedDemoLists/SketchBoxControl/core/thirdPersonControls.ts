@@ -27,6 +27,8 @@ interface Config {
     minPhi?: number; // Min Phi in degrees
 }
 
+let worker:Worker;
+
 class ThirdPersonControls {
     private camera: Camera;
     private target: Object3D;
@@ -74,9 +76,8 @@ class ThirdPersonControls {
 
     }
     update(deltaX:number=0, deltaY:number=0) {
-        deltaX/=6
-        deltaY/=6
-        // console.log(deltaX,deltaY)
+        deltaX/=4
+        deltaY/=4
 
         const target = this.target.position.clone().add(this.offset);
         this.theta -= deltaX * (this.sensitivity.x / 2);
@@ -93,7 +94,7 @@ class ThirdPersonControls {
         this.camera.position.z =
             target.z + this.radius * Math.cos((this.theta * Math.PI) / 180) * Math.cos((this.phi * Math.PI) / 180);
 
-        this.camera.updateMatrix();
+        // this.camera.updateMatrix();
         this.camera.lookAt(target);
     }
 }

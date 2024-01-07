@@ -1,14 +1,16 @@
 import * as THREE from "three";
 import {BaseInit, BaseInitParams} from "./core/baseInit";
 import {WordPhysics} from "./physics/WordPhysics";
-import {AmbientLight, Clock, Color, LoadingManager} from "three";
+import {AmbientLight, CameraHelper, Clock, Color, LoadingManager} from "three";
 import {Character} from "./core/character";
+import {SkyLight} from "./core/Sky/SkyLight";
 
 export class SketchBoxScene extends BaseInit {
     physicsIns:WordPhysics
     clock:Clock
     loadMana:LoadingManager
     characterIns:Character
+    skyLight: SkyLight;
 
     constructor() {
         super({
@@ -16,9 +18,12 @@ export class SketchBoxScene extends BaseInit {
             needDebug:true,
             needStats:true,
             needOrbitControls:false,
-            needAxesHelper:true,
+            needAxesHelper:false,
             adjustScreenSize:true
         } as BaseInitParams);
+
+        this.dat.performance=this.dat.addFolder('性能')
+
         //初始化资源加载管理器
         this.initLoadManager()
         //设置渲染器相机相关参数
@@ -26,69 +31,80 @@ export class SketchBoxScene extends BaseInit {
         //创建物理世界
         this.physicsIns=new WordPhysics(this)
         this.characterIns=new Character(this)
+        this.skyLight=new SkyLight(this)
+        this.renderer.physicallyCorrectLights=true
+
+        this.addDebug()
+        this.clock=new Clock()
 
         Promise.all([
             this.characterIns.load(),
             this.physicsIns.load()
         ]).then(()=>{
             this.animate()
+            this.skyLight.onceRender()
         })
 
-        this.addPlan();
-        this.addLight();
-        this.clock=new Clock()
     }
-    addPlan(){
+    addDebug(){
+        let p={
+            far:1000,
+            ratio:0.8,
+            shadowMap:true,
+            shadowType:"BasicShadowMap"
+        }
 
-        const geometry = new THREE.PlaneGeometry(140, 140);
-        const material = new THREE.MeshLambertMaterial({color:new Color("#aaa")});
-        material.side=THREE.DoubleSide
-        const plane = new THREE.Mesh(geometry, material);
-        //设置接受阴影
-        plane.receiveShadow = true
+        this.dat.performance.add(p,"ratio",0.01,window.devicePixelRatio,0.01).name("像素比").onChange((e:number)=>{
+            this.renderer.setPixelRatio(e);
+        })
 
-        plane.rotation.x = -0.5 * Math.PI;
-        plane.position.x = 0;
-        plane.position.y = 0;
-        plane.position.z = 0;
+        this.dat.performance.add(p,'shadowMap').name("启用阴影").onChange(
+            (e:boolean)=>{
+                this.renderer.shadowMap.enabled = e;
+            }
+        )
 
-        //添加地板容器
-        // this.scene.add(plane);
-
-    }
-    addLight(){
-        // this.renderer.physicallyCorrectLights=true
-
-        //创建聚光灯
-        // const light = new THREE.SpotLight("#fff",1);
-        // light.castShadow = true;            // default false
-        // light.position.x = 0;
-        // light.position.y = 10;
-        // light.position.z = -10;
-        // light.lookAt(0,0,0)
-        // this.scene.add(light);
-
-        let light=new AmbientLight("#fff",1)
-        this.scene.add(light);
+        this.dat.performance.add(p, 'shadowType', ['BasicShadowMap', 'PCFShadowMap', 'PCFSoftShadowMap']).name('阴影类型').onChange((value:string) => {
+            switch(value) {
+                case 'BasicShadowMap':
+                    this.renderer.shadowMap.type = THREE.BasicShadowMap;
+                    break;
+                case 'PCFShadowMap':
+                    this.renderer.shadowMap.type = THREE.PCFShadowMap;
+                    break;
+                case 'PCFSoftShadowMap':
+                    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                    break;
+                default:
+                    // 默认设置为 BasicShadowMap
+                    this.renderer.shadowMap.type = THREE.BasicShadowMap;
+                    break;
+            }
+        });
     }
     init() {
-        this.renderer.shadowMap.enabled = false;
-        this.renderer.setPixelRatio(1);
 
-        // this.renderer.shadowMap.type=THREE.BasicShadowMap
-        // this.camera.position.set(0, 30, -40);
+        this.renderer.setPixelRatio(0.8);
+        this.renderer.shadowMap.type=THREE.PCFShadowMap
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.toneMappingExposure = 0.25;
+        // this.renderer.shadowMap.type=THREE.PCFShadowMap
         //定位相机指向场景中心
         this.camera.lookAt(this.scene.position)
+        this.camera.far=1000
+        // let helper=new CameraHelper(this.camera)
+        // this.scene.add(helper)
     }
     animate(){
         try {
             let delta=this.clock.getDelta()
-            // delta/=3
+            delta = Math.min(delta, 1 / 10);    // min 30 fps
             let elapsedTime=this.clock.getElapsedTime()
             this.renderer.render(this.scene, this.camera);
             this.stats.update()
             this.physicsIns.render(delta,elapsedTime)
             this.characterIns.render(delta,elapsedTime)
+            // this.skyLight.update()
             requestAnimationFrame(this.animate.bind(this));
         }catch (e) {
             // @ts-ignore
@@ -108,8 +124,6 @@ export class SketchBoxScene extends BaseInit {
 
         this.loadMana.onLoad =()=>{
             console.log( 'Loading complete!');
-
-
         };
 
         this.loadMana.onProgress = function ( url, itemsLoaded, itemsTotal ) {

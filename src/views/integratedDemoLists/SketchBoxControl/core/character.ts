@@ -160,6 +160,10 @@ export class Character implements Updatable {
                     console.log("加载结果", res)
                     let t =res.scene.children[0];
 
+                    res.scene.traverse(e=>{
+                        console.log("e",e)
+                    })
+
                     t.rotateY(MathUtils.degToRad(-90))
 
                     captureBoxMan(t)
@@ -204,6 +208,7 @@ export class Character implements Updatable {
                                 // console.log(delta)
                                 this.moveTop = -delta.y
                                 this.moveRight = delta.x
+
                             }
                         })
                     }
@@ -298,6 +303,7 @@ export class Character implements Updatable {
         if(this.initEd){
 
             this.controls.update(this.moveRight * 3, -this.moveTop * 3)
+
             if (!isTouchDevice) this.moveRight = this.moveTop = 0
 
 
@@ -328,14 +334,12 @@ export class Character implements Updatable {
             if(this.move && this.forwardQuaternion){
                 //获取人物的朝向
                 man.getWorldDirection(this.velocityQuaternion)
-                man.quaternion.rotateTowards(this.forwardQuaternion,0.5)
+                man.quaternion.rotateTowards(this.forwardQuaternion,delta*10)
             }
 
             //更新旋转和位置
             this.updateMeshBody(body,man)
             this.aControl.render(delta,elapsedTime)
-            //更新鼠标控制器
-            this.controls.update(this.moveRight * 3, -this.moveTop * 3)
         }
     }
 
@@ -374,20 +378,10 @@ export class Character implements Updatable {
     private addDebug() {
 
         let p={
-            rotation:()=>{
-
-            },
             jump:()=>{
                 this.jump()
-            },
-            stop:()=>{
-                console.log("释放")
-                this.velocityQuaternion=new Vector3(0,0,0)
-                this.current.body.velocity.set(0, 0, 0); // 清除线性加速度
             }
         }
-        this.ins.dat.add(p,"rotation").name("旋转")
         this.ins.dat.add(p,"jump").name("跳跃")
-        this.ins.dat.add(p,"stop").name("释放力度")
     }
 }
