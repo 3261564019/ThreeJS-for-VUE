@@ -21,7 +21,7 @@ export let SkyShader = {
       luminance: {value: 1},
       turbidity: {value: 2},
       rayleigh: {value: 1},
-      mieCoefficient: {value: 0.005},
+      mieCoefficient: {value: 0.4},
       mieDirectionalG: {value: 0.8},
       sunPosition: {value: new Vector3()},
       cameraPos: {value: new Vector3()}

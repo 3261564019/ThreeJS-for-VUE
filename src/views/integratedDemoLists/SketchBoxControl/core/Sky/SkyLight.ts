@@ -53,7 +53,7 @@ export class SkyLight extends Object3D
 
         // Mesh
         this.skyMesh = new Mesh(
-            new SphereGeometry(1000, 24, 12),
+            new SphereGeometry(1010, 24, 12),
             this.skyMaterial
         );
         this.attach(this.skyMesh);

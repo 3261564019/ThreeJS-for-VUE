@@ -4,6 +4,7 @@ import {WordPhysics} from "./physics/WordPhysics";
 import {AmbientLight, CameraHelper, Clock, Color, LoadingManager} from "three";
 import {Character} from "./core/character";
 import {SkyLight} from "./core/Sky/SkyLight";
+import {WaterScene} from "./core/water/waterScene";
 
 export class SketchBoxScene extends BaseInit {
     physicsIns:WordPhysics
@@ -11,6 +12,7 @@ export class SketchBoxScene extends BaseInit {
     loadMana:LoadingManager
     characterIns:Character
     skyLight: SkyLight;
+    private waterIns: WaterScene;
 
     constructor() {
         super({
@@ -32,6 +34,7 @@ export class SketchBoxScene extends BaseInit {
         this.physicsIns=new WordPhysics(this)
         this.characterIns=new Character(this)
         this.skyLight=new SkyLight(this)
+
         this.renderer.physicallyCorrectLights=true
 
         this.addDebug()
@@ -40,7 +43,11 @@ export class SketchBoxScene extends BaseInit {
         Promise.all([
             this.characterIns.load(),
             this.physicsIns.load()
-        ]).then(()=>{
+        ]).then((res)=>{
+            console.log("加载到的",res)
+            // @ts-ignore
+            this.waterIns=new WaterScene(this,res[1])
+
             this.animate()
             this.skyLight.onceRender()
         })
@@ -104,6 +111,7 @@ export class SketchBoxScene extends BaseInit {
             this.stats.update()
             this.physicsIns.render(delta,elapsedTime)
             this.characterIns.render(delta,elapsedTime)
+            this.waterIns.render(delta,elapsedTime)
             // this.skyLight.update()
             requestAnimationFrame(this.animate.bind(this));
         }catch (e) {

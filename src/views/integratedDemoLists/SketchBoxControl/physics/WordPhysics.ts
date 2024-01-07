@@ -3,7 +3,7 @@ import CannonDebugger from 'cannon-es-debugger'
 import {SketchBoxScene} from "../SketchBoxScene";
 import {Updatable} from "../type";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
-import world from "@/assets/model/world.glb?url"
+import world from "@/assets/model/world1.glb?url"
 // @ts-ignore
 import {threeToCannon as threeToCannonCore } from "../core/three-to-cannon.js";
 
@@ -109,6 +109,8 @@ export class WordPhysics implements Updatable {
 
                 console.log("g加载结果", res)
 
+                let t;
+
                 res.scene.traverse((child) => {
                     //@ts-ignore
                     if(child.isMesh){
@@ -121,6 +123,12 @@ export class WordPhysics implements Updatable {
                     }
 
                     if (child.hasOwnProperty('userData')) {
+
+                        if(child.userData.type==="wtaer"){
+                            console.log("ssss",child)
+                            t=child
+                        }
+
                         if (child.userData.hasOwnProperty('data')) {
                             if (child.userData.data === 'physics') {
                                 child.visible=false
@@ -158,7 +166,7 @@ export class WordPhysics implements Updatable {
                 })
 
                 this.ins.scene.add(res.scene)
-                resolve(1)
+                resolve(t)
             })
         });
     }
