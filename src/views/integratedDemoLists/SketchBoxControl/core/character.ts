@@ -331,10 +331,13 @@ export class Character implements Updatable {
             }
 
             //如果有计算得出的人物朝向，并且有在按方向键，人物需要转向方向键的方向
-            if(this.move && this.forwardQuaternion){
-                //获取人物的朝向
-                man.getWorldDirection(this.velocityQuaternion)
-                man.quaternion.rotateTowards(this.forwardQuaternion,delta*10)
+            if(this.move){
+                if(this.forwardQuaternion){
+                    //获取人物的朝向
+                    man.getWorldDirection(this.velocityQuaternion)
+                    man.quaternion.rotateTowards(this.forwardQuaternion,delta*10)
+                }
+                this.ins.skyLight.update()
             }
 
             //更新旋转和位置

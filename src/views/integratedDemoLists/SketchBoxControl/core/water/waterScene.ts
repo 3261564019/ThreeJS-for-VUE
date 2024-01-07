@@ -12,7 +12,7 @@ export class WaterScene implements Updatable {
     }
 
     private create(ins: SketchBoxScene, mesh: Mesh) {
-        const waterGeometry = new PlaneGeometry( 10, 10 );
+        const waterGeometry = new PlaneGeometry( 8, 8 );
 
 
         this.water = new Water(
@@ -30,6 +30,12 @@ export class WaterScene implements Updatable {
                 distortionScale: 3.7,
             }
         );
+
+        let uniforms=this.water.material.uniforms
+        uniforms.size.value=4.2
+        uniforms.distortionScale.value=0.5
+        ins.dat.skyLight.add(uniforms.size,"value", 0.1, 10, 0.1 ).name( '水面缩放' );
+        ins.dat.skyLight.add(uniforms.distortionScale,"value", 0.1, 10, 0.1 ).name( 'distortionScale' );
 
 
         this.water.rotation.x = - Math.PI / 2;

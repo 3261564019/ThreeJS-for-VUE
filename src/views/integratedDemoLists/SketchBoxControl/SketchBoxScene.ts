@@ -47,7 +47,6 @@ export class SketchBoxScene extends BaseInit {
             console.log("加载到的",res)
             // @ts-ignore
             this.waterIns=new WaterScene(this,res[1])
-
             this.animate()
             this.skyLight.onceRender()
         })
@@ -94,7 +93,7 @@ export class SketchBoxScene extends BaseInit {
         this.renderer.setPixelRatio(0.8);
         this.renderer.shadowMap.type=THREE.PCFShadowMap
         this.renderer.shadowMap.enabled = true;
-        this.renderer.toneMappingExposure = 0.25;
+        // this.renderer.toneMappingExposure = 0.25;
         // this.renderer.shadowMap.type=THREE.PCFShadowMap
         //定位相机指向场景中心
         this.camera.lookAt(this.scene.position)

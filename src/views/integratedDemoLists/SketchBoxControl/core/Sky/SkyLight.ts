@@ -51,6 +51,15 @@ export class SkyLight extends Object3D
             side: THREE.BackSide
         });
 
+
+
+        const skyUniforms = this.skyMaterial.uniforms;
+
+        skyUniforms[ 'turbidity' ].value = 10;
+        skyUniforms[ 'rayleigh' ].value = 2;
+        skyUniforms[ 'mieCoefficient' ].value = 0.005;
+        skyUniforms[ 'mieDirectionalG' ].value = 0.8;
+
         // Mesh
         this.skyMesh = new Mesh(
             new SphereGeometry(1010, 24, 12),
@@ -63,12 +72,12 @@ export class SkyLight extends Object3D
         this.refreshHemiIntensity();
         this.hemiLight.color.setHSL( 0.59, 0.4, 0.6 );
         this.hemiLight.groundColor.setHSL( 0.095, 0.2, 0.75 );
-        this.hemiLight.position.set( 0, 50, 0 );
+        // this.hemiLight.position.set( 0, 50, 0 );
         this.SketchBoxScene.scene.add( this.hemiLight );
 
         this.csm = new CSM({
             maxFar: 60,	// maxFar
-            lightIntensity: 5.5,
+            lightIntensity: 2.5,
             //阴影级联的数量
             cascades: 4,
             shadowMapSize: 1024,

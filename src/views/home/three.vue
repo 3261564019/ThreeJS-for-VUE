@@ -33,7 +33,7 @@ import physics from "@/assets/img/demo/physics.png";
 import shine from "@/assets/img/demo/shine.png";
 import gmap from "@/assets/img/demo/gmap.png";
 import enable3d from "@/assets/img/demo/enable3d.png"
-
+import SketchBox from "@/assets/img/demo/SketchBox.png"
 const router=useRouter();
 
 let itemList=[
@@ -92,6 +92,10 @@ let itemList=[
     name:"enable3d",
     img:enable3d,
     route:"/enable3d"
+  },{
+    name:"SketchBox",
+    img:SketchBox,
+    route:"/SketchBoxControl"
   },
 ];
 
