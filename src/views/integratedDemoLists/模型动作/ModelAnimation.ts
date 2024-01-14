@@ -8,6 +8,7 @@ import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import {load} from "@amap/amap-jsapi-loader";
 import girl from "@/assets/model/111.gltf?url"
 import boxMan from "@/assets/model/box_man.glb?url"
+import test from "@/assets/model/test.glb?url"
 
 
 function clone( source:any ) {
@@ -114,6 +115,7 @@ export class ModelAnimation extends BaseInit {
     animationMixer:AnimationMixer
     //animationList
     animationList: Map<string, AnimationAction> = new Map();
+    private tempMixer: AnimationMixer;
 
 
     constructor() {
@@ -139,13 +141,27 @@ export class ModelAnimation extends BaseInit {
 
         // this.loadMyModel();
 
-        this.loadBoxMan();
+        // this.loadBoxMan();
+
+        this.loadAnimation()
     }
     loadMyModel(){
         const loader = new GLTFLoader();
         loader.load(girl,(res)=>{
             console.log("模型对象res",res)
             res.scene.position.y=10
+            this.scene.add(res.scene)
+        })
+
+    }
+    loadAnimation(){
+        const loader = new GLTFLoader(); 
+        loader.load(test,(res)=>{
+            console.log("模型对象res",res)
+            this.tempMixer =new AnimationMixer(res.scene);
+            let action=this.tempMixer.clipAction(res.animations[0])
+            action.play()
+            res.scene.position.y=0
             this.scene.add(res.scene)
         })
 
@@ -362,6 +378,9 @@ export class ModelAnimation extends BaseInit {
 
             if (this.animationMixer) {
                 this.animationMixer.update(delta);
+            }
+            if (this.tempMixer) {
+                this.tempMixer.update(delta);
             }
 
             this.raf=requestAnimationFrame(animate);

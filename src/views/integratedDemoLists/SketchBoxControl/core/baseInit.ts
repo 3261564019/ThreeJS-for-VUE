@@ -61,7 +61,7 @@ export class BaseInit {
         const renderer = new THREE.WebGLRenderer({
             //开启抗锯齿
             antialias: true,
-            logarithmicDepthBuffer:true
+            logarithmicDepthBuffer:true,
         });
         renderer.physicallyCorrectLights=false
         //获取挂载节点

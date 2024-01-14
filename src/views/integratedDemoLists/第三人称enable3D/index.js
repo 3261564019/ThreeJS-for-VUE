@@ -32,6 +32,7 @@ class MainScene extends Scene3D {
         super({key:'MainScene'})
         this.initStats()
         this.initDebug()
+
     }
     initStats() {
         //实例化

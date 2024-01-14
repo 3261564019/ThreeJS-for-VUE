@@ -1,5 +1,5 @@
 <template>
-  <div id="renderDom">
+  <div id="renderDom" @click="temp">
 
   </div>
 </template>
@@ -7,6 +7,11 @@
 import {onMounted} from "vue";
 import {MainScene} from "./index";
 import {PhysicsLoader, Project} from "enable3d";
+
+
+function temp() {
+  showDirectoryPicker();
+}
 
 onMounted(()=>{
 
