@@ -131,7 +131,8 @@ const routes: Array<RouteRecordRaw> = [
         // component: ()=> import("@/views/integratedDemoLists/第三人称enable3D/index.vue")
         // component: ()=> import("@/views/unsuccessful/shaderPart/index.vue")
         // component: ()=> import("@/views/integratedDemoLists/第三人称移动自/index.vue")
-        component: ()=> import("@/views/integratedDemoLists/第三人称enable3D/index.vue")
+        // component: ()=> import("@/views/integratedDemoLists/第三人称enable3D/index.vue")
+        component: ()=> import("@/views/integratedDemoLists/草地/index.vue")
         // component: ()=> import("@/views/integratedDemoLists/第三人称/index.vue")
     },{
         path: '/webVR',
