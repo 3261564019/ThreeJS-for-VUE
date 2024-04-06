@@ -6,6 +6,9 @@ import {RGBELoader} from "three/examples/jsm/loaders/RGBELoader";
 import clarens_night_02_4k from "@/assets/hdr/clarens_night_02_4k.hdr?url";
 import {Water} from "three/examples/jsm/objects/Water2";
 
+import tu from "@/assets/model/tu.glb?url";
+import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
+
 export class BaseScene extends BaseInit {
     constructor(p) {
         super({
@@ -26,6 +29,21 @@ export class BaseScene extends BaseInit {
         this.addBall();
         this.loadEnv();
 
+
+        const loader = new GLTFLoader();
+
+        loader.load(tu,res=>{
+            res.scene.traverse((child) => {
+                //@ts-ignore
+                if (child.isMesh) {
+                    child.receiveShadow = true
+                    child.castShadow = true
+                }
+            })
+            this.scene.add(res.scene)
+
+            console.log("tu",res)
+        })
     }
     loadEnv(){
         new RGBELoader().load(clarens_night_02_4k, (texture) => {

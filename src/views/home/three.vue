@@ -103,6 +103,24 @@ function to(item) {
   console.log(item)
   router.push({path:item.route})
 }
+
+let t=new Promise(resolve => {
+  setTimeout(()=>{
+    resolve()
+  },2000)
+})
+
+t.then(()=>{
+  console.log("111")
+})
+t.then(()=>{
+  console.log("222")
+})
+t.then(()=>{
+  console.log("333")
+})
+
+
 </script>
 
 <style lang="less" scoped>

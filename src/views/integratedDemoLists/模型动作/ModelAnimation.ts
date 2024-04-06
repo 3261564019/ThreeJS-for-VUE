@@ -8,7 +8,7 @@ import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import {load} from "@amap/amap-jsapi-loader";
 import girl from "@/assets/model/111.gltf?url"
 import boxMan from "@/assets/model/box_man.glb?url"
-import test from "@/assets/model/test.glb?url"
+import test from "@/assets/model/bart.glb?url"
 
 
 function clone( source:any ) {
@@ -159,8 +159,8 @@ export class ModelAnimation extends BaseInit {
         loader.load(test,(res)=>{
             console.log("模型对象res",res)
             this.tempMixer =new AnimationMixer(res.scene);
-            let action=this.tempMixer.clipAction(res.animations[0])
-            action.play()
+            let action1=this.tempMixer.clipAction(res.animations[2])
+            action1.play()
             res.scene.position.y=0
             this.scene.add(res.scene)
         })

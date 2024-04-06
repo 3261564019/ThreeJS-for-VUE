@@ -45,7 +45,7 @@ export class BaseInit {
     public renderer: WebGLRenderer;
     //显示帧率的对象
     public stats: any;
-    public control: any;
+    public control: OrbitControls;
     //页面调试工具对象
     public dat: any;
     //灯光对象

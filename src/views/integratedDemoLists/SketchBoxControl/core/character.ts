@@ -239,6 +239,7 @@ export class Character implements Updatable {
                     resolve(1)
                 }
             )
+
         })
     }
     addTestBox(p:Vector3,color:string){

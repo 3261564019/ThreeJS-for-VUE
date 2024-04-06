@@ -162,7 +162,7 @@ export class BaseScene extends BaseInit {
     init() {
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = 0.9;
-        this.renderer.outputEncoding = THREE.LinearEncoding;
+        this.renderer.outputEncoding = THREE.sRGBEncoding;
         this.renderer.shadowMap.enabled = true;
         this.dat.close()
         this.camera=new THREE.PerspectiveCamera(170, window.innerWidth / window.innerHeight, 0.1, 10000);
