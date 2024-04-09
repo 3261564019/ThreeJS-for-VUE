@@ -21,6 +21,8 @@ onUnmounted(()=>{
 #curveRoot{
   width: 100vw;
   height: 100vh;
+  background-color: #FBDA61;
+  background-image: linear-gradient(45deg, #FBDA61 0%, #FF5ACD 100%);
 
 }
 </style>

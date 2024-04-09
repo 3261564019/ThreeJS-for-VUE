@@ -89,12 +89,11 @@ export class BaseScene extends BaseInit {
         this.transformControl.addEventListener( 'dragging-changed',  ( event )=>{
             this.control.enabled = ! event.value;
             console.log("在拖拽",event)
-
         });
 
         this.transformControl.addEventListener( 'change',(e)=>{
             console.log("change---",e)
-            // this.manualRender()
+            this.manualRender()
             }
         );
 

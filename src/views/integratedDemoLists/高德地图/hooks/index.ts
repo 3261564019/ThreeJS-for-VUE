@@ -7,7 +7,7 @@ import {
     MeshLambertMaterial, MeshPhysicalMaterial,
     PerspectiveCamera,
     Scene,
-    TorusKnotGeometry,
+    TorusKnotGeometry, Vector3,
     WebGLRenderer
 } from "three";
 import {CustomCoords, GMapIns, MakerWithCmp, SetDataParams} from "../types/Gmap";
@@ -22,8 +22,11 @@ import * as dat from 'dat.gui';
 import Stats from 'stats-js';
 import {FlowPath} from "./childScene/FlowPath";
 import city from "@/assets/model/city.glb?url"
+import xj from "@/assets/model/xj.glb?url"
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import {ChildScene} from "./childScene/type/ChildScene";
+import {RGBELoader} from "three/examples/jsm/loaders/RGBELoader";
+import clarens_night_02_4k from "@/assets/hdr/clarens_night_02_4k.hdr?url";
 
 /*
  * 构造自定义图层的参数
@@ -69,8 +72,10 @@ export class GMapRender {
     private Torus:Mesh<TorusKnotGeometry, MeshPhysicalMaterial>;
 
     lastMapRenderTime:number
+    private directionalLight: DirectionalLight;
 
     constructor(p: GMapMakerParams) {
+
         this.p = p;
         this.mapIns = p.mapIns;
         this.customCoords = p.mapIns.customCoords;
@@ -80,7 +85,7 @@ export class GMapRender {
         this.scene = new THREE.Scene();
         this.dat = new dat.GUI({width: 300});
 
-        this.boxScene=new RotationBoxScene(this.scene,p.mapIns,this);
+        this.boxScene = new RotationBoxScene(this.scene, p.mapIns, this);
 
         this.initCustomLayer().then(() => {
             //创建标签渲染器
@@ -92,16 +97,16 @@ export class GMapRender {
                 parentDom: dom
             });
 
-             let temp=[
-                 [116.38694633457945, 39.927013807253026],
-                 [116.38731111500547, 39.92411765068325],
-                 [116.38731111500547, 39.92411765068325],
-                 [116.38922353003309, 39.92581257536286],
-             ];
+            let temp = [
+                [116.38694633457945, 39.927013807253026],
+                [116.38731111500547, 39.92411765068325],
+                [116.38731111500547, 39.92411765068325],
+                [116.38922353003309, 39.92581257536286],
+            ];
 
-             temp.forEach(v=>{
-                 this.boxScene.addBox(v)
-             })
+            temp.forEach(v => {
+                this.boxScene.addBox(v)
+            })
 
             const minLatitude = 39.9;  // 最小纬度
             const maxLatitude = 40.0;  // 最大纬度
@@ -152,9 +157,11 @@ export class GMapRender {
 
         this.createTempMaterial();
 
-        this.loadModel();
+        // this.loadModel();
 
-        this.scene.add(new AxesHelper(200))
+        this.loadXj()
+
+        // this.scene.add(new AxesHelper(200))
 
     }
     createTempMaterial(){
@@ -181,8 +188,8 @@ export class GMapRender {
 
         const geometry = new TorusKnotGeometry( 10, 3, 100, 16 );
         const sphere = new Mesh( geometry, this.tempMaterial );
-        this.scene.add(sphere)
-        sphere.position.set(786,821,359)
+        // this.scene.add(sphere)
+        sphere.position.set(0,0,40)
 
         this.glassFolder.add(sphere.position,"x",-1000,1000,1).name("x")
         this.glassFolder.add(sphere.position,"y",-1000,1000,1).name("y")
@@ -197,6 +204,34 @@ export class GMapRender {
         this.glassFolder.add(this.tempMaterial,"reflectivity",0,1,0.01).name("reflectivity")
 
     }
+    loadXj(){
+        
+        let loader = new GLTFLoader()
+        loader.load(xj, (e) =>{
+            let res = e.scene
+
+            // res.add(new AxesHelper(4))
+            let s=34
+            res.scale.set(s, s, s)
+            res.rotation.x=Math.PI /2
+
+            let p={
+                s:30
+            }
+            res.position.set(76.1,34.3,0)
+            this.dat.add(res.position,"x",-500,500,0.1)
+            this.dat.add(res.position,"z",-500,500,0.1)
+            this.dat.add(res.position,"y",-500,500,0.1)
+            this.dat.add(p,"s",-200,200,0.1).onChange(e=>{
+                console.log("e",e)
+                res.scale.set(e, e, e)
+
+            })
+
+            console.log("仙居加载结果", e)
+            this.scene.add(res)
+        })
+    }
     loadModel(){
         let loader = new GLTFLoader()
         let material=new MeshLambertMaterial({color:"#fff"})
@@ -204,7 +239,6 @@ export class GMapRender {
             console.log("模型加载结果", e)
 
             let res = e.scene
-
             res.traverse((item)=>{
                 item.receiveShadow=true
                 item.castShadow=true
@@ -226,9 +260,6 @@ export class GMapRender {
             res.position.x=-176.2
             res.position.y=-20
 
-            this.dat.add(res.position,"x",-500,500,0.1)
-            this.dat.add(res.position,"z",-500,500,0.1)
-            this.dat.add(res.position,"y",-500,500,0.1)
 
             console.log("所在位置",res.position)
             this.scene.add(res)
@@ -241,22 +272,29 @@ export class GMapRender {
         this.scene.add(aLight);
         const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
         directionalLight.castShadow=true
-        directionalLight.position.set(2000,-5000,500)
+        directionalLight.position.set(-268,-431,357)
 
 
         let look=()=> {
             directionalLight.lookAt(
-                -176.2,-20,0)
+                0,0,0)
         }
 
         this.dat.add(directionalLight.position,"x",-3000,3000,0.1).name("灯光x").onChange(()=>{
             console.log("xxx")
             look()
         })
-        this.dat.add(directionalLight.position,"z",-3000,3000,0.1).name("灯光z").onChange()
-        this.dat.add(directionalLight.position,"y",-3000,3000,0.1).name("灯光y").onChange()
+        this.dat.add(directionalLight.position,"z",-3000,3000,0.1).name("灯光z").onChange(()=>{
+            look()
+
+        })
+        this.dat.add(directionalLight.position,"y",-3000,3000,0.1).name("灯光y").onChange(()=>{
+            look()
+
+        })
 
 
+        this.directionalLight=directionalLight
         this.scene.add( directionalLight );
         this.scene.add(new DirectionalLightHelper(directionalLight))
         // this.dat.add(dLight,"itensity",-10,10);
@@ -307,7 +345,7 @@ export class GMapRender {
 
                     this.resize();
 
-                    this.scene.add(new CameraHelper(this.camera))
+                    // this.scene.add(new CameraHelper(this.camera))
 
                     // 自动清空画布这里必须设置为 false，否则地图底图将无法显示
                     this.renderer.autoClear = false;
@@ -372,6 +410,10 @@ export class GMapRender {
             this.mapIns.render();
             this.labelRender?.render(this.scene, this.camera);
             this.lastMapRenderTime = elapsedTime;
+
+            if(this.directionalLight){
+                this.directionalLight.lookAt(new Vector3(0,0,0))
+            }
 
         this.raf = requestAnimationFrame(this.animate.bind(this));
     }

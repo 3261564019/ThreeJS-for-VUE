@@ -2,7 +2,7 @@
   <div class="root">
     <div id="RootContainer"></div>
     <div class="fixed">
-      <button @click="addMarker">动态添加</button>
+<!--      <button @click="addMarker">动态添加</button>-->
     </div>
   </div>
 </template>
@@ -73,7 +73,7 @@ function initMap() {
     console.log(AMap)
 
 
-    let center= [121.40268523905561,28.644147120817046]
+    let center= [120.69242712002945,28.834525004700293]
     // let center= [116.54, 39.79]
 
     mapIns = new AMap.Map("RootContainer", {  //设置地图容器id

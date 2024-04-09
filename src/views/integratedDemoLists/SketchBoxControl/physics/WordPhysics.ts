@@ -43,7 +43,7 @@ export class WordPhysics implements Updatable {
         this.world = world
         // this.addGround()
         //添加物理的调试工具
-        // this.initDebug()
+        this.initDebug()
         //
         let t = {
             change: () => {
@@ -79,7 +79,7 @@ export class WordPhysics implements Updatable {
     render(delta: number, elapsedTime: number) {
         try {
             if (this.needDebug) {
-                // this.debug.update()
+                this.debug.update()
             }
             this.world.step(delta)
         } catch (e) {

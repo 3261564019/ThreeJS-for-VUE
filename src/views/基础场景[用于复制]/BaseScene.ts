@@ -17,6 +17,8 @@ export class BaseScene extends BaseInit {
         this.addLight();
 
         this.addBall();
+
+        this.animate()
     }
     addPlan(){
 

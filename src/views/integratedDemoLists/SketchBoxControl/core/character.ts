@@ -186,6 +186,7 @@ export class Character implements Updatable {
 
                     this.ins.physicsIns.world.addBody(body)
 
+                    t.add(new THREE.AxesHelper(10))
                     this.ins.scene.add(t)
 
 
@@ -341,6 +342,7 @@ export class Character implements Updatable {
                 this.ins.skyLight.update()
             }
 
+            // body.position.y+=3
             //更新旋转和位置
             this.updateMeshBody(body,man)
             this.aControl.render(delta,elapsedTime)

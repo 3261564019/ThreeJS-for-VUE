@@ -178,8 +178,6 @@ export class BaseInit {
         }
         //初始化显示帧率的组件
         this.initStats();
-        //适配屏幕尺寸
-        this.handleResize();
 
         this.scene = scene;
         this.camera = camera;
@@ -188,8 +186,9 @@ export class BaseInit {
         this.renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
         // this.renderer.setPixelRatio(0.1);
 
+        //适配屏幕尺寸
+        this.handleResize();
         console.log("初始化后", this);
-
     }
     //屏幕尺寸发生变化时进行适配，并存储可视区域宽高，用于计算射线
     addScreenReSizeListener() {
