@@ -1,5 +1,13 @@
 import * as THREE from "three";
 import {BaseInit, BaseInitParams} from "../../three/classDefine/baseInit";
+import {
+    ACESFilmicToneMapping,
+    DoubleSide,
+    LinearEncoding, Mesh,
+    MeshLambertMaterial,
+    PlaneGeometry,
+    SphereGeometry, SpotLight
+} from "three";
 
 export class BaseScene extends BaseInit {
     constructor() {
@@ -22,10 +30,10 @@ export class BaseScene extends BaseInit {
     }
     addPlan(){
 
-        const geometry = new THREE.PlaneGeometry(40, 40);
-        const material = new THREE.MeshLambertMaterial({color: 0x222222});
-        material.side=THREE.DoubleSide
-        const plane = new THREE.Mesh(geometry, material);
+        const geometry = new PlaneGeometry(40, 40);
+        const material = new MeshLambertMaterial({color: 0x222222});
+        material.side=DoubleSide
+        const plane = new Mesh(geometry, material);
         //设置接受阴影
         plane.receiveShadow = true
 
@@ -41,7 +49,7 @@ export class BaseScene extends BaseInit {
     addLight(){
 
         //创建聚光灯
-        const light = new THREE.SpotLight("#fff");
+        const light = new SpotLight("#fff");
         light.castShadow = true;            // default false
         light.position.x = 20;
         light.position.y = 30;
@@ -50,9 +58,9 @@ export class BaseScene extends BaseInit {
     }
     addBall(){
 
-        const sphere = new THREE.Mesh(
-            new THREE.SphereGeometry(3, 33, 33),
-            new THREE.MeshLambertMaterial({color: "#fff"})
+        const sphere = new Mesh(
+            new SphereGeometry(3, 33, 33),
+            new MeshLambertMaterial({color: "#fff"})
         );
 
         sphere.position.x = 10;
@@ -63,9 +71,9 @@ export class BaseScene extends BaseInit {
     }
     init() {
 
-        this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        this.renderer.toneMapping = ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = 0.9;
-        this.renderer.outputEncoding = THREE.LinearEncoding;
+        this.renderer.outputEncoding = LinearEncoding;
 
         this.renderer.shadowMap.enabled = true;
         this.camera.position.set(0, 30, 40);
