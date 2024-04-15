@@ -2,12 +2,12 @@ import * as THREE from "three";
 import {
     AmbientLight, AxesHelper,
     CameraHelper,
-    Clock, Color,
+    Clock, Color, DirectionalLight,
     DirectionalLightHelper, Mesh,
     MeshLambertMaterial, MeshPhysicalMaterial,
-    PerspectiveCamera,
+    PerspectiveCamera, Raycaster,
     Scene,
-    TorusKnotGeometry, Vector3,
+    TorusKnotGeometry, Vector2, Vector3,
     WebGLRenderer
 } from "three";
 import {CustomCoords, GMapIns, MakerWithCmp, SetDataParams} from "../types/Gmap";
@@ -27,6 +27,7 @@ import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import {ChildScene} from "./childScene/type/ChildScene";
 import {RGBELoader} from "three/examples/jsm/loaders/RGBELoader";
 import clarens_night_02_4k from "@/assets/hdr/clarens_night_02_4k.hdr?url";
+import {TransformControls} from "three/examples/jsm/controls/TransformControls";
 
 /*
  * 构造自定义图层的参数
@@ -73,6 +74,8 @@ export class GMapRender {
 
     lastMapRenderTime:number
     private directionalLight: DirectionalLight;
+    private transformControl: TransformControls;
+    private raycaster: Raycaster;
 
     constructor(p: GMapMakerParams) {
 
@@ -84,6 +87,7 @@ export class GMapRender {
         this.clock = new Clock();
         this.scene = new THREE.Scene();
         this.dat = new dat.GUI({width: 300});
+        this.raycaster=new Raycaster();
 
         this.boxScene = new RotationBoxScene(this.scene, p.mapIns, this);
 
@@ -147,6 +151,11 @@ export class GMapRender {
                 speed: 220
             }))
 
+            this.initDragControls()
+
+            this.loadXj()
+
+
             this.animate();
 
         })
@@ -158,10 +167,55 @@ export class GMapRender {
         this.createTempMaterial();
 
         // this.loadModel();
+        console.log("1111")
 
-        this.loadXj()
+        this.scene.add(new AxesHelper(200))
 
-        // this.scene.add(new AxesHelper(200))
+    }
+    pointermove(event){
+
+        let pointer=new Vector2()
+
+        pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+        this.raycaster.setFromCamera( pointer,this.camera );
+
+        const intersects = this.raycaster.intersectObjects( this.boxs, false );
+
+        if ( intersects.length > 0 ) {
+
+            const object = intersects[ 0 ].object;
+
+            this.transformControl.attach( object );
+        }
+    }
+    initDragControls(){
+
+        //创建transformControl
+        this.transformControl = new TransformControls( this.camera,this.renderer.domElement );
+        //最小拖动步幅
+        // this.transformControl.translationSnap=1;
+        //设置该控制器的大小
+        this.transformControl.setSize(0.6);
+        // this.transformControl.addEventListener( 'change',()=>{this.manualRender()} );
+        //遍历整个控制器元素并添加标识
+        this.transformControl.traverse(item=>{
+            item.userData.isTransformControl=true
+        })
+
+        this.scene.add(this.transformControl)
+
+        // document.addEventListener( 'pointermove', this.pointermove.bind(this) );
+
+        this.transformControl.addEventListener( 'dragging-changed',  ( event )=>{
+            // this.controls.enabled = ! event.value;
+        });
+
+        this.transformControl.addEventListener( 'objectChange',  ()=>{
+            // this.regenerate()
+        });
+
 
     }
     createTempMaterial(){
@@ -227,6 +281,7 @@ export class GMapRender {
                 res.scale.set(e, e, e)
 
             })
+            this.transformControl.attach( res );
 
             console.log("仙居加载结果", e)
             this.scene.add(res)

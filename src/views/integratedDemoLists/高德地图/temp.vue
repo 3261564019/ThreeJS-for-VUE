@@ -58,12 +58,12 @@ function initMap() {
 
 
 // 动画
-function animate() {
-  stats?.update();
-  requestAnimationFrame(animate);
-}
-
-animate();
+// function animate() {
+//   stats?.update();
+//   requestAnimationFrame(animate);
+// }
+//
+// animate();
 
 onMounted(() => {
   initMap();

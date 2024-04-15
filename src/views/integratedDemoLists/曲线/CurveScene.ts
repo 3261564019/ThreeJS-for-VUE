@@ -98,20 +98,15 @@ export class CurveScene extends BaseInit {
         this.scene.add(this.transformControl)
 
 
-
-
         document.addEventListener( 'pointermove', this.pointermove.bind(this) );
 
-
         this.transformControl.addEventListener( 'dragging-changed',  ( event )=>{
-
             this.control.enabled = ! event.value;
-
         });
 
         this.transformControl.addEventListener( 'objectChange',  ()=>{
            this.regenerate()
-        } );
+        });
 
 
     }
