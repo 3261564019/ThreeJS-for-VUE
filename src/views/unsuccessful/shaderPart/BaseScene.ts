@@ -33,11 +33,11 @@ export class ShaderBaseScene extends BaseInit {
 
         // this.addPoints();
 
-        // this.addBox();
-        this.addBall();
+        this.addBox();
+        // this.addBall();
         // this.addCube();
         this.addDebug();
-        this.loadGltf();
+        // this.loadGltf();
         this.loadEnv()
     }
     loadEnv(){

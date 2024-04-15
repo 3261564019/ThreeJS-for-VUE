@@ -13,6 +13,19 @@
       </div>
     </div>
   </div>
+  <div class="title">
+    Shader案例
+  </div>
+  <div class="item-list">
+    <div class="item" v-for="item in shaderList" @click="to(item)">
+      <img class="cover" :src="item.img" alt="">
+      <div class="info">
+        <span class="name">
+          {{item.name}}
+        </span>
+      </div>
+    </div>
+  </div>
 </div>
 </template>
 
@@ -34,6 +47,9 @@ import shine from "@/assets/img/demo/shine.png";
 import gmap from "@/assets/img/demo/gmap.png";
 import enable3d from "@/assets/img/demo/enable3d.png"
 import SketchBox from "@/assets/img/demo/SketchBox.png"
+
+import mixPic from "@/assets/img/shaderDemo/mixPic.png"
+
 const router=useRouter();
 
 let itemList=[
@@ -99,6 +115,14 @@ let itemList=[
   },
 ];
 
+let shaderList=[
+  {
+    name:"混合图片",
+    img:mixPic,
+    route:"/ShaderDemo1"
+  }
+]
+
 function to(item) {
   console.log(item)
   router.push({path:item.route})
@@ -130,8 +154,11 @@ t.then(()=>{
   .title{
     font-size: 28px;
     font-weight: bold;
+    margin-top: 12px;
+    margin-bottom: 24px;
   }
   .item-list{
+    margin-bottom: 10px;
     flex-wrap: wrap;
     background: var(--black1);
     display: grid;

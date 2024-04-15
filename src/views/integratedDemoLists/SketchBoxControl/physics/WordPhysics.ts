@@ -41,7 +41,7 @@ export class WordPhysics implements Updatable {
         world.solver = solver
 
         this.world = world
-        // this.addGround()
+        this.addGround()
         //添加物理的调试工具
         this.initDebug()
         //
@@ -61,7 +61,7 @@ export class WordPhysics implements Updatable {
     }
 
     addGround() {
-        const floorSize = new CANNON.Vec3(140, 10, 140); // 指定平面的大小
+        const floorSize = new CANNON.Vec3(20, 1, 20); // 指定平面的大小
 
         const floorShape = new CANNON.Box(new CANNON.Vec3(
             floorSize.x * 0.5,
@@ -70,8 +70,8 @@ export class WordPhysics implements Updatable {
         ));
 
         const floorBody = new CANNON.Body({shape: floorShape});
-        floorBody.position.set(0, -5, 0)
-        // floorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI * 0.5);
+        floorBody.position.set(0, 15, -15)
+        floorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI * 0.1);
 
         this.world.addBody(floorBody);
     }

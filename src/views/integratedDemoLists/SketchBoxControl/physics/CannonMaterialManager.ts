@@ -19,7 +19,7 @@ export class CannonMaterialManager {
             character,
             {
                 //摩擦力
-                friction:12,
+                friction:22,
 
                 //回弹力度
                 // restitution:0.2,
