@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory, createWebHistory, RouteRecordRaw } from 'vue-router'
+import {shaderRoute} from "@/router/module/shader";
 
 const routes: Array<RouteRecordRaw> = [
 
@@ -128,7 +129,7 @@ const routes: Array<RouteRecordRaw> = [
         // component: ()=> import("@/views/Other/面试/vue过渡.vue")
         // component: ()=> import("@/views/integratedDemoLists/倾斜投影/index.vue")
         // component: ()=> import("@/views/integratedDemoLists/渲染模型/index.vue")
-        component: ()=> import("@/views/ShaderDemo/基础案例/01/index.vue")
+        component: ()=> import("@/views/ShaderDemo/基础案例/03/index.vue")
         // component: ()=> import("@/views/integratedDemoLists/bvh/index.vue")
         // component: ()=> import("@/views/integratedDemoLists/场景练习/sceneDemo.vue")
         // component: ()=> import("@/views/enable3d/index.vue")
@@ -145,15 +146,8 @@ const routes: Array<RouteRecordRaw> = [
         path: '/SketchBoxControl',
         name: 'SketchBoxControl',
         component: ()=> import("@/views/integratedDemoLists/SketchBoxControl/index.vue")
-    },{
-        path: '/ShaderDemo1',
-        name: 'ShaderDemo1',
-        component: ()=> import("@/views/ShaderDemo/基础案例/01/index.vue")
-    },{
-        path: '/ShaderDemo2',
-        name: 'ShaderDemo2',
-        component: ()=> import("@/views/ShaderDemo/基础案例/02/index.vue")
     },
+    ...shaderRoute
     // ,{
     //     path: '/routerView',
     //     name: 'RouterView',

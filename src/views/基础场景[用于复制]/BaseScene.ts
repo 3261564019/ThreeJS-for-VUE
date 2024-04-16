@@ -1,4 +1,4 @@
-import {BaseInit, BaseInitParams} from "@/three/classDefine/baseInit";
+
 import {
     ACESFilmicToneMapping,
     DoubleSide, LinearEncoding,
@@ -8,6 +8,7 @@ import {
     SphereGeometry,
     SpotLight
 } from "three";
+import {BaseInit, BaseInitParams} from "@/three/classDefine/baseInit";
 
 export class BaseScene extends BaseInit {
     constructor() {

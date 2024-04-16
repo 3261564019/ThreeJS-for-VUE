@@ -49,6 +49,8 @@ import enable3d from "@/assets/img/demo/enable3d.png"
 import SketchBox from "@/assets/img/demo/SketchBox.png"
 
 import mixPic from "@/assets/img/shaderDemo/mixPic.png"
+import shader1 from "@/assets/img/shaderDemo/1.png"
+import shader3 from "@/assets/img/shaderDemo/3.png"
 
 const router=useRouter();
 
@@ -120,7 +122,15 @@ let shaderList=[
     name:"混合图片",
     img:mixPic,
     route:"/ShaderDemo1"
-  }
+  },{
+    name:"随机顶点",
+    img:shader1,
+    route:"/ShaderDemo2"
+  },{
+    name:"",
+    img:shader3,
+    route:"/ShaderDemo3"
+  },
 ]
 
 function to(item) {
