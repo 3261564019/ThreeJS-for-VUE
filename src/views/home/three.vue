@@ -51,6 +51,8 @@ import SketchBox from "@/assets/img/demo/SketchBox.png"
 import mixPic from "@/assets/img/shaderDemo/mixPic.png"
 import shader1 from "@/assets/img/shaderDemo/1.png"
 import shader3 from "@/assets/img/shaderDemo/3.png"
+import shader4 from "@/assets/img/shaderDemo/4.png"
+import shader5 from "@/assets/img/shaderDemo/5.png"
 
 const router=useRouter();
 
@@ -127,9 +129,17 @@ let shaderList=[
     img:shader1,
     route:"/ShaderDemo2"
   },{
-    name:"",
+    name:"乘法",
     img:shader3,
     route:"/ShaderDemo3"
+  },{
+    name:"取余",
+    img:shader4,
+    route:"/ShaderDemo4"
+  },{
+    name:"Step",
+    img:shader5,
+    route:"/ShaderDemo5"
   },
 ]
 
