@@ -53,6 +53,14 @@ import shader1 from "@/assets/img/shaderDemo/1.png"
 import shader3 from "@/assets/img/shaderDemo/3.png"
 import shader4 from "@/assets/img/shaderDemo/4.png"
 import shader5 from "@/assets/img/shaderDemo/5.png"
+import shader7 from "@/assets/img/shaderDemo/7.png"
+import shader8 from "@/assets/img/shaderDemo/8.png"
+import shader9 from "@/assets/img/shaderDemo/9.png"
+import shader10 from "@/assets/img/shaderDemo/10.png"
+import shader11 from "@/assets/img/shaderDemo/11.png"
+import shader12 from "@/assets/img/shaderDemo/12.png"
+import shader13 from "@/assets/img/shaderDemo/13.png"
+import shader14 from "@/assets/img/shaderDemo/14.png"
 
 const router=useRouter();
 
@@ -140,7 +148,35 @@ let shaderList=[
     name:"Step",
     img:shader5,
     route:"/ShaderDemo5"
-  },
+  },{
+    name:"abs",
+    img:shader7,
+    route:"/ShaderDemo7"
+  },{
+    name:"pattern8",
+    img:shader8,
+    route:"/ShaderDemo8"
+  },{
+    name:"pattern9",
+    img:shader9,
+    route:"/ShaderDemo9"
+  },{
+    name:"pattern10",
+    img:shader10,
+    route:"/ShaderDemo10"
+  },{
+    name:"pattern11",
+    img:shader11,
+    route:"/ShaderDemo11"
+  },{
+    name:"pattern12",
+    img:shader12,
+    route:"/ShaderDemo12"
+  },{
+    name:"pattern14",
+    img:shader14,
+    route:"/ShaderDemo14"
+  }
 ]
 
 function to(item) {
