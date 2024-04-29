@@ -17,6 +17,7 @@ void main() {
     **/
     float x=floor(vUv.x*10.0);
     float y=floor(vUv.y*10.0);
+//    float y=floor(vUv.y*10.0 * vUv.x + 2.0);
 
 //    新图像
 //    vec3 color = vec3(min(x,y));

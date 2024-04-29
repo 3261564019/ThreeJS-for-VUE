@@ -61,6 +61,12 @@ import shader11 from "@/assets/img/shaderDemo/11.png"
 import shader12 from "@/assets/img/shaderDemo/12.png"
 import shader13 from "@/assets/img/shaderDemo/13.png"
 import shader14 from "@/assets/img/shaderDemo/14.png"
+import shader15 from "@/assets/img/shaderDemo/15.png"
+import shader16 from "@/assets/img/shaderDemo/16.png"
+import shader17 from "@/assets/img/shaderDemo/17.png"
+import shader18 from "@/assets/img/shaderDemo/18.png"
+import shader19 from "@/assets/img/shaderDemo/19.png"
+import shader20 from "@/assets/img/shaderDemo/20.png"
 
 const router=useRouter();
 
@@ -176,6 +182,34 @@ let shaderList=[
     name:"pattern14",
     img:shader14,
     route:"/ShaderDemo14"
+  },{
+    name:"pattern13",
+    img:shader13,
+    route:"/ShaderDemo13"
+  },{
+    name:"pattern15",
+    img:shader15,
+    route:"/ShaderDemo15"
+  },{
+    name:"pattern16",
+    img:shader16,
+    route:"/ShaderDemo16"
+  },{
+    name:"pattern17",
+    img:shader17,
+    route:"/ShaderDemo17"
+  },{
+    name:"pattern18",
+    img:shader18,
+    route:"/ShaderDemo18"
+  },{
+    name:"pattern19",
+    img:shader19,
+    route:"/ShaderDemo19"
+  },{
+    name:"pattern20",
+    img:shader20,
+    route:"/ShaderDemo20"
   }
 ]
 
