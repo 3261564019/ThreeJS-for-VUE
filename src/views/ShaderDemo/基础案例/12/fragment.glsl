@@ -1,6 +1,5 @@
 varying vec2 vUv;
 
-
 bool inRange(float value, float min, float max) {
     return value >= min && value <= max;
 }

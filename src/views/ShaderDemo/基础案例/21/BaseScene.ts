@@ -14,7 +14,7 @@ export class BaseScene extends BaseInit {
         super({
             needLight:false,
             needOrbitControls:true,
-            needAxesHelper:true,
+            needAxesHelper:false,
             renderDomId:"#shaderRoot",
             transparentRenderBg:true
         } as BaseInitParams);

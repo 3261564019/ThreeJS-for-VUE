@@ -67,6 +67,12 @@ import shader17 from "@/assets/img/shaderDemo/17.png"
 import shader18 from "@/assets/img/shaderDemo/18.png"
 import shader19 from "@/assets/img/shaderDemo/19.png"
 import shader20 from "@/assets/img/shaderDemo/20.png"
+import shader21 from "@/assets/img/shaderDemo/21.png"
+import shader22 from "@/assets/img/shaderDemo/22.png"
+import shader23 from "@/assets/img/shaderDemo/23.png"
+import shader24 from "@/assets/img/shaderDemo/24.png"
+import shader25 from "@/assets/img/shaderDemo/25.png"
+import ragingSea from "@/assets/img/shaderDemo/ragingSea.png"
 
 const router=useRouter();
 
@@ -130,6 +136,10 @@ let itemList=[
     name:"SketchBox",
     img:SketchBox,
     route:"/SketchBoxControl"
+  },{
+    name:"RagingSea",
+    img:ragingSea,
+    route:"/ragingSea"
   },
 ];
 
@@ -210,6 +220,26 @@ let shaderList=[
     name:"pattern20",
     img:shader20,
     route:"/ShaderDemo20"
+  },{
+    name:"pattern21",
+    img:shader21,
+    route:"/ShaderDemo21"
+  },{
+    name:"pattern22",
+    img:shader22,
+    route:"/ShaderDemo22"
+  },{
+    name:"pattern23",
+    img:shader23,
+    route:"/ShaderDemo23"
+  },{
+    name:"pattern24",
+    img:shader24,
+    route:"/ShaderDemo24"
+  },{
+    name:"pattern25",
+    img:shader25,
+    route:"/ShaderDemo25"
   }
 ]
 

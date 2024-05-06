@@ -1,6 +1,12 @@
-let shaderRoute=[]
+let shaderRoute=[
+    {
+        path: '/ragingSea',
+        name: 'ragingSea',
+        component: ()=> import(`@/views/ShaderDemo/ragingSea/index.vue`)
+    }
+]
 
-for (let i=1;i<=22;i++){
+for (let i=1;i<=35;i++){
     let num= (i+'').padStart(2,"0")
     shaderRoute.push(
         {

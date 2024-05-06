@@ -4,13 +4,17 @@
   </div>
 </template>
 <script setup lang="ts">
-import {onMounted} from "vue";
+import {onMounted, onUnmounted} from "vue";
 import {BaseScene} from "./BaseScene";
 
 let ins;
 
 onMounted(()=>{
   ins=new BaseScene()
+})
+
+onUnmounted(()=>{
+  ins.destroy()
 })
 </script>
 <script lang="ts">
