@@ -256,7 +256,6 @@ export class BaseInit {
     destroy(){
         try {
             cancelAnimationFrame(this.raf);
-
             this.dat.destroy()
             this.stats.domElement.parentNode.removeChild(this.stats.domElement);
             this.renderer.forceContextLoss();

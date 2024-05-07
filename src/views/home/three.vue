@@ -53,6 +53,26 @@ import shader1 from "@/assets/img/shaderDemo/1.png"
 import shader3 from "@/assets/img/shaderDemo/3.png"
 import shader4 from "@/assets/img/shaderDemo/4.png"
 import shader5 from "@/assets/img/shaderDemo/5.png"
+import shader7 from "@/assets/img/shaderDemo/7.png"
+import shader8 from "@/assets/img/shaderDemo/8.png"
+import shader9 from "@/assets/img/shaderDemo/9.png"
+import shader10 from "@/assets/img/shaderDemo/10.png"
+import shader11 from "@/assets/img/shaderDemo/11.png"
+import shader12 from "@/assets/img/shaderDemo/12.png"
+import shader13 from "@/assets/img/shaderDemo/13.png"
+import shader14 from "@/assets/img/shaderDemo/14.png"
+import shader15 from "@/assets/img/shaderDemo/15.png"
+import shader16 from "@/assets/img/shaderDemo/16.png"
+import shader17 from "@/assets/img/shaderDemo/17.png"
+import shader18 from "@/assets/img/shaderDemo/18.png"
+import shader19 from "@/assets/img/shaderDemo/19.png"
+import shader20 from "@/assets/img/shaderDemo/20.png"
+import shader21 from "@/assets/img/shaderDemo/21.png"
+import shader22 from "@/assets/img/shaderDemo/22.png"
+import shader23 from "@/assets/img/shaderDemo/23.png"
+import shader24 from "@/assets/img/shaderDemo/24.png"
+import shader25 from "@/assets/img/shaderDemo/25.png"
+import ragingSea from "@/assets/img/shaderDemo/ragingSea.png"
 
 const router=useRouter();
 
@@ -116,6 +136,10 @@ let itemList=[
     name:"SketchBox",
     img:SketchBox,
     route:"/SketchBoxControl"
+  },{
+    name:"RagingSea",
+    img:ragingSea,
+    route:"/ragingSea"
   },
 ];
 
@@ -140,7 +164,83 @@ let shaderList=[
     name:"Step",
     img:shader5,
     route:"/ShaderDemo5"
-  },
+  },{
+    name:"abs",
+    img:shader7,
+    route:"/ShaderDemo7"
+  },{
+    name:"pattern8",
+    img:shader8,
+    route:"/ShaderDemo8"
+  },{
+    name:"pattern9",
+    img:shader9,
+    route:"/ShaderDemo9"
+  },{
+    name:"pattern10",
+    img:shader10,
+    route:"/ShaderDemo10"
+  },{
+    name:"pattern11",
+    img:shader11,
+    route:"/ShaderDemo11"
+  },{
+    name:"pattern12",
+    img:shader12,
+    route:"/ShaderDemo12"
+  },{
+    name:"pattern14",
+    img:shader14,
+    route:"/ShaderDemo14"
+  },{
+    name:"pattern13",
+    img:shader13,
+    route:"/ShaderDemo13"
+  },{
+    name:"pattern15",
+    img:shader15,
+    route:"/ShaderDemo15"
+  },{
+    name:"pattern16",
+    img:shader16,
+    route:"/ShaderDemo16"
+  },{
+    name:"pattern17",
+    img:shader17,
+    route:"/ShaderDemo17"
+  },{
+    name:"pattern18",
+    img:shader18,
+    route:"/ShaderDemo18"
+  },{
+    name:"pattern19",
+    img:shader19,
+    route:"/ShaderDemo19"
+  },{
+    name:"pattern20",
+    img:shader20,
+    route:"/ShaderDemo20"
+  },{
+    name:"pattern21",
+    img:shader21,
+    route:"/ShaderDemo21"
+  },{
+    name:"pattern22",
+    img:shader22,
+    route:"/ShaderDemo22"
+  },{
+    name:"pattern23",
+    img:shader23,
+    route:"/ShaderDemo23"
+  },{
+    name:"pattern24",
+    img:shader24,
+    route:"/ShaderDemo24"
+  },{
+    name:"pattern25",
+    img:shader25,
+    route:"/ShaderDemo25"
+  }
 ]
 
 function to(item) {
