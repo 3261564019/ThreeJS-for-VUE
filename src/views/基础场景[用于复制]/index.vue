@@ -6,7 +6,7 @@
 
 <script setup>
 import {onMounted, onUnmounted} from "vue";
-import {BaseScene} from "@/views/基础场景[用于复制]/BaseScene";
+import {BaseScene} from "./BaseScene";
 
 let ins;
 

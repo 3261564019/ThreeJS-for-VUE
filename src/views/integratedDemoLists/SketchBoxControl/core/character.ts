@@ -1,7 +1,16 @@
 import {SketchBoxScene} from "../SketchBoxScene";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import boxMan from "@/assets/model/box_man.glb?url";
-import {AnimationAction, AnimationMixer, Color, MathUtils, Object3D, Quaternion, Vector3} from "three";
+import {
+    AnimationAction,
+    AnimationMixer,
+    Color,
+    MathUtils, Mesh,
+    MeshLambertMaterial,
+    Object3D,
+    Quaternion, SphereGeometry,
+    Vector3
+} from "three";
 import {KeyAction, Updatable} from "../type";
 import * as CANNON from "cannon-es";
 // @ts-ignore
@@ -9,7 +18,7 @@ import {threeToCannon} from "./three-to-cannon.js"
 import {ThirdPersonControls} from "./thirdPersonControls";
 import {PointerDrag} from "enable3d";
 import * as THREE from "three";
-import {createBoxManBody} from "../hooks/body/character";
+import {createBoxManBody, threeVector} from "../hooks/body/character";
 import {captureBoxMan} from "../hooks/mesh/character";
 import {AnimationControl} from "./animationControl";
 import {timeOut} from "../../../../utils";
@@ -40,7 +49,11 @@ export class Character implements Updatable {
     private aControl:AnimationControl
     //是否初始化完成，可以进行渲染
     private initEd:Boolean
-
+    public rayResult: CANNON.RaycastResult = new CANNON.RaycastResult();
+    public rayCastLength: number = 0.37;
+    public raySafeOffset: number = 0.03;
+    public rayHasHit: boolean = false;
+    public rayCastBoxVisible: boolean = true;
 
     //是否能进行跳跃为false代表正在播放跳跃的动画
     public canJump: boolean=true;
@@ -50,11 +63,13 @@ export class Character implements Updatable {
     private sleeping:Boolean=false
     //起跳时，是否同时有按方向键
     private jumpMove:boolean|null=null
+    private rayCastMesh: Mesh<SphereGeometry, MeshLambertMaterial>;
 
     constructor(ins: SketchBoxScene) {
         this.ins = ins
         this.moveTop = 0
         this.moveRight = 0
+        this.addTestBox()
         this.addKeys()
     }
     addKeys(){
@@ -127,22 +142,25 @@ export class Character implements Updatable {
         return this.move
     }
     calcCharacterRotation(){
-        //拿到人物朝向
-        const characterDirection = new THREE.Vector3();
-        this.current.mesh.getWorldDirection(characterDirection);
-        //拿到相机朝向
-        const cameraDirection = new THREE.Vector3();
-        this.ins.camera.getWorldDirection(cameraDirection);
-        //归一化
-        cameraDirection.setY(0).normalize();
-        characterDirection.setY(0).normalize();
+        try {
+            //拿到人物朝向
+            const characterDirection = new THREE.Vector3();
+            this.current.mesh.getWorldDirection(characterDirection);
+            //拿到相机朝向
+            const cameraDirection = new THREE.Vector3();
+            this.ins.camera.getWorldDirection(cameraDirection);
+            //归一化
+            cameraDirection.setY(0).normalize();
+            characterDirection.setY(0).normalize();
 
-        //相机的朝向加上按键指向的方向的偏移
-        cameraDirection.applyAxisAngle(new Vector3(0,1,0), this.directionOffset())
-        //通过偏移量拿到人物应该旋转的下角度
-        let angle=this.getAngle(cameraDirection.x,cameraDirection.z)
-        this.forwardQuaternion=new Quaternion().setFromAxisAngle(new Vector3(0,1,0),angle)
-
+            //相机的朝向加上按键指向的方向的偏移
+            cameraDirection.applyAxisAngle(new Vector3(0, 1, 0), this.directionOffset())
+            //通过偏移量拿到人物应该旋转的下角度
+            let angle = this.getAngle(cameraDirection.x, cameraDirection.z)
+            this.forwardQuaternion = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), angle)
+        }catch (e) {
+            console.log("没相机？",e)
+        }
     }
     getAngle(z:number, x:number) {
         let angle = Math.atan2(z, x);
@@ -243,13 +261,98 @@ export class Character implements Updatable {
 
         })
     }
+    public feetRayCast(){
+        // Create ray
+        let body = this.current.body;
+        const start = new CANNON.Vec3(body.position.x, body.position.y, body.position.z);
+        const end = new CANNON.Vec3(body.position.x, body.position.y - this.rayCastLength - this.raySafeOffset, body.position.z);
+        // Raycast options
+        const rayCastOptions = {
+            skipBackfaces: true      /* ignore back faces */
+        };
+        // Cast the ray
+        this.rayHasHit = this.ins.physicsIns.world.raycastClosest(start, end, rayCastOptions, this.rayResult);
+    }
+    physicsPreStep(){
+        this.feetRayCast()
+
+        // Raycast debug
+        if (this.rayHasHit)
+        {
+            if (this.rayCastBoxVisible) {
+                this.rayCastMesh.position.x = this.rayResult.hitPointWorld.x;
+                this.rayCastMesh.position.y = this.rayResult.hitPointWorld.y;
+                this.rayCastMesh.position.z = this.rayResult.hitPointWorld.z;
+            }
+        }
+        else
+        {
+            if (this.rayCastBoxVisible) {
+                let body=this.current.body
+                this.rayCastMesh.position.set(body.position.x, body.position.y - this.rayCastLength - this.raySafeOffset, body.position.z);
+            }
+        }
+    }
+    physicsPostStep(delta:number){
+
+        let body=this.current.body;
+        // 获取当前物体的加速度
+        let simulatedVelocity = new THREE.Vector3(body.velocity.x, body.velocity.y, body.velocity.z);
+
+        let newVelocity = new THREE.Vector3();
+
+        newVelocity.copy(simulatedVelocity);
+
+        if (this.rayHasHit)
+        {
+            // Flatten velocity
+            // newVelocity.y = 0;
+            //
+            // let rb=this.rayResult.body!;
+            // // Move on top of moving objects
+            // if (rb.mass > 0)
+            // {
+            //     let pointVelocity = new CANNON.Vec3();
+            //     rb.getVelocityAtWorldPoint(this.rayResult.hitPointWorld, pointVelocity);
+            //     newVelocity.add(threeVector(pointVelocity));
+            // }
+            //
+            // // Measure the normal vector offset from direct "up" vector
+            // // and transform it into a matrix
+            // let up = new THREE.Vector3(0, 1, 0);
+            // let normal = new THREE.Vector3(this.rayResult.hitNormalWorld.x, this.rayResult.hitNormalWorld.y, this.rayResult.hitNormalWorld.z);
+            // let q = new THREE.Quaternion().setFromUnitVectors(up, normal);
+            // let m = new THREE.Matrix4().makeRotationFromQuaternion(q);
+            //
+            // // Rotate the velocity vector
+            // newVelocity.applyMatrix4(m);
+
+            // Compensate for gravity
+            // newVelocity.y -= body.world.physicsWorld.gravity.y / body.this.world.physicsFrameRate;
+
+            // Apply velocity
+            body.velocity.x = newVelocity.x;
+            body.velocity.y = 0;
+            body.velocity.z = newVelocity.z;
+            console.log("this.rayResult",this.rayResult)
+            console.log("body.position",body.position)
+            // Ground character
+            body.position.y = this.rayResult.hitPointWorld.y + this.rayCastLength ;
+        }else{
+                // If we're in air
+                body.velocity.x = newVelocity.x;
+                body.velocity.y = newVelocity.y;
+                body.velocity.z = newVelocity.z;
+        }
+
+    }
     addTestBox(p:Vector3,color:string){
         const sphere = new THREE.Mesh(
             new THREE.SphereGeometry(0.1, 33, 33),
             new THREE.MeshLambertMaterial({color:new Color("#f00")})
         );
-        sphere.castShadow = true
-        sphere.position.copy(p)
+        // sphere.castShadow = true
+        this.rayCastMesh=sphere;
         this.ins.scene.add(sphere);
     }
     setRotation(rad:number){
@@ -339,7 +442,6 @@ export class Character implements Updatable {
                     man.getWorldDirection(this.velocityQuaternion)
                     man.quaternion.rotateTowards(this.forwardQuaternion,delta*10)
                 }
-                this.ins.skyLight.update()
             }
 
             // body.position.y+=3

@@ -1,8 +1,7 @@
 import * as CANNON from "cannon-es";
-import {MathUtils} from "three";
+import {MathUtils, Vector3} from "three";
 
-/**
- * 创建角色刚体
+/** * 创建角色刚体
  */
 export function createBoxManBody(){
 
@@ -15,8 +14,8 @@ export function createBoxManBody(){
     const Sphere = new CANNON.Sphere(radius);
 
     const body = new CANNON.Body({
-        mass: 1, // 质量
-        position: new CANNON.Vec3(0, 15.5, 0), // 位置
+        mass: 140, // 质量
+        position: new CANNON.Vec3(0, 15.6, 0), // 位置
     });
 
     //圆柱体向前倾斜以便更好模拟任务形态
@@ -31,4 +30,9 @@ export function createBoxManBody(){
 
 
     return body
+}
+
+export function threeVector(vec: CANNON.Vec3):Vector3
+{
+    return new Vector3(vec.x, vec.y, vec.z);
 }

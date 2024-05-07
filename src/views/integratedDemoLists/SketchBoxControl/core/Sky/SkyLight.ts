@@ -75,17 +75,29 @@ export class SkyLight extends Object3D
         // this.hemiLight.position.set( 0, 50, 0 );
         this.SketchBoxScene.scene.add( this.hemiLight );
 
+
+
         this.csm = new CSM({
-            maxFar: 60,	// maxFar
+            fov: 80,
+            far: 250,	// maxFar
             lightIntensity: 2.5,
-            //阴影级联的数量
-            cascades: 4,
-            shadowMapSize: 1024,
+            cascades: 3,
+            shadowMapSize: 2048,
             camera: SketchBoxScene.camera,
             parent: SketchBoxScene.scene,
-            mode: 'practical',
-            fade:true,
-            // customSplitsCallback: splitsCallback
+            mode: 'custom',
+            fade:false,
+            customSplitsCallback: (amount, near, far) =>
+            {
+                let arr = [];
+
+                for (let i = amount - 1; i >= 0; i--)
+                {
+                    arr.push(Math.pow(1 / 4, i));
+                }
+
+                return arr;
+            }
         });
 
         this.refreshSunPosition();

@@ -108,10 +108,15 @@ export class SketchBoxScene extends BaseInit {
             let elapsedTime=this.clock.getElapsedTime()
             this.renderer.render(this.scene, this.camera);
             this.stats.update()
+
+            //物理世界渲染前
+            // this.characterIns.physicsPreStep();
             this.physicsIns.render(delta,elapsedTime)
+            // this.characterIns.physicsPostStep()
+
             this.characterIns.render(delta,elapsedTime)
             this.waterIns.render(delta,elapsedTime)
-            // this.skyLight.update()
+            this.skyLight.update()
             requestAnimationFrame(this.animate.bind(this));
         }catch (e) {
             // @ts-ignore

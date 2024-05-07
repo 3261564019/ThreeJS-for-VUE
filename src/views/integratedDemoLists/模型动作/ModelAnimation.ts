@@ -9,7 +9,8 @@ import {load} from "@amap/amap-jsapi-loader";
 import girl from "@/assets/model/111.gltf?url"
 import boxMan from "@/assets/model/box_man.glb?url"
 import test from "@/assets/model/bart.glb?url"
-
+import tree from "@/assets/model/tree.glb?url"
+import {DRACOLoader} from "three/examples/jsm/loaders/DRACOLoader";
 
 function clone( source:any ) {
 
@@ -155,13 +156,26 @@ export class ModelAnimation extends BaseInit {
 
     }
     loadAnimation(){
-        const loader = new GLTFLoader(); 
-        loader.load(test,(res)=>{
+        const loader = new GLTFLoader();
+        const dracoLoader = new DRACOLoader(); //
+
+        /*
+            设置dracoLoader路径
+            https://www.gstatic.com/draco/versioned/decoders/[version]/
+            https://www.gstatic.com/draco/versioned/decoders/1.5.6/
+            版本号来自 ★ 非常重要 https://github.com/google/draco/tree/master
+        */
+        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+        dracoLoader.setDecoderConfig({ type: 'js' }); //使用js方式解压
+        dracoLoader.preload(); //初始化_initDecoder 解码器
+        loader.setDRACOLoader(dracoLoader); //gltfloader使用dracoLoader
+
+        loader.load(tree,(res)=>{
             console.log("模型对象res",res)
-            this.tempMixer =new AnimationMixer(res.scene);
-            let action1=this.tempMixer.clipAction(res.animations[2])
-            action1.play()
-            res.scene.position.y=0
+            // this.tempMixer =new AnimationMixer(res.scene);
+            // let action1=this.tempMixer.clipAction(res.animations[2])
+            // action1.play()
+            // res.scene.position.y=0
             this.scene.add(res.scene)
         })
 

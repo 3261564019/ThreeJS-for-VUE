@@ -71,7 +71,7 @@ export class WordPhysics implements Updatable {
 
         const floorBody = new CANNON.Body({shape: floorShape});
         floorBody.position.set(0, 15, -15)
-        floorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI * 0.1);
+        floorBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI * 0.07);
 
         this.world.addBody(floorBody);
     }

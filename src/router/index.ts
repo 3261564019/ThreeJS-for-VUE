@@ -8,6 +8,10 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/views/home/three.vue")
     },
     {
+        path: "/main",
+        component: () => import("@/views/integratedDemoLists/遮挡dom/index.vue")
+    },
+    {
         path: '/cubeDemo',
         name: 'cubeDemo',
         component: ()=> import("../views/integratedDemoLists/射线可见/cubeDemo.vue")
