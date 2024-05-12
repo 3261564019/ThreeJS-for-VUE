@@ -18,11 +18,15 @@ export class WordPhysics implements Updatable {
     world: CANNON.World
     //主类的引用
     ins: SketchBoxScene
-    debug: any
-    //是否需要调试
-    needDebug: boolean = true
+    //@ts-ignore
+    debug: CannonDebugger
     //CannonMaterialManager
     cmm: CannonMaterialManager;
+    //调试用的数据
+    debugData={
+        //是否需要调试
+        needDebug:true
+    }
 
     constructor(ins: SketchBoxScene) {
         this.ins = ins
@@ -30,9 +34,7 @@ export class WordPhysics implements Updatable {
         world.gravity.set(0, -9.820, 0);
         world.broadphase = new CANNON.SAPBroadphase(world);
         world.allowSleep = true;
-
         this.cmm=new CannonMaterialManager(world)
-
         /**
          * GSSolver（Gauss-Seidel Solver）是一种用于解决刚体间接触约束的求解器。它主要用于处理物体之间的碰撞和接触问题。
          */
@@ -43,16 +45,13 @@ export class WordPhysics implements Updatable {
         this.world = world
         this.addGround()
         //添加物理的调试工具
-        this.initDebug()
-        //
-        let t = {
-            change: () => {
-                this.needDebug = !this.needDebug
-
-                console.log(this.needDebug)
-            }
+        if(this.debugData.needDebug){
+            this.initDebug()
         }
-        // this.ins.dat.add(t, "change").name("切换物理调试")
+
+        // this.ins.dat.add(this.debugData, "needDebug").name("调试模式").onChange((e)=>{
+        //     console.log("eee",this.debugData)
+        // })
     }
 
     initDebug() {
@@ -78,7 +77,7 @@ export class WordPhysics implements Updatable {
 
     render(delta: number, elapsedTime: number) {
         try {
-            if (this.needDebug) {
+            if (this.debugData.needDebug) {
                 this.debug.update()
             }
             this.world.step(delta)

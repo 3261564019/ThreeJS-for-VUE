@@ -256,8 +256,11 @@ export class BaseInit {
     destroy(){
         try {
             cancelAnimationFrame(this.raf);
-            this.dat.destroy()
-            this.stats.domElement.parentNode.removeChild(this.stats.domElement);
+            try{
+                this.stats.domElement.parentNode.removeChild(this.stats.domElement);
+            }catch (e) {
+
+            }
             this.renderer.forceContextLoss();
             this.renderer.dispose();
             this.scene.clear();

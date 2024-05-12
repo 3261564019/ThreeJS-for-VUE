@@ -34,7 +34,6 @@ export class SketchBoxScene extends BaseInit {
         this.physicsIns=new WordPhysics(this)
         this.characterIns=new Character(this)
         this.skyLight=new SkyLight(this)
-
         this.renderer.physicallyCorrectLights=true
 
         this.addDebug()
@@ -110,7 +109,7 @@ export class SketchBoxScene extends BaseInit {
             this.stats.update()
 
             //物理世界渲染前
-            // this.characterIns.physicsPreStep();
+            this.characterIns.physicsPreStep();
             this.physicsIns.render(delta,elapsedTime)
             // this.characterIns.physicsPostStep()
 

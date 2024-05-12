@@ -50,7 +50,7 @@ export class Character implements Updatable {
     //是否初始化完成，可以进行渲染
     private initEd:Boolean
     public rayResult: CANNON.RaycastResult = new CANNON.RaycastResult();
-    public rayCastLength: number = 0.37;
+    public rayCastLength: number = 0.27;
     public raySafeOffset: number = 0.03;
     public rayHasHit: boolean = false;
     public rayCastBoxVisible: boolean = true;
@@ -120,6 +120,12 @@ export class Character implements Updatable {
             }
 
             this.checkMove()
+
+            //没用按任何方向键的情况下进行清空
+            // if(!isDown && !this.move && this.canJump){
+            //     this.clean()
+            // }
+
             /**
              * 如果键盘松开时没有在移动，也不在跳跃过程中需要执行stop动画
              */
@@ -346,9 +352,9 @@ export class Character implements Updatable {
         }
 
     }
-    addTestBox(p:Vector3,color:string){
+    addTestBox(){
         const sphere = new THREE.Mesh(
-            new THREE.SphereGeometry(0.1, 33, 33),
+            new THREE.SphereGeometry(0.04, 33, 33),
             new THREE.MeshLambertMaterial({color:new Color("#f00")})
         );
         // sphere.castShadow = true
@@ -419,7 +425,6 @@ export class Character implements Updatable {
             //滞空或者行走时施加速度
             if(this.move || !this.canJump){
                 let scale=5
-
                 //如果在跳跃,力度需要小一些
                 if(!this.canJump){
                     scale=2
@@ -430,9 +435,12 @@ export class Character implements Updatable {
                 if(!this.jumpMove){
                     scale=0
                 }
-
                 body.velocity.z=this.velocityQuaternion.z*scale
                 body.velocity.x=this.velocityQuaternion.x*scale
+            }else{
+                if(this.rayHasHit){
+                    this.clean()
+                }
             }
 
             //如果有计算得出的人物朝向，并且有在按方向键，人物需要转向方向键的方向
@@ -482,14 +490,39 @@ export class Character implements Updatable {
             // force.z -= moveForce;
         }
     }
+    private clean(){
+        let body=this.current.body
+        // body.force.set(0, 0, 0);
+        // body.torque.set(0, 0, 0);
+        // body.velocity.set(0, 0, 0);
+        // body.angularVelocity.set(0, 0, 0);
 
+        // 保留 y 方向上的力，清除其他方向上的力
+        // body.force.set(0, body.force.y, 0);
+        // body.torque.set(0, body.torque.y, 0);
+        // body.velocity.set(0, body.velocity.y, 0);
+        // body.angularVelocity.set(0, body.angularVelocity.y, 0);
+
+
+        body.force.set(0, 0, 0);
+        body.torque.set(0, 0, 0);
+        body.velocity.set(0,MathUtils.lerp(body.velocity.y,0,0.8), 0);
+        body.angularVelocity.set(0, 0, 0);
+
+        console.log("清空")
+    }
     private addDebug() {
 
         let p={
-            jump:()=>{
-                this.jump()
+            clean:()=>{
+                // this.jump()
+                this.clean();
+            },
+            logPosition:()=>{
+                console.log(this.current.mesh.position)
             }
         }
-        this.ins.dat.add(p,"jump").name("跳跃")
+        this.ins.dat.add(p,"clean").name("清空应力")
+        this.ins.dat.add(p,"logPosition").name("当前位置")
     }
 }
