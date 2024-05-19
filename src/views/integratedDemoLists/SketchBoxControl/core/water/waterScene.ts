@@ -34,8 +34,9 @@ export class WaterScene implements Updatable {
         let uniforms=this.water.material.uniforms
         uniforms.size.value=4.2
         uniforms.distortionScale.value=0.5
-        ins.dat.skyLight.add(uniforms.size,"value", 0.1, 10, 0.1 ).name( '水面缩放' );
-        ins.dat.skyLight.add(uniforms.distortionScale,"value", 0.1, 10, 0.1 ).name( 'distortionScale' );
+        // ins.dat.skyLight.add(uniforms.size,"value", 0.1, 10, 0.1 ).name( '水面缩放' );
+        // ins.dat.skyLight.add(uniforms.distortionScale,"value", 0.1, 10, 0.1 ).name( 'distortionScale' );
+
 
 
         this.water.rotation.x = - Math.PI / 2;

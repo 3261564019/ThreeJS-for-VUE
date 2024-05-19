@@ -1,5 +1,5 @@
 import {
-    ACESFilmicToneMapping,
+    ACESFilmicToneMapping, BoxGeometry,
     DoubleSide,
     LinearEncoding,
     Mesh,
@@ -10,6 +10,10 @@ import {
 import {BaseInit, BaseInitParams} from "@/three/classDefine/baseInit";
 
 export class BaseScene extends BaseInit {
+
+    private plane: Mesh<PlaneGeometry, MeshLambertMaterial>
+    box: Mesh<BoxGeometry, MeshLambertMaterial>;
+
     constructor() {
         super({
             needLight:false,
@@ -31,17 +35,22 @@ export class BaseScene extends BaseInit {
     }
     addPlan(){
 
-        const geometry = new PlaneGeometry(40, 40);
+        const geometry = new PlaneGeometry(10, 10);
         const material = new MeshLambertMaterial({color: 0x222222});
         material.side=DoubleSide
         const plane = new Mesh(geometry, material);
         //设置接受阴影
         plane.receiveShadow = true
-
-        plane.position.x = 0;
+        plane.rotateX(Math.PI/2)
+        plane.position.x = 10;
         plane.position.y = 0;
         plane.position.z = 0;
 
+        let box=new Mesh(new BoxGeometry(3,3),new MeshLambertMaterial({color:"#f00"}))
+        plane.add(box)
+        box.position.x=-2;
+        this.plane=plane
+        this.box=box
         //添加地板容器
         this.scene.add(plane);
 
@@ -70,6 +79,8 @@ export class BaseScene extends BaseInit {
 
     }
     animate(){
+
+        // this.plane.position.x+=0.01;
 
         this.control.update()
         this.stats.update()

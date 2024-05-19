@@ -35,7 +35,6 @@ export class AnimationControl implements Updatable{
         this.aMap=aMap
         this.animationMixer = mixer
         this.cIns=ins
-
         ins.ins.dat.add(this,"test").name("测试")
     }
     render(delta: number, elapsedTime: number): void {
@@ -61,13 +60,11 @@ export class AnimationControl implements Updatable{
         action1.fadeOut(0.5);
         action2.reset()
         action2.fadeIn(0.5).play();
-
+        //
         timeOut(()=>{
             action2.fadeOut(0.5);
             action1.reset().fadeIn(0.5).play();
-            },1200)
-
-
+            },4200)
         console.log("aaa")
 
     }

@@ -150,6 +150,10 @@ const routes: Array<RouteRecordRaw> = [
         path: '/SketchBoxControl',
         name: 'SketchBoxControl',
         component: ()=> import("@/views/integratedDemoLists/SketchBoxControl/index.vue")
+    },{
+        path: '/Coordinate',
+        name: 'Coordinate',
+        component: ()=> import("@/views/unsuccessful/坐标系/index.vue")
     },
     ...shaderRoute
     // ,{

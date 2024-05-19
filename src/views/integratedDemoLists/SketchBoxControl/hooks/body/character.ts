@@ -11,16 +11,22 @@ export function createBoxManBody(){
     //创建圆柱体
     const cylinderShape = new CANNON.Cylinder(0.3, 0.008, 0.3, 8);
     //任务底部的球体，为了更好的模拟摩擦，球体底部与其他面接触小
-    const Sphere = new CANNON.Sphere(0.2);
+    const Sphere = new CANNON.Sphere(0.3);
+
+    // let initPosition={
+    //     "x": -107.21359457306761,
+    //     "y": 16.08179785930693,
+    //     "z": 64.64106772369107
+    // }
 
     let initPosition={
-        "x": -107.21359457306761,
+        "x": 0,
         "y": 16.08179785930693,
-        "z": 64.64106772369107
+        "z": 0
     }
 
     const body = new CANNON.Body({
-        mass: 400, // 质量
+        mass: 1, // 质量
         position: new CANNON.Vec3(initPosition.x,initPosition.y+0.8,initPosition.z) // 位置
     });
 
@@ -33,7 +39,7 @@ export function createBoxManBody(){
 
     body.updateAABB()
     //只允许其沿着y轴旋转
-    body.angularFactor.set(0, 1, 0);
+    body.angularFactor.set(0, 0, 0);
 
     return body
 }
