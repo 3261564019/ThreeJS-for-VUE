@@ -1,6 +1,6 @@
 
 import {
-    ACESFilmicToneMapping,
+    ACESFilmicToneMapping, Clock,
     DoubleSide, LinearEncoding,
     Mesh,
     MeshLambertMaterial,
@@ -8,8 +8,13 @@ import {
     SpotLight
 } from "three";
 import {BaseInit, BaseInitParams} from "@/three/classDefine/baseInit";
+import {PhysicBase} from "@/views/unsuccessful/cannon调试/PhysicBase";
 
 export class BaseScene extends BaseInit {
+
+    private physicIns:PhysicBase
+    private clock: Clock;
+
     constructor() {
         super({
             needLight:false,
@@ -26,6 +31,7 @@ export class BaseScene extends BaseInit {
 
         this.addLight();
 
+        this.physicIns=new PhysicBase(this)
 
         this.animate()
     }
@@ -41,7 +47,7 @@ export class BaseScene extends BaseInit {
         plane.position.x = 0;
         plane.position.y = 0;
         plane.position.z = 0;
-
+        plane.rotateX(Math.PI/2);
         //添加地板容器
         this.scene.add(plane);
 
@@ -67,12 +73,13 @@ export class BaseScene extends BaseInit {
         this.camera.position.set(0, 0, 60);
         //定位相机指向场景中心
         this.camera.lookAt(this.scene.position)
-
+        this.clock=new Clock()
     }
     animate(){
 
         this.control.update()
         this.stats.update()
+        this.physicIns.render(this.clock.getDelta(),this.clock.elapsedTime)
         this.renderer.render(this.scene, this.camera);
         this.raf=requestAnimationFrame(this.animate.bind(this));
     }
