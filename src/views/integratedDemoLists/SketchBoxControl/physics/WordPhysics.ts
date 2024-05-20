@@ -78,8 +78,10 @@ export class WordPhysics implements Updatable {
     render(delta: number, elapsedTime: number) {
         try {
             if (this.debugData.needDebug) {
-                this.debug.update()
+                // this.debug.update()
             }
+            // console.log(delta,elapsedTime)
+            // this.world.step(delta,elapsedTime)
             this.world.step(delta)
         } catch (e) {
             // @ts-ignore
@@ -116,7 +118,7 @@ export class WordPhysics implements Updatable {
                         child.receiveShadow=true
                         child.castShadow=true
                         // @ts-ignore
-                        this.ins.skyLight.csm.setupMaterial(child.material);
+                        // this.ins.skyLight.csm.setupMaterial(child.material);
 
                         setupMeshProperties(child)
                     }

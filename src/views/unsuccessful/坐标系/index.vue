@@ -6,12 +6,14 @@
 
 <script setup>
 import {onMounted, onUnmounted} from "vue";
-import {SketchBoxScene} from "./SketchBoxScene";
+import {BaseScene} from "./BaseScene";
 
 let ins;
 
 onMounted(()=>{
-  ins=new SketchBoxScene()
+  ins=new BaseScene({
+    renderDomId:"#renderDom"
+  })
 })
 onUnmounted(()=>{
   ins.destroy();
@@ -22,7 +24,6 @@ onUnmounted(()=>{
 .root{
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
   background: #304455;
 }
 </style>

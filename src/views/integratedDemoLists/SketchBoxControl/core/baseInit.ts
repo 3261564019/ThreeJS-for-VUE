@@ -56,14 +56,14 @@ export class BaseInit {
 
         const scene = new THREE.Scene();
         //创建相机对象  可视范围常用（45-75）  长宽比 近截面（near）和远截面（far）。 当物体某些部分比摄像机的远截面远或者比近截面近的时候，该这些部分将不会被渲染到场景中。
-        const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 2000);
+        const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1200);
         // 创建挂载器
         const renderer = new THREE.WebGLRenderer({
             //开启抗锯齿
             antialias: true,
             logarithmicDepthBuffer:true,
         });
-        renderer.physicallyCorrectLights=false
+        renderer.physicallyCorrectLights=true
         //获取挂载节点
         let dom=document.querySelector(params.renderDomId)
         if(dom){
@@ -83,10 +83,11 @@ export class BaseInit {
         // 设置挂载器尺寸并添加至页面
         renderer.setSize(window.innerWidth, window.innerHeight);
         //设置HDR显示效果 这个属性用于在普通计算机显示器或者移动设备屏幕等低动态范围介质上，模拟、逼近高动态范围（HDR）效果。
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        // renderer.toneMapping = THREE.NeutralToneMapping;
         //场景曝光以及亮度
         renderer.toneMappingExposure = 1;
         //outputColorSpace定义渲染器的输出编码。默认为THREE.SRGBColorSpace
+        // renderer.outputEncoding=THREE.LinearEncoding;
 
         //创建三维坐标系坐标
         if (params.needAxesHelper) {

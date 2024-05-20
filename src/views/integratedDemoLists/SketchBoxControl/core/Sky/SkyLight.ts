@@ -143,8 +143,8 @@ export class SkyLight extends Object3D
     {
         this.position.copy(this.SketchBoxScene.camera.position);
         this.refreshSunPosition();
-        this.csm.update();
-        this.csm.lightDirection = new Vector3(-this.sunPosition.x, -this.sunPosition.y, -this.sunPosition.z).normalize();
+        // this.csm.update();
+        // this.csm.lightDirection = new Vector3(-this.sunPosition.x, -this.sunPosition.y, -this.sunPosition.z).normalize();
     }
     public refreshSunPosition(): void
     {

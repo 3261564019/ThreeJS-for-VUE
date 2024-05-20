@@ -50,7 +50,7 @@ export class Character implements Updatable {
     //是否初始化完成，可以进行渲染
     private initEd:Boolean
     public rayResult: CANNON.RaycastResult = new CANNON.RaycastResult();
-    public rayCastLength: number = 0.27;
+    public rayCastLength: number = 0.4;
     public raySafeOffset: number = 0.03;
     public rayHasHit: boolean = false;
     public rayCastBoxVisible: boolean = true;
@@ -133,7 +133,7 @@ export class Character implements Updatable {
                 this.aControl.stop()
             }
             //计算人物移动的力度
-            this.calcCharacterForward()
+            // this.calcCharacterForward()
             //根据按键情况计算任务朝向
             this.calcCharacterRotation()
         }
@@ -154,6 +154,9 @@ export class Character implements Updatable {
             this.current.mesh.getWorldDirection(characterDirection);
             //拿到相机朝向
             const cameraDirection = new THREE.Vector3();
+            if(!this.ins.camera){
+                console.log("this.ins.camera",this.ins.camera)
+            }
             this.ins.camera.getWorldDirection(cameraDirection);
             //归一化
             cameraDirection.setY(0).normalize();
@@ -181,11 +184,11 @@ export class Character implements Updatable {
             loader.load(
                 boxMan,
                 (res) => {
-                    console.log("加载结果", res)
+                    // console.log("加载结果", res)
                     let t =res.scene.children[0];
 
                     res.scene.traverse(e=>{
-                        console.log("e",e)
+                        // console.log("e",e)
                     })
 
                     t.rotateY(MathUtils.degToRad(-90))
@@ -210,7 +213,7 @@ export class Character implements Updatable {
 
                     this.ins.physicsIns.world.addBody(body)
 
-                    t.add(new THREE.AxesHelper(10))
+                    // t.add(new THREE.AxesHelper(10))
                     this.ins.scene.add(t)
 
 
@@ -239,13 +242,13 @@ export class Character implements Updatable {
                     }
 
                     body.addEventListener("sleepy",()=>{
-                        console.log("进入睡眠")
+                        // console.log("进入睡眠")
                         this.sleeping=true
 
-                        body.force.set(0, 0, 0);
-                        body.torque.set(0, 0, 0);
-                        body.velocity.set(0, 0, 0);
-                        body.angularVelocity.set(0, 0, 0);
+                        // body.force.set(0, 0, 0);
+                        // body.torque.set(0, 0, 0);
+                        // body.velocity.set(0, 0, 0);
+                        // body.angularVelocity.set(0, 0, 0);
                     })
                     body.addEventListener("wakeup",()=>{
                         console.log("刚体唤醒")
@@ -299,7 +302,7 @@ export class Character implements Updatable {
             }
         }
     }
-    physicsPostStep(delta:number){
+    physicsPostStep(){
 
         let body=this.current.body;
         // 获取当前物体的加速度
@@ -309,39 +312,14 @@ export class Character implements Updatable {
 
         newVelocity.copy(simulatedVelocity);
 
-        if (this.rayHasHit)
+        if (this.rayHasHit && this.canJump)
         {
-            // Flatten velocity
-            // newVelocity.y = 0;
-            //
-            // let rb=this.rayResult.body!;
-            // // Move on top of moving objects
-            // if (rb.mass > 0)
-            // {
-            //     let pointVelocity = new CANNON.Vec3();
-            //     rb.getVelocityAtWorldPoint(this.rayResult.hitPointWorld, pointVelocity);
-            //     newVelocity.add(threeVector(pointVelocity));
-            // }
-            //
-            // // Measure the normal vector offset from direct "up" vector
-            // // and transform it into a matrix
-            // let up = new THREE.Vector3(0, 1, 0);
-            // let normal = new THREE.Vector3(this.rayResult.hitNormalWorld.x, this.rayResult.hitNormalWorld.y, this.rayResult.hitNormalWorld.z);
-            // let q = new THREE.Quaternion().setFromUnitVectors(up, normal);
-            // let m = new THREE.Matrix4().makeRotationFromQuaternion(q);
-            //
-            // // Rotate the velocity vector
-            // newVelocity.applyMatrix4(m);
-
-            // Compensate for gravity
-            // newVelocity.y -= body.world.physicsWorld.gravity.y / body.this.world.physicsFrameRate;
-
             // Apply velocity
             body.velocity.x = newVelocity.x;
             body.velocity.y = 0;
             body.velocity.z = newVelocity.z;
-            console.log("this.rayResult",this.rayResult)
-            console.log("body.position",body.position)
+            // console.log("this.rayResult",this.rayResult)
+            // console.log("body.position",body.position)
             // Ground character
             body.position.y = this.rayResult.hitPointWorld.y + this.rayCastLength ;
         }else{
@@ -398,14 +376,14 @@ export class Character implements Updatable {
      */
     updateMeshBody(body:CANNON.Body,man:Object3D){
         let p = body.position;
-        let targetPosition = new Vector3(p.x, p.y-0.22, p.z);
+        let targetPosition = new Vector3(p.x, p.y-this.rayCastLength, p.z);
         let meshQ=man.quaternion
-        body.quaternion=new CANNON.Quaternion(
-            meshQ.x,
-            meshQ.y,
-            meshQ.z,
-            meshQ.w
-        );
+        // body.quaternion=new CANNON.Quaternion(
+        //     meshQ.x,
+        //     meshQ.y,
+        //     meshQ.z,
+        //     meshQ.w
+        // );
         // let targetPosition = new Vector3(p.x, p.y-0.51, p.z);
         man.position.lerp(targetPosition, 0.5);
         // man.position.copy(targetPosition);
@@ -417,9 +395,7 @@ export class Character implements Updatable {
 
             if (!isTouchDevice) this.moveRight = this.moveTop = 0
 
-
             let {mesh:man,body}=this.current
-
 
 
             //滞空或者行走时施加速度
@@ -427,7 +403,7 @@ export class Character implements Updatable {
                 let scale=5
                 //如果在跳跃,力度需要小一些
                 if(!this.canJump){
-                    scale=2
+                    scale=1.3
                 }
                 /**
                  * 保证原地起跳时位置不移动
@@ -437,11 +413,19 @@ export class Character implements Updatable {
                 }
                 body.velocity.z=this.velocityQuaternion.z*scale
                 body.velocity.x=this.velocityQuaternion.x*scale
+
+                // body.velocity.z=MathUtils.lerp(body.velocity.z,this.velocityQuaternion.z*scale*delta*100,0.1);
+                // body.velocity.x=MathUtils.lerp(body.velocity.x,this.velocityQuaternion.x*scale*delta*100,0.1);
+
             }else{
-                if(this.rayHasHit){
-                    this.clean()
+                //不在跳跃的时候才清空
+                if(this.canJump){
+                    if(this.rayHasHit){
+                        this.clean()
+                    }
                 }
             }
+            // this.current.body.angularVelocity.y=100;
 
             //如果有计算得出的人物朝向，并且有在按方向键，人物需要转向方向键的方向
             if(this.move){
@@ -464,7 +448,7 @@ export class Character implements Updatable {
         //如果在睡眠需要施加一定的力进行唤醒
         if(this.sleeping){
             let body=this.current.body
-            const force = new CANNON.Vec3(0, 1, 0); // 在y轴上施加100的力
+            const force = new CANNON.Vec3(0, 0.1, 0); // 在y轴上施加100的力
             const bottomCenter = new CANNON.Vec3(0, -0.5, 0); // 圆柱体底部中心位置
             body.applyForce(force, bottomCenter);
         }
@@ -503,13 +487,19 @@ export class Character implements Updatable {
         // body.velocity.set(0, body.velocity.y, 0);
         // body.angularVelocity.set(0, body.angularVelocity.y, 0);
 
+        let factor=0.3
 
-        body.force.set(0, 0, 0);
-        body.torque.set(0, 0, 0);
-        body.velocity.set(0,MathUtils.lerp(body.velocity.y,0,0.8), 0);
-        body.angularVelocity.set(0, 0, 0);
+        body.velocity.x=MathUtils.lerp(body.velocity.x,0,factor);
+        body.velocity.y=MathUtils.lerp(body.velocity.y,0,factor);
+        body.velocity.z=MathUtils.lerp(body.velocity.z,0,factor);
 
-        console.log("清空")
+        // body.force.set(0, 0, 0);
+        // body.torque.set(0, 0, 0);
+        // body.velocity.set(0,MathUtils.lerp(body.velocity.y,0,0.8), 0);
+        // body.angularVelocity.set(0, 0, 0);
+
+
+        // console.log("清空")
     }
     private addDebug() {
 
@@ -520,9 +510,16 @@ export class Character implements Updatable {
             },
             logPosition:()=>{
                 console.log(this.current.mesh.position)
+            },
+            rotation:()=>{
+                this.current.body.angularVelocity.set(0, 1, 0)
+
+                // this.current.body.applyTorque(new CANNON.Vec3(0, 0.01, 0));
+                console.log("???")
             }
         }
         this.ins.dat.add(p,"clean").name("清空应力")
         this.ins.dat.add(p,"logPosition").name("当前位置")
+        this.ins.dat.add(p,"rotation").name("旋转")
     }
 }
