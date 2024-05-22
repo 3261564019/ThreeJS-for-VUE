@@ -1,4 +1,4 @@
-import {PerspectiveCamera, Scene, WebGLRenderer} from "three";
+import {LinearSRGBColorSpace, PerspectiveCamera, Scene, SRGBColorSpace, WebGLRenderer} from "three";
 import * as THREE from "three";
 // @ts-ignore
 import Stats from 'stats-js';
@@ -62,6 +62,7 @@ export class BaseInit {
             //开启抗锯齿
             antialias: true,
             logarithmicDepthBuffer:true,
+            powerPreference:"high-performance"
         });
         renderer.physicallyCorrectLights=true
         //获取挂载节点
@@ -86,8 +87,10 @@ export class BaseInit {
         // renderer.toneMapping = THREE.NeutralToneMapping;
         //场景曝光以及亮度
         renderer.toneMappingExposure = 1;
+        // renderer.toneMapping=THREE.ACESFilmicToneMapping
         //outputColorSpace定义渲染器的输出编码。默认为THREE.SRGBColorSpace
-        // renderer.outputEncoding=THREE.LinearEncoding;
+        renderer.outputColorSpace=SRGBColorSpace;
+        // renderer.outputColorSpace=LinearSRGBColorSpace;
 
         //创建三维坐标系坐标
         if (params.needAxesHelper) {

@@ -28,6 +28,7 @@ export class SketchBoxScene extends BaseInit {
         antialias:false,
         backgroundIntensity:5,
         backgroundBlurriness:0.2,
+        toneMapping:THREE.ACESFilmicToneMapping,
         schoolPosition:{
             x:0,
             y:15,
@@ -65,7 +66,7 @@ export class SketchBoxScene extends BaseInit {
             this.characterIns.load(),
             this.physicsIns.load(),
             this.loadEnv(),
-            // this.loadSchool()
+            this.loadSchool()
         ]).then((res)=>{
             console.log("加载到的",res)
             // @ts-ignore
@@ -136,6 +137,20 @@ export class SketchBoxScene extends BaseInit {
                 this.renderer.shadowMap.enabled = e;
             }
         )
+
+        const toneMappingOptions = {
+            None: THREE.NoToneMapping,
+            Linear: THREE.LinearToneMapping,
+            Reinhard: THREE.ReinhardToneMapping,
+            Cineon: THREE.CineonToneMapping,
+            ACESFilmic: THREE.ACESFilmicToneMapping,
+            AgX: THREE.AgXToneMapping,
+            Neutral: THREE.NeutralToneMapping,
+            Custom: THREE.CustomToneMapping
+        };
+        this.dat.performance.add(this.debugData,'toneMapping', Object.keys( toneMappingOptions )).onChange( ()=> {
+            this.renderer.toneMapping = toneMappingOptions[this.debugData.toneMapping];
+        });
         // this.dat.performance.add(this.debugData,'antialias').name("抗锯齿").onChange(
         //     (e:boolean)=>{
         //         this.renderer.antialias = e;

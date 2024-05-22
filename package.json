@@ -19,7 +19,7 @@
     "enable3d": "^0.25.4",
     "gsap": "3.12.2",
     "matter-js": "^0.19.0",
-    "three": "0.154.0",
+    "three": "0.164.0",
     "three-csm": "^4.2.1",
     "three-mesh-bvh": "^0.7.3",
     "three-to-cannon": "^4.3.0",
@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.12.7",
-    "@types/three": "^0.144.0",
+    "@types/three": "0.164.0",
     "@vitejs/plugin-vue": "^2.3.3",
     "ammojs-typed": "1.0.6",
     "dat.gui": "^0.7.9",

@@ -340,6 +340,9 @@ function usePhysics(ins:physicsBaseScene):PhysicIns{
     function render(d:number) {
         delta=d;
 
+        delta = Math.min(delta, 1 / 10);    // min 30 fps
+
+
         for (let i = 0; i <mrMap.length; i++) {
             let {mesh, body} = mrMap[i];
             // @ts-ignore
@@ -368,7 +371,7 @@ function usePhysics(ins:physicsBaseScene):PhysicIns{
         }
 
         // console.log("================")
-        world.step(d);
+        world.step(delta);
 
         if(params.debug){
             cannonDebuggerIns.update();
