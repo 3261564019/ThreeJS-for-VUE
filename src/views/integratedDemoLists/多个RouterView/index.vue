@@ -1,14 +1,17 @@
 <template>
 <div class="routerRoot">
-  <router-link to="a">aaa</router-link>
-  <router-link to="b">bbb</router-link>
+  dasjkldasjkld
+  <router-link to="/a">aaa</router-link>
+  <router-link to="/b">bbb</router-link>
   <hr>
+<!--  <keep-alive>-->
   <router-view></router-view>
+<!--  </keep-alive>-->
 </div>
 </template>
 
 <script setup>
-console.log(ggg)
+// console.log(ggg)
 </script>
 
 <style scoped>

@@ -134,7 +134,8 @@ const routes: Array<RouteRecordRaw> = [
         // component: ()=> import("@/views/integratedDemoLists/倾斜投影/index.vue")
         // component: ()=> import("@/views/integratedDemoLists/渲染模型/index.vue")
         // component: ()=> import("@/views/ShaderDemo/基础案例/03/index.vue")
-        component: ()=> import("@/views/unsuccessful/cannon调试/index.vue")
+        // component: ()=> import("@/views/unsuccessful/cannon调试/index.vue")
+        component: ()=> import("@/views/integratedDemoLists/多个RouterView/index.vue"),
         // component: ()=> import("@/views/integratedDemoLists/bvh/index.vue")
         // component: ()=> import("@/views/integratedDemoLists/场景练习/sceneDemo.vue")
         // component: ()=> import("@/views/enable3d/index.vue")
@@ -143,6 +144,15 @@ const routes: Array<RouteRecordRaw> = [
         // component: ()=> import("@/views/integratedDemoLists/第三人称移动自/index.vue")
         // component: ()=> import("@/views/integratedDemoLists/第三人称enable3D/index.vue")
         // component: ()=> import("@/views/integratedDemoLists/第三人称/index.vue")
+        children:[
+                {
+                    path: '/a',
+                    component: ()=> import("@/views/integratedDemoLists/多个RouterView/childs/a.vue")
+                },{
+                    path: '/b',
+                    component: ()=> import("@/views/integratedDemoLists/多个RouterView/childs/b.vue")
+                }
+                ]
     },{
         path: '/webVR',
         name: 'webVR',

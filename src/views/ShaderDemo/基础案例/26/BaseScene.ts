@@ -9,6 +9,7 @@ import {
     SphereGeometry
 } from "three";
 
+import m from "./template.js"
 import v from "./vertex.glsl?raw"
 import f from "./fragment.glsl?raw"
 import {BaseInit, BaseInitParams} from "@/three/classDefine/baseInit";
@@ -58,8 +59,7 @@ export class BaseScene extends BaseInit {
     }
     addPlan(){
 
-        this.material=new ShaderMaterial({
-        })
+        this.material=m
         const geometry = new SphereGeometry(40, 40,80,80);
         const material = this.material
         // material.side=DoubleSide
