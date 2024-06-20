@@ -83,8 +83,15 @@ void main() {
 
     vec2 rUv = rotateUV(vUv,vec2(0.5,0.5),0.8);
 
-    float color=cnoise(vUv * 10.0);
-
+    vec2 nv=vUv;
+    // 生成噪声图案
+    float color=cnoise(nv * 10.0);
+    // 将噪声图案的值范围映射到 [0, 1]
+    color = (color + 1.0) / 2.0;
+    // 使用 mix 函数进行插值
+    float noiseResult = mix(color, 1.0, uRate);
+    // 保持已经为 1 的部分不变
+    noiseResult = max(noiseResult, color);
 
     vec4 imgWall = texture2D(uTextureWall, vUv);
 
@@ -104,11 +111,13 @@ void main() {
 //    vec4 multiplyColor = imgWall * imgTrack;
 
     // 使用线性插值混合颜色
-    vec4 resultColor = mix(imgWall, multiplyColor, blendFactor * uScale);
+    vec4 resultColor = mix(imgWall, multiplyColor, noiseResult);
 //    vec4 resultColor = mix(imgWall, multiplyColor, sin(vUv));
 
     // 输出结果颜色
-    gl_FragColor = resultColor;
+//    gl_FragColor = vec4(noiseResult);
+//    gl_FragColor = vec4(color);
+    gl_FragColor = vec4(resultColor);
 
 //    gl_FragColor = adjustContrast(imgTrack,uContrast);
 

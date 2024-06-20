@@ -21,7 +21,7 @@ export class BaseScene extends BaseInit {
     public videoRateChange:(num:number)=>void;
 
     debugData={
-        rate:0.5,
+        rate:0,
         fade:0.03,
         scale:1,
         //对比度
