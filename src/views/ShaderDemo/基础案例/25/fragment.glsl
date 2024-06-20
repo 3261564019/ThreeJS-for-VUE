@@ -40,10 +40,11 @@ float cnoise(vec2 P){
 
 void main() {
     vec2 uv=vec2(vUv);
-    uv.x+=uTime*0.1;
+//    uv.x+=uTime*0.1;
 
     //图案1
 //    float color=step(0.0,cnoise(uv * 10.0));
+    float color=cnoise(uv * 10.0);
 
     //图案2
 //    float color=abs(cnoise(uv * 10.0));
@@ -54,9 +55,10 @@ void main() {
     //图案4
 //    float color=abs(cnoise(uv * 50.0));
 
-    float color=step(sin(cnoise(uv * 10.0)*20.0),0.0);
+//    float color=step(sin(cnoise(uv * 10.0)*20.0),0.0);
 
     vec3 res=mix(vec3(uv,1),vec3(0.0),1.0-color);
 
-    gl_FragColor = vec4(res,color);
+//    gl_FragColor = vec4(vec3(color),color);
+    gl_FragColor = vec4(vec3(color),1.0);
 }
