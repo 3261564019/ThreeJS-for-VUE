@@ -221,7 +221,7 @@ export class Character implements Updatable {
                         offset: new Vector3(0, 1, 0),
                         //相机距离任务的距离
                         targetRadius: 3.5
-                    })
+                    },this.ins.dat)
                     // set initial view to 90 deg theta
                     this.controls.theta = 90
 

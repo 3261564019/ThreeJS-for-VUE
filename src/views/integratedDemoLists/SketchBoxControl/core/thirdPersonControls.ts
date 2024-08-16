@@ -10,6 +10,7 @@
  * @license      {@link https://github.com/enable3d/enable3d/blob/master/LICENSE LGPL-3.0}
  */
 import {Camera, MathUtils as THREE_Math, Object3D, Scene, Vector2, Vector3} from 'three';
+import {GUI} from "dat.gui";
 
 
 
@@ -42,8 +43,15 @@ class ThirdPersonControls {
     private phi: number;
     private maxPhi: number;
     private minPhi: number;
+    public dat: GUI;
 
-    constructor(camera:Camera, target:Object3D, config:Config) {
+
+    debugData={
+        lerp:0.3
+    }
+
+
+    constructor(camera:Camera, target:Object3D, config:Config,dat:GUI) {
         this.camera = camera;
         this.target = target;
         this.config = config;
@@ -74,10 +82,18 @@ class ThirdPersonControls {
         this.maxPhi = maxPhi;
         this.minPhi = minPhi;
 
+        this.dat=dat
+
+        this.addDebug()
+    }
+    addDebug(){
+        this.dat.add(this.debugData,"lerp",0.001,1,0.001).name("摄像机Lerp")
     }
     update(deltaX:number=0, deltaY:number=0) {
         deltaX/=4
         deltaY/=4
+
+        // console.log(deltaX,deltaY)
 
         const target = this.target.position.clone().add(this.offset);
         this.theta -= deltaX * (this.sensitivity.x / 2);
@@ -87,14 +103,21 @@ class ThirdPersonControls {
 
 
         this.radius = THREE_Math.lerp(this.radius, this.targetRadius, this.interpolationFactor);
-        this.camera.position.x =
-            target.x + this.radius * Math.sin((this.theta * Math.PI) / 180) * Math.cos((this.phi * Math.PI) / 180);
-        this.camera.position.y =
-            target.y + this.radius * Math.sin((this.phi * Math.PI) / 180);
-        this.camera.position.z =
-            target.z + this.radius * Math.cos((this.theta * Math.PI) / 180) * Math.cos((this.phi * Math.PI) / 180);
 
+        let targetPosition=new Vector3()
+        targetPosition.x =
+            target.x + this.radius * Math.sin((this.theta * Math.PI) / 180) * Math.cos((this.phi * Math.PI) / 180);
+        targetPosition.y =
+            target.y + this.radius * Math.sin((this.phi * Math.PI) / 180);
+        targetPosition.z =
+            target.z + this.radius * Math.cos((this.theta * Math.PI) / 180) * Math.cos((this.phi * Math.PI) / 180);
         // this.camera.updateMatrix();
+        if(this.debugData.lerp==1){
+            this.camera.position.copy(targetPosition)
+        }else{
+            this.camera.position.lerp(targetPosition,this.debugData.lerp);
+        }
+
         this.camera.lookAt(target);
     }
 }
