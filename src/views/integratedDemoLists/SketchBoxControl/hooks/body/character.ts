@@ -20,9 +20,9 @@ export function createBoxManBody(){
     // }
 
     let initPosition={
-        "x": 0,
-        "y": 16.08179785930693,
-        "z": 0
+        "x": -0.31684331040979863,
+        "y": 18.943271496888876,
+        "z": 47.302501131327006
     }
 
     const body = new CANNON.Body({

@@ -6,6 +6,7 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 // @ts-ignore
 import * as dat from 'dat.gui';
 import {debounce} from "../../../../utils";
+import {GUI} from "dat.gui";
 export interface BaseInitParams {
     //是否需要坐标指示器
     needStats?: boolean;
@@ -33,7 +34,7 @@ export class BaseInit {
     public stats: any;
     public control: any;
     //页面调试工具对象
-    public dat: any;
+    public dat: GUI;
     //当前鼠标在屏幕可视区的位置x和y取值在屏幕宽高之间
     // @ts-ignore
     public cursorPosition: THREE.Vector2
@@ -42,7 +43,6 @@ export class BaseInit {
     public screenSize: THREE.Vector2
     // @ts-ignore
     public reSizeCallBack:Function;
-
     constructor(params: BaseInitParams = {
         calcCursorPosition:false,
         needAxesHelper: false,
@@ -56,7 +56,7 @@ export class BaseInit {
 
         const scene = new THREE.Scene();
         //创建相机对象  可视范围常用（45-75）  长宽比 近截面（near）和远截面（far）。 当物体某些部分比摄像机的远截面远或者比近截面近的时候，该这些部分将不会被渲染到场景中。
-        const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1200);
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1200);
         // 创建挂载器
         const renderer = new THREE.WebGLRenderer({
             //开启抗锯齿
@@ -64,7 +64,7 @@ export class BaseInit {
             logarithmicDepthBuffer:true,
             powerPreference:"high-performance"
         });
-        renderer.physicallyCorrectLights=true
+        // renderer.physicallyCorrectLights=false
         //获取挂载节点
         let dom=document.querySelector(params.renderDomId)
         if(dom){
@@ -84,8 +84,8 @@ export class BaseInit {
         // 设置挂载器尺寸并添加至页面
         renderer.setSize(window.innerWidth, window.innerHeight);
         //设置HDR显示效果 这个属性用于在普通计算机显示器或者移动设备屏幕等低动态范围介质上，模拟、逼近高动态范围（HDR）效果。
-        // renderer.toneMapping = THREE.NeutralToneMapping;
-        //场景曝光以及亮度
+        renderer.toneMapping = THREE.NeutralToneMapping;
+        // 场景曝光以及亮度
         renderer.toneMappingExposure = 1;
         // renderer.toneMapping=THREE.ACESFilmicToneMapping
         //outputColorSpace定义渲染器的输出编码。默认为THREE.SRGBColorSpace

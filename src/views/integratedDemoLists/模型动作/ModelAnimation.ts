@@ -10,6 +10,7 @@ import girl from "@/assets/model/111.gltf?url"
 import boxMan from "@/assets/model/box_man.glb?url"
 import test from "@/assets/model/bart.glb?url"
 import tree from "@/assets/model/tree.glb?url"
+import ani from "@/assets/model/break.glb?url"
 import {DRACOLoader} from "three/examples/jsm/loaders/DRACOLoader";
 
 function clone( source:any ) {
@@ -144,7 +145,8 @@ export class ModelAnimation extends BaseInit {
 
         // this.loadBoxMan();
 
-        this.loadAnimation()
+        this.loadAniMan()
+        // this.loadAnimation()
     }
     loadMyModel(){
         const loader = new GLTFLoader();
@@ -192,6 +194,22 @@ export class ModelAnimation extends BaseInit {
             })
             this.scene.add(res.scene)
             this.debugBoxMan();
+
+        })
+    }
+    loadAniMan(){
+        const loader = new GLTFLoader();
+        loader.load(ani,(res)=>{
+            console.log("模型对象res",res)
+            res.scene.scale.set(10,10,10)
+            res.scene.position.y=20
+            this.animationMixer =new AnimationMixer(res.scene);
+            res.animations.forEach((v)=>{
+                let a= this.animationMixer.clipAction(v)
+                a.play()
+            })
+            this.scene.add(res.scene)
+            // this.debugBoxMan();
 
         })
     }

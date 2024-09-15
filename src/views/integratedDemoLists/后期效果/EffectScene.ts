@@ -101,7 +101,7 @@ export class EffectScene extends BaseInit {
     addLight(){
 
         //创建聚光灯
-        const light = new THREE.SpotLight("#fff",1);
+        const light = new THREE.AmbientLight("#fff",5);
         light.castShadow = true;            // default false
         light.position.x = 20;
         light.position.y = 30;

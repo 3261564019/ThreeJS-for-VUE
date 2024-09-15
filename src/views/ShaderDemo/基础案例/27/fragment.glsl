@@ -7,6 +7,8 @@ uniform float uRate;
 uniform float uFade;
 uniform float uScale;
 uniform float uContrast;
+uniform float uTrackContrast;
+uniform float uNoiseSize;
 varying vec2 vUv; // 传入的纹理坐标
 
 
@@ -82,44 +84,51 @@ vec2 rotateUV(vec2 uv, vec2 center, float angle) {
 void main() {
 
     vec2 rUv = rotateUV(vUv,vec2(0.5,0.5),0.8);
+    vec2 r1Uv = rotateUV(vUv,vec2(0.5,0.5),PI);
 
+    //噪波的uv
     vec2 nv=vUv;
-    // 生成噪声图案
-    float color=cnoise(nv * 10.0);
-    // 将噪声图案的值范围映射到 [0, 1]
+    //生成噪声图案
+    float color=cnoise(nv * uNoiseSize);
+    //将噪声图案的值范围映射到 [0, 1]
     color = (color + 1.0) / 2.0;
-    // 使用 mix 函数进行插值
-    float noiseResult = mix(color, 1.0, uRate);
-    // 保持已经为 1 的部分不变
-    noiseResult = max(noiseResult, color);
 
+
+    float edge0 = uTrackContrast - 0.1;
+    float edge1 = uTrackContrast + 0.1;
+    color = smoothstep(edge0, edge1, color);
+
+
+    float noiseResult;
+    // 通过 mix 函数进行过渡
+    if (uRate < 0.5) {
+        // 从黑色过渡到噪声图案
+        noiseResult = mix(0.0, color, uRate * 2.0);
+    } else {
+        // 从噪声图案过渡到白色
+        noiseResult = mix(color, 1.0, (uRate - 0.5) * 2.0);
+    }
+
+    float tContrast=mix(2.4, 1.4, uRate);
+
+    //墙壁的图片
     vec4 imgWall = texture2D(uTextureWall, vUv);
-
-
-
+    //裂纹的图片，使用了旋转后的rUv
     vec4 imgTrack = texture2D(uTextureTrack, rUv);
-
-    float step=uTime*0.1;
-    float dis=uFade;
-    // 计算混合因子，基于时间和垂直位置
-//    float blendFactor = smoothstep(step-dis,step+dis,step);
-    float blendFactor = smoothstep(uRate-dis,uRate+dis,vUv.y);
-
+    //旋转了180度的
+    vec4 imgTrackR1 = texture2D(uTextureTrack, r1Uv);
 
     // 计算正片叠底颜色
-    vec4 multiplyColor = imgWall * adjustContrast(imgTrack,uContrast).r;
-//    vec4 multiplyColor = imgWall * imgTrack;
+    vec4 multiplyColor = imgWall * adjustContrast(imgTrack,tContrast).r;
+    //二次叠加后的颜色
+    vec4 multiplyColor1 = multiplyColor * adjustContrast(imgTrackR1,tContrast).r;
 
-    // 使用线性插值混合颜色
-    vec4 resultColor = mix(imgWall, multiplyColor, noiseResult);
-//    vec4 resultColor = mix(imgWall, multiplyColor, sin(vUv));
-
+    //使用噪波结果 混合 原图像 和 两次叠加后的颜色
+    vec4 resultColor = mix(imgWall, multiplyColor1, noiseResult);
     // 输出结果颜色
 //    gl_FragColor = vec4(noiseResult);
 //    gl_FragColor = vec4(color);
-    gl_FragColor = vec4(resultColor);
+    gl_FragColor = vec4(noiseResult);
+//    gl_FragColor = vec4(multiplyColor1);
 
-//    gl_FragColor = adjustContrast(imgTrack,uContrast);
-
-//    gl_FragColor = vec4(blendFactor,blendFactor,blendFactor,1);
 }

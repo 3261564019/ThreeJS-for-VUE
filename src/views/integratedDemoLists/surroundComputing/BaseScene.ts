@@ -15,8 +15,12 @@ export class BaseScene extends BaseInit {
 
     locked=false
     theta=0;
+
     phi=MathUtils.degToRad(45);
     radius=0;
+
+    tPhi=0;
+    tTheta=0;
 
     //本次应该偏移的数值
     mData={x:0,y:0};
@@ -82,43 +86,42 @@ export class BaseScene extends BaseInit {
      * @param theta       水平方向的方位角-本次偏移量 单位度数
      * @param phi         竖着的仰角-本次偏移量 单位度数
      */
-    sphericalToCartesian(p:Vector3, radius, theta, phi) {
+    sphericalToCartesian(theta:number, phi:number) {
 
 
         // 将角度转换为弧度
         let thetaRad =MathUtils.degToRad(theta);
         let phiRad = MathUtils.degToRad(phi);
-        let rad=MathUtils.lerp(this.radius,radius,0.1)
+        //本次实际要使用的数值
+        let cTheta=0;
+        let cPhi=0;
+
 
         /**
          * 在当前方位角的基础上，需要受到变量影响
          * 至于是加是减，决定了方位角大的开口向那个方向变大或变小
          */
-        this.theta-=thetaRad
+        cTheta=this.theta-thetaRad
         /**
          * 确保 theta 在 [0, 2π] 范围内
          */
-        this.theta%=Math.PI*2;
+        cTheta%=Math.PI*2;
 
 
         //限制仰角
-        this.phi+=phiRad
+        cPhi=this.phi+phiRad
         let max=MathUtils.degToRad(60);
 
-        if(this.phi>max){
-            this.phi=max
+        if(cPhi>max){
+            cPhi=max
         }
-        if(this.phi<-max){
-            this.phi=-max
+        if(cPhi<-max){
+            cPhi=-max
         }
 
+        this.tPhi=cPhi
+        this.tTheta=cTheta
 
-        // 计算笛卡尔坐标
-        var x = p.x + rad * Math.sin(this.theta) * Math.cos(this.phi);
-        var y = p.y + rad * Math.sin(this.phi);
-        var z = p.z + rad * Math.cos(this.theta) * Math.cos(this.phi);
-        this.radius=rad;
-        return  new Vector3(x,y,z);
     }
 
     /**
@@ -154,7 +157,10 @@ export class BaseScene extends BaseInit {
                 //x向右是正数，向左是负数
                 //y向下是正数，向上是负数
                 let s=this.debugData.sensitivity;
-                this.mData={x:e.movementX/s,y:e.movementY/s}
+                let m={x:e.movementX/s,y:e.movementY/s}
+                // let center=new Vector3(0,0,0)
+
+                this.sphericalToCartesian(m.x,m.y);
             }
         })
 
@@ -210,22 +216,32 @@ export class BaseScene extends BaseInit {
         this.camera.lookAt(new Vector3(0,0,0));
 
     }
+    /**
+     * 根据俯仰角直接设置相机位置
+     * @param p 围绕的中心点
+     */
+    updateCameraPosition(p:Vector3){
+        let rad=MathUtils.lerp(this.radius,this.debugData.radius,0.1)
+
+        this.phi=MathUtils.lerp(this.phi,this.tPhi,this.debugData.alpha)
+        this.theta=MathUtils.lerp(this.theta,this.tTheta,this.debugData.alpha)
+        // 计算笛卡尔坐标
+        let x = p.x + rad * Math.sin(this.theta) * Math.cos(this.phi);
+        let y = p.y + rad * Math.sin(this.phi);
+        let z = p.z + rad * Math.cos(this.theta) * Math.cos(this.phi);
+        this.camera.position.copy(new Vector3(x,y,z))
+        this.radius=rad;
+    }
     animate(){
+        let m=this.mData;
 
-        if(this.locked){
-            let m=this.mData;
+        //相机锁定，并且有移动
+        // if(this.locked && (m.x||m.y)){
+        // }
+        let center=new Vector3(0,0,0)
 
-            let center=new Vector3(0,0,0)
-            let p= this.sphericalToCartesian(center,this.debugData.radius,m.x,m.y);
-            this.mData={x:0,y:0}
-            if(this.debugData.useLerp){
-                this.camera.position.lerp(p, this.debugData.alpha);  // 0.1 为插值因子，可以调整以实现更流畅的效果
-            }else{
-                this.camera.position.copy(p);
-            }
-            this.camera.lookAt(new Vector3(0,0,0));
-        }
-
+        this.updateCameraPosition(center);
+        this.camera.lookAt(center);
 
         // if(this.locked){
         //     // 对 mData 进行插值，使其逐渐趋近于 0

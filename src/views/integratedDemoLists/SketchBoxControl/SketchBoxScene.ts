@@ -1,7 +1,7 @@
 import * as THREE from "three";
+import {ACESFilmicToneMapping, AmbientLight, Clock, LoadingManager, SRGBColorSpace} from "three";
 import {BaseInit, BaseInitParams} from "./core/baseInit";
 import {WordPhysics} from "./physics/WordPhysics";
-import {AmbientLight, CameraHelper, Clock, Color, LoadingManager} from "three";
 import {Character} from "./core/character";
 import {SkyLight} from "./core/Sky/SkyLight";
 import {WaterScene} from "./core/water/waterScene";
@@ -78,7 +78,7 @@ export class SketchBoxScene extends BaseInit {
 
     }
     addLight(){
-        // this.scene.add(new AmbientLight("#fff",100))
+        // this.scene.add(new AmbientLight("#fff",3))
     }
     loadEnv(){
         return new Promise(resolve => {
@@ -159,7 +159,7 @@ export class SketchBoxScene extends BaseInit {
         // @ts-ignore
         this.scene.backgroundIntensity=1.9
         this.dat.performance.add(this.debugData,'renderTimeRatio',0.01,1.2).name("渲染时间比")
-        this.dat.performance.add(this.debugData,'backgroundIntensity',0.01,10).name("背景光强度").onChange((e:number)=>{
+        this.dat.performance.add(this.debugData,'backgroundIntensity',0.01,400).name("背景光强度").onChange((e:number)=>{
             // @ts-ignore
             this.scene.backgroundIntensity=e*1;
         })
@@ -192,8 +192,11 @@ export class SketchBoxScene extends BaseInit {
         this.renderer.setPixelRatio(0.8);
         this.renderer.shadowMap.type=THREE.PCFShadowMap
         this.renderer.shadowMap.enabled = false;
+        this.renderer.toneMapping=THREE.NoToneMapping
+        this.renderer.outputColorSpace=SRGBColorSpace;
         // this.renderer.toneMappingExposure = 0.25;
         // this.renderer.shadowMap.type=THREE.PCFShadowMap
+        THREE.ColorManagement.enabled = true;
         //定位相机指向场景中心
         this.camera.lookAt(this.scene.position)
         this.camera.far=1000
@@ -203,7 +206,7 @@ export class SketchBoxScene extends BaseInit {
     animate(){
         try {
             let delta=this.clock.getDelta()
-            delta = Math.min(delta, 1 / 10);    // min 30 fps
+            delta = Math.min(delta, 0.1);    // min 30 fps
 
             delta*=this.debugData.renderTimeRatio
 

@@ -6,7 +6,7 @@ import {
     MeshLambertMaterial, MeshPhysicalMaterial,
     PlaneGeometry, ShaderMaterial,
     SphereGeometry,
-    SpotLight, TextureLoader
+    SpotLight, TextureLoader, Vector3
 } from "three";
 
 import v from "./vertex.glsl?raw"
@@ -36,6 +36,11 @@ export class BaseScene extends BaseInit {
 
         this.addLight();
 
+        var a = new Vector3(1, 0, 0);
+        var b = new Vector3(0, 0, 1);
+        var crossProduct = new Vector3().crossVectors(b, a);
+
+        console.log("crossProduct",crossProduct)
 
         this.animate()
     }

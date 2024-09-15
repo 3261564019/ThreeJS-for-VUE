@@ -26,7 +26,8 @@ export class BaseScene extends BaseInit {
         scale:1,
         //对比度
         contrast:1.4,
-        videoRate:0.1,
+        trackContrast:0.4,
+        noiseSize:3,
     }
 
     constructor() {
@@ -60,6 +61,8 @@ export class BaseScene extends BaseInit {
                 uScale:{value:this.debugData.scale},
                 uFade:{value:this.debugData.fade},
                 uContrast:{value:this.debugData.contrast},
+                uTrackContrast:{value:this.debugData.trackContrast},
+                uNoiseSize:{value:this.debugData.noiseSize},
                 uTime: { value: 0 }, // 将纹理传入 shader,
                 //主要贴图
                 uTextureWall: { value: wallT }, // 将纹理传入 shader
@@ -68,22 +71,28 @@ export class BaseScene extends BaseInit {
             transparent:true
         })
 
-        this.dat.add(this.debugData,"rate",0,1).name("裂缝位置").onChange((e:Number)=>{
+        this.dat.add(this.debugData,"rate",0,1).step(0.001).name("裂缝位置").onChange((e:Number)=>{
             this.material.uniforms.uRate.value = e;
+            this.material.uniforms.uTrackContrast.value=1-e;
         });
-        this.dat.add(this.debugData,"fade",0.01,0.5).name("过渡倍率").onChange((e:Number)=>{
-            this.material.uniforms.uFade.value = e;
-        });
-        this.dat.add(this.debugData,"scale",0,4).name("裂缝增强").onChange((e:Number)=>{
-            this.material.uniforms.uScale.value = e;
-        });
+        // this.dat.add(this.debugData,"fade",0.01,0.5).name("过渡倍率").onChange((e:Number)=>{
+        //     this.material.uniforms.uFade.value = e;
+        // });
+        // this.dat.add(this.debugData,"scale",0,4).name("裂缝增强").onChange((e:Number)=>{
+        //     this.material.uniforms.uScale.value = e;
+        // });
         this.dat.add(this.debugData,"contrast",0,5).name("裂缝对比度").onChange((e:Number)=>{
             this.material.uniforms.uContrast.value = e;
+            //2.4-1.4 by rate
         });
 
-        this.dat.add(this.debugData,"videoRate",0,1).name("视频进度").onChange((e:number)=>{
-            // this.material.uniforms.uContrast.value = e;
-            this.videoRateChange(e)
+        this.dat.add(this.debugData,"trackContrast",0,1).name("噪波对比度").onChange((e:number)=>{
+            this.material.uniforms.uTrackContrast.value = e;
+            // this.videoRateChange(e)
+        });
+        this.dat.add(this.debugData,"noiseSize",0,40).name("噪波大小").onChange((e:number)=>{
+            this.material.uniforms.uNoiseSize.value = e;
+            // this.videoRateChange(e)
         });
     }
     setTrack(t:Texture){

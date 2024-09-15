@@ -93,11 +93,11 @@ const routes: Array<RouteRecordRaw> = [
         name: 'ammo',
         component: ()=> import("@/views/unsuccessful/AmmoJS/index.vue")
     },
-    // {
-    //     path: '/sb',
-    //     name: 'sb',
-    //     component: ()=> import("@/views/面试/圣杯布局.vue")
-    // },
+    {
+        path: '/surroundCompute',
+        name: 'surroundCompute',
+        component: ()=> import("@/views/integratedDemoLists/surroundComputing/index.vue")
+    },
     {
         path: '/water',
         name: 'water',
@@ -119,6 +119,17 @@ const routes: Array<RouteRecordRaw> = [
         name: 'characterControls',
         component: ()=> import("@/views/integratedDemoLists/第三人称移动自/index.vue")
     },{
+        path: '/grass',
+        name: 'grass',
+        component: ()=> import("@/views/integratedDemoLists/草地/index.vue")
+    },{
+        path: '/test',
+        name: 'test',
+        component: ()=> import("@/views/integratedDemoLists/mapPath/index.vue")
+    },{
+        path: '/ttt',
+        component: ()=> import("@/views/Other/面试/test.vue")
+    },{
         path: '/temp',
         name: 'temp',
         // component: ()=> import("@/views/面试/变量提升.vue")
@@ -135,9 +146,10 @@ const routes: Array<RouteRecordRaw> = [
         // component: ()=> import("@/views/integratedDemoLists/渲染模型/index.vue")
         // component: ()=> import("@/views/ShaderDemo/基础案例/03/index.vue")
         // component: ()=> import("@/views/unsuccessful/cannon调试/index.vue")
-        component: ()=> import("@/views/integratedDemoLists/多个RouterView/index.vue"),
+        // component: ()=> import("@/views/integratedDemoLists/多个RouterView/index.vue"),
         // component: ()=> import("@/views/integratedDemoLists/bvh/index.vue")
-        // component: ()=> import("@/views/integratedDemoLists/场景练习/sceneDemo.vue")
+        component: ()=> import("@/views/Other/面试/flex.vue"),
+        // component: ()=> import("@/views/integratedDemoLists/场景练习/sceneDemo.vue"),
         // component: ()=> import("@/views/enable3d/index.vue")
         // component: ()=> import("@/views/integratedDemoLists/第三人称enable3D/index.vue")
         // component: ()=> import("@/views/unsuccessful/shaderPart/index.vue")
@@ -165,6 +177,10 @@ const routes: Array<RouteRecordRaw> = [
         path: '/Coordinate',
         name: 'Coordinate',
         component: ()=> import("@/views/unsuccessful/坐标系/index.vue")
+    },{
+        path: '/foldline',
+        name: 'foldline',
+        component: ()=> import("@/views/integratedDemoLists/foldline/index.vue")
     },
     ...shaderRoute
     // ,{

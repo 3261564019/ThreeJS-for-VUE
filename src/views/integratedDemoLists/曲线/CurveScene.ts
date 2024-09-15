@@ -132,6 +132,7 @@ export class CurveScene extends BaseInit {
         // console.log(this.transformControl.object)
     }
     addBox(){
+        // let m=new MeshLambertMaterial({color:"#299a48"});
         let m=new MeshLambertMaterial({color:"#299a48"});
         const geometry = new THREE.BoxGeometry( 2, 2, 2 );
         for (let i =1;i<5;i++){
@@ -190,16 +191,18 @@ export class CurveScene extends BaseInit {
     addLight(){
 
         //创建聚光灯
-        const light = new THREE.SpotLight("#fff");
+        const light = new THREE.SpotLight("#fff",30000,100,30);
         light.castShadow = true;            // default false
         light.position.x = 10;
         light.position.y = 50;
-        light.distance=180
+        // light.distance=180
         light.shadow.mapSize.width = 4096;
         light.shadow.mapSize.height = 4096;
         // light.shadow.bias = -0.001; // 减小阴影偏移量
-        // this.scene.add(new SpotLightHelper(light))
+        this.scene.add(new SpotLightHelper(light))
         this.scene.add(light);
+
+
     }
     addMoveBrick(){
 
@@ -214,8 +217,8 @@ export class CurveScene extends BaseInit {
     }
     init() {
         this.control.damping = 1;
-        this.renderer.shadowMap.enabled = true;
-        this.renderer.shadowMap.type=PCFSoftShadowMap
+        // this.renderer.shadowMap.enabled = true;
+        // this.renderer.shadowMap.type=PCFSoftShadowMap
         // this.renderer.shadowMap.width = 4096;
         // this.renderer.shadowMap.height = 4096;
         this.clock = new THREE.Clock();

@@ -88,6 +88,7 @@ export class BaseScene extends BaseInit {
             this.material.uniforms.uHeightColor.value.set(this.debugData.uHeightColor)
         })
         this.dat.addColor(this.debugData,"uDepthColor").onChange(()=>{
+            console.log("11111111",this.debugData.uDepthColor)
             this.material.uniforms.uDepthColor.value.set(this.debugData.uDepthColor)
         })
         this.dat.add(this.debugData,"uMixMultiple",0,5,0.1).onChange((e:number)=>{
