@@ -236,7 +236,6 @@ export class Character implements Updatable {
                                 // console.log(delta)
                                 this.moveTop = -delta.y
                                 this.moveRight = delta.x
-
                             }
                         })
                     }
@@ -391,7 +390,7 @@ export class Character implements Updatable {
     render(delta: number, elapsedTime: number): void {
         if(this.initEd){
 
-            this.controls.update(this.moveRight * 3, -this.moveTop * 3)
+            this.controls.update(this.moveRight, -this.moveTop)
 
             if (!isTouchDevice) this.moveRight = this.moveTop = 0
 

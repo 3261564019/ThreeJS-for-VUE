@@ -21,7 +21,7 @@ export class SketchBoxScene extends BaseInit {
     private waterIns: WaterScene;
     private debugData={
         far:1000,
-        ratio:0.8,
+        ratio:1,
         shadowMap:true,
         shadowType:"BasicShadowMap",
         renderTimeRatio:1,
@@ -48,6 +48,7 @@ export class SketchBoxScene extends BaseInit {
 
         this.dat.performance=this.dat.addFolder('性能')
         this.dat.school=this.dat.addFolder('学校')
+        this.dat.personControl=this.dat.addFolder('角色控制')
 
         //初始化资源加载管理器
         this.initLoadManager()
@@ -189,7 +190,7 @@ export class SketchBoxScene extends BaseInit {
     }
     init() {
 
-        this.renderer.setPixelRatio(0.8);
+        this.renderer.setPixelRatio(1);
         this.renderer.shadowMap.type=THREE.PCFShadowMap
         this.renderer.shadowMap.enabled = false;
         this.renderer.toneMapping=THREE.NoToneMapping

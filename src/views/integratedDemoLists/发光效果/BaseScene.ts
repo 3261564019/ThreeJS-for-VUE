@@ -43,15 +43,11 @@ export class BaseScene extends BaseInit {
         const bloomComposer = new EffectComposer( this.renderer );
         bloomComposer.renderToScreen = false;
 
-        //创建通道
-        const renderScene = new RenderPass( this.scene, this.camera );
         const bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
         bloomPass.threshold = this.params.bloomThreshold;
         bloomPass.strength = this.params.bloomStrength;
         bloomPass.radius = this.params.bloomRadius;
 
-        bloomComposer.renderToScreen = false;
-        bloomComposer.addPass( renderScene );
         bloomComposer.addPass( bloomPass );
 
         this.bloomPass=bloomPass;
@@ -194,9 +190,9 @@ export class BaseScene extends BaseInit {
 
             this.raf=requestAnimationFrame(animate);
 
-            this.renderer.render(this.scene, this.camera);
-            this.bloomComposer.render();
-            this.finalComposer.render();
+            // this.renderer.render(this.scene, this.camera);
+            // this.bloomComposer.render();
+            // this.finalComposer.render();
         }
 
         animate();

@@ -141,10 +141,10 @@ function makeElementObject(type, width, height) {
     // make an invisible plane for the DOM element to chop
     // clip a WebGL geometry with it.
     var material = new THREE.MeshPhongMaterial({
-        opacity	: 0.10,
+        opacity	:0,
         color	: new THREE.Color( "#000"),
         blending: THREE.NoBlending,
-        // side	: THREE.DoubleSide,
+        side	: THREE.DoubleSide,
     });
     var geometry = new THREE.BoxGeometry( width, height, 1 );
     var mesh = new THREE.Mesh( geometry, material );
@@ -154,6 +154,8 @@ function makeElementObject(type, width, height) {
     obj.add( mesh );
 
     return obj
+
+
 }
 
 setTimeout(() => console.log(background.css3dObject.element), 1000)

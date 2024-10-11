@@ -60,8 +60,9 @@ export class BaseScene extends BaseInit {
     }
     addPlan(){
 
-        const geometry = new PlaneGeometry(40, 40);
+        const geometry = new PlaneGeometry(1, 1);
         const material = this.materials[0]
+        // material.wireframe=true;
         material.side=DoubleSide
         const plane = new Mesh(geometry, material);
         //设置接受阴影

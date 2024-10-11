@@ -154,7 +154,7 @@ export class Part1Scene{
 
 
         const light = new THREE.SpotLight("#fff");
-        light.intensity=1;
+        light.intensity=13000;
         light.angle=0.5;
         light.shadow.camera.near =10;
         light.shadow.camera.far = 1000;
@@ -165,11 +165,11 @@ export class Part1Scene{
         scene.add(targetObject);
         light.target = targetObject;
         this.light=light;
-        // const lh=new SpotLightHelper(light);
+        const lh=new SpotLightHelper(light);
 
-        // const helper = new THREE.CameraHelper( light.shadow.camera );
-        // scene.add(lh)
-        // scene.add(helper)
+        const helper = new THREE.CameraHelper( light.shadow.camera );
+        scene.add(lh)
+        scene.add(helper)
 
 
         const axesHelper = new THREE.AxesHelper(20);

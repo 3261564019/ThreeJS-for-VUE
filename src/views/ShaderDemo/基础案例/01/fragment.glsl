@@ -1,5 +1,7 @@
 uniform sampler2D uTextureMain;
 uniform sampler2D uTextureOpacity;
+
+varying vec3 vPosition;
 varying vec2 vUv;
 void main() {
     vec4 imgMain=texture2D(uTextureMain, vUv);
@@ -10,6 +12,8 @@ void main() {
 
     // 使用彩色图像的颜色值，并将黑白图像的亮度值作为透明度
     gl_FragColor = vec4(imgMain.rgb, imgOpacity);
+
+//    gl_FragColor=vec4(vPosition.x +0.5f);
 //    gl_FragColor = imgMain * imgOpacity; // 使用纹理
 //    gl_FragColor =imgOpacity; // 使用纹理
 }

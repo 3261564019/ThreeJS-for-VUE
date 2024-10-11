@@ -44,7 +44,7 @@ export class BaseScene extends BaseInit {
     }
 
     Debug() {
-        this.renderer.setPixelRatio(0.8);
+        this.renderer.setPixelRatio(1);
         this.dat.add(this.debugParams, 'PixelRatio', 0.0, 3.0).onChange((value: string) => {
             // 根据选择的色调映射算法更新渲染器属性
             // @ts-ignore

@@ -130,6 +130,9 @@ const routes: Array<RouteRecordRaw> = [
         path: '/ttt',
         component: ()=> import("@/views/Other/面试/test.vue")
     },{
+        path: '/sphereLerp',
+        component: ()=> import("@/views/integratedDemoLists/球型lerp/index.vue")
+    },{
         path: '/temp',
         name: 'temp',
         // component: ()=> import("@/views/面试/变量提升.vue")
@@ -177,6 +180,10 @@ const routes: Array<RouteRecordRaw> = [
         path: '/Coordinate',
         name: 'Coordinate',
         component: ()=> import("@/views/unsuccessful/坐标系/index.vue")
+    },{
+        path: '/Cover',
+        name: 'Cover',
+        component: ()=> import("@/views/integratedDemoLists/遮挡dom/index.vue")
     },{
         path: '/foldline',
         name: 'foldline',
