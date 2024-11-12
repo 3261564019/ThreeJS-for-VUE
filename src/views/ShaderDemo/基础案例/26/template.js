@@ -27,7 +27,7 @@ varying vec2 vUv;
 uniform float uTime;
 
 void main() {
-    gl_FragColor =vec4(0.2,1.0,1.0,0.8);//颜色 透明度0--1
+    gl_FragColor =vec4(vUv.x,vUv.y,1.0,vUv.x);//颜色 透明度0--1
   ${ShaderChunk.logdepthbuf_fragment}
 }
     `;

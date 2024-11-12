@@ -20,6 +20,10 @@ export class BaseScene extends BaseInit {
         depthPacking:RGBADepthPacking
     });
 
+    private debugData={
+        twistLevel:0.9
+    }
+
     private clock=new Clock();
 
     constructor() {
@@ -43,9 +47,7 @@ export class BaseScene extends BaseInit {
         this.addDebug();
         this.addPlan();
         this.loadModal();
-        // this.addBall();
         // this.addPlan();
-        this.manualRender()
     }
     loadEnv(){
         new RGBELoader().load(clarens_night_02_4k, (texture) => {
@@ -54,7 +56,7 @@ export class BaseScene extends BaseInit {
             texture.mapping = THREE.EquirectangularReflectionMapping;
             texture.encoding = THREE.sRGBEncoding;
             this.envMap=texture
-            this.scene.environment = texture;
+            // this.scene.environment = texture;
             this.scene.background = texture;
         });
     }
@@ -121,11 +123,13 @@ export class BaseScene extends BaseInit {
         // 将 shader.uniforms 赋值给 material，以便在外部更新 uniform 值
         this.m.onBeforeCompile=(e,a)=>{
             e.uniforms.uTime={value:0};
+            e.uniforms.twistLevel={value:0};
             this.m.userData.shaderUniforms = e.uniforms;
 
             e.vertexShader=e.vertexShader.replace("#include <common>",`
             
             uniform float uTime;
+            uniform float twistLevel;
 
             #include <common>
                 mat2 get2dRotateMatrix(float angle){
@@ -136,7 +140,7 @@ export class BaseScene extends BaseInit {
             e.vertexShader=e.vertexShader.replace("#include <beginnormal_vertex>",`
                 #include <beginnormal_vertex>
                 
-                float angle=position.y * 0.9; 
+                float angle=position.y * twistLevel; 
                 angle=angle + uTime; 
                 mat2 rotateMatrix=get2dRotateMatrix(angle);
                     
@@ -158,12 +162,14 @@ export class BaseScene extends BaseInit {
         this.depth.onBeforeCompile=(e,a)=> {
             console.log(e);
             e.uniforms.uTime={value:0};
+            e.uniforms.twistLevel={value:0};
 
             this.depth.userData.shaderUniforms = e.uniforms;
 
             e.vertexShader=e.vertexShader.replace("#include <common>",`
             
             uniform float uTime;
+            uniform float twistLevel;
 
             #include <common>
                 mat2 get2dRotateMatrix(float angle){
@@ -173,7 +179,7 @@ export class BaseScene extends BaseInit {
             e.vertexShader=e.vertexShader.replace("#include <begin_vertex>",`
                 #include <begin_vertex>
                 
-                  float angle=position.y * 0.9;
+                  float angle=position.y * twistLevel;
                 angle=angle + uTime; 
                 
                 mat2 rotateMatrix=get2dRotateMatrix(angle);
@@ -182,19 +188,6 @@ export class BaseScene extends BaseInit {
                 
             `);
         }
-    }
-    addBall(){
-        const material = new MeshStandardMaterial({color:"#0022ff"});
-        material.envMap=this.envMap;
-        const sphere = new THREE.Mesh(
-            new THREE.SphereGeometry(3, 33, 33),
-            material
-        );
-
-        sphere.position.z = 5;
-        sphere.castShadow = true
-
-        this.scene.add(sphere);
     }
     addPlan(){
 
@@ -216,7 +209,7 @@ export class BaseScene extends BaseInit {
     addLight(){
 
         //创建聚光灯
-        const light = new SpotLight("#fff",1);
+        const light = new SpotLight("#fff",3000);
         light.castShadow = true;            // default false
         light.position.x = 10;
         light.position.y = 18;
@@ -245,18 +238,22 @@ export class BaseScene extends BaseInit {
         //定位相机指向场景中心
         this.camera.lookAt(this.scene.position)
 
+        
+        this.dat.add(this.debugData,"twistLevel",0,5).name("扭曲程度")
 
         this.clock.start();
     }
     animate(){
         if(this.m?.userData?.shaderUniforms){
-
+            this.m.userData.shaderUniforms.twistLevel.value = this.debugData.twistLevel;
             this.m.userData.shaderUniforms.uTime.value =this.clock.getElapsedTime();
             // this.m.uniforms.uTIme.value=this.clock.getElapsedTime();
         }
         if(this.depth?.userData?.shaderUniforms) {
 
             this.depth.userData.shaderUniforms.uTime.value = this.clock.getElapsedTime();
+            this.depth.userData.shaderUniforms.twistLevel.value = this.debugData.twistLevel;
+
         }
         this.control.update()
         this.stats.update()

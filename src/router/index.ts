@@ -57,11 +57,7 @@ const routes: Array<RouteRecordRaw> = [
         path: '/effectScene',
         name: 'effectScene',
         component: ()=> import("../views/integratedDemoLists/后期效果/index.vue")
-    },{
-        path: '/modelAnimation',
-        name: 'modelAnimation',
-        component: ()=> import("../views/integratedDemoLists/模型动作/index.vue")
-    },{
+    }, {
         path: '/modelBg',
         name: 'modelBg',
         component: ()=> import("@/views/integratedDemoLists/模型背景/index.vue")
@@ -133,6 +129,13 @@ const routes: Array<RouteRecordRaw> = [
         path: '/sphereLerp',
         component: ()=> import("@/views/integratedDemoLists/球型lerp/index.vue")
     },{
+        path: '/materialExpand',
+        component: ()=> import("@/views/integratedDemoLists/拓展基础材质/index.vue"),
+
+    },{
+        path: '/coffeeSmoke',
+        component: ()=> import("@/views/integratedDemoLists/咖啡烟雾/index.vue"),
+    },{
         path: '/temp',
         name: 'temp',
         // component: ()=> import("@/views/面试/变量提升.vue")
@@ -151,7 +154,8 @@ const routes: Array<RouteRecordRaw> = [
         // component: ()=> import("@/views/unsuccessful/cannon调试/index.vue")
         // component: ()=> import("@/views/integratedDemoLists/多个RouterView/index.vue"),
         // component: ()=> import("@/views/integratedDemoLists/bvh/index.vue")
-        component: ()=> import("@/views/Other/面试/flex.vue"),
+        // component: ()=> import("@/views/Other/面试/flex.vue"),
+        component: ()=> import("@/views/integratedDemoLists/拓展基础材质/index.vue"),
         // component: ()=> import("@/views/integratedDemoLists/场景练习/sceneDemo.vue"),
         // component: ()=> import("@/views/enable3d/index.vue")
         // component: ()=> import("@/views/integratedDemoLists/第三人称enable3D/index.vue")

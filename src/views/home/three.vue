@@ -73,6 +73,8 @@ import shader23 from "@/assets/img/shaderDemo/23.png"
 import shader24 from "@/assets/img/shaderDemo/24.png"
 import shader25 from "@/assets/img/shaderDemo/25.png"
 import ragingSea from "@/assets/img/shaderDemo/ragingSea.png"
+import materialHook from "@/assets/img/demo/materialHook.png"
+import coffeeSmoke from "@/assets/img/demo/coffeSmoke.png"
 
 const router=useRouter();
 
@@ -140,6 +142,14 @@ let itemList=[
     name:"RagingSea",
     img:ragingSea,
     route:"/ragingSea"
+  },{
+    name:"材质拓展",
+    img:materialHook,
+    route:"/materialExpand"
+  },{
+    name:"平面烟雾",
+    img:coffeeSmoke,
+    route:"/coffeeSmoke"
   },
 ];
 

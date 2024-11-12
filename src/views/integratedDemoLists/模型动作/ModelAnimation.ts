@@ -12,6 +12,7 @@ import test from "@/assets/model/bart.glb?url"
 import tree from "@/assets/model/tree.glb?url"
 import ani from "@/assets/model/break.glb?url"
 import {DRACOLoader} from "three/examples/jsm/loaders/DRACOLoader";
+import {captureBoxMan} from "@/views/integratedDemoLists/SketchBoxControl/hooks/mesh/character";
 
 function clone( source:any ) {
 
@@ -137,15 +138,15 @@ export class ModelAnimation extends BaseInit {
 
         this.addLight();
 
-        // this.addBall();
+        this.addBall();
 
         // this.addModel()
 
         // this.loadMyModel();
 
-        // this.loadBoxMan();
+        this.loadBoxMan();
 
-        this.loadAniMan()
+        // this.loadAniMan()
         // this.loadAnimation()
     }
     loadMyModel(){
@@ -153,31 +154,6 @@ export class ModelAnimation extends BaseInit {
         loader.load(girl,(res)=>{
             console.log("模型对象res",res)
             res.scene.position.y=10
-            this.scene.add(res.scene)
-        })
-
-    }
-    loadAnimation(){
-        const loader = new GLTFLoader();
-        const dracoLoader = new DRACOLoader(); //
-
-        /*
-            设置dracoLoader路径
-            https://www.gstatic.com/draco/versioned/decoders/[version]/
-            https://www.gstatic.com/draco/versioned/decoders/1.5.6/
-            版本号来自 ★ 非常重要 https://github.com/google/draco/tree/master
-        */
-        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
-        dracoLoader.setDecoderConfig({ type: 'js' }); //使用js方式解压
-        dracoLoader.preload(); //初始化_initDecoder 解码器
-        loader.setDRACOLoader(dracoLoader); //gltfloader使用dracoLoader
-
-        loader.load(tree,(res)=>{
-            console.log("模型对象res",res)
-            // this.tempMixer =new AnimationMixer(res.scene);
-            // let action1=this.tempMixer.clipAction(res.animations[2])
-            // action1.play()
-            // res.scene.position.y=0
             this.scene.add(res.scene)
         })
 
@@ -192,6 +168,7 @@ export class ModelAnimation extends BaseInit {
             res.animations.forEach((v)=>{
                 this.animationList.set(v.name,this.animationMixer.clipAction(v))
             })
+            captureBoxMan(res.scene)
             this.scene.add(res.scene)
             this.debugBoxMan();
 
@@ -213,7 +190,17 @@ export class ModelAnimation extends BaseInit {
 
         })
     }
+    showAllWeight(){
+        this.animationList.forEach((v,k)=>{
+            console.log(k+" \t ---- "+v.weight+" \t time:"+v.time)
+        })
+    }
     debugBoxMan(){
+        // 加载并播放第一个动作
+        const action1 = this.animationList.get("run");
+        // 加载并准备第二个动作
+        const action2 = this.animationList.get("idle");
+
         let temp={
             idle:()=>{
                 this.animationList.get("idle").play()
@@ -223,19 +210,47 @@ export class ModelAnimation extends BaseInit {
                 //jump_running stop
 
 
-                // 加载并播放第一个动作
-                const action1 = this.animationList.get("jump_running");
-                // @ts-ignore
+                    // @ts-ignore
                 action1.play();
 
-                // 加载并准备第二个动作
-                const action2 = this.animationList.get("stop");
-                // @ts-ignore
-                action1.fadeOut(1)
-                // @ts-ignore
-                action2.reset().fadeIn(1).play()
+                setTimeout(()=>{
+                    this.showAllWeight();
+                    // @ts-ignore
+                    action1.fadeOut(1)
+                    // @ts-ignore
+                    action2.reset().fadeIn(1).play()
+                },2000)
+                // setTimeout(()=>{
+                //     action1?.reset()
+                // },1000)
+                // action1.crossFadeTo( action2, 0.2, true );
 
+            },
+            test2:()=>{
+                action2.fadeOut(2)
+                action1.reset().fadeIn(2).play()
+            },
+            test3:()=>{
+                action1.play()
 
+                setTimeout(()=>{
+                    this.animationMixer.stopAllAction();
+                    action2.fadeIn(0.2);
+                    action2.play();
+                },2000)
+            },
+            print:this.showAllWeight.bind(this),
+            test4:()=> {
+                this.animationList.forEach(action=>{
+                    if (action.isRunning()) {
+                        // 如果当前动画正在运行，淡出它
+                        action.fadeOut(1);  // 1秒内淡出
+                    }
+                })
+                const falling = this.animationList.get("falling");
+
+                // 重置并淡入目标动画
+                falling.reset().fadeIn(1).play(); // 1秒内淡入并播放
             }
         }
         let names={}
@@ -255,7 +270,12 @@ export class ModelAnimation extends BaseInit {
             this.animationList.get(e).play()
         })
         this.dat.add(temp,"idle").name("休息")
-        this.dat.add(temp,"test1").name("变换")
+        this.dat.add(temp,"test1").name("跑步换休息")
+        this.dat.add(temp,"test2").name("休息换跑步（切换间隔 2）")
+        this.dat.add(temp,"test3").name("Play跑步")
+        this.dat.add(temp,"test4").name("切换图中打断")
+
+        this.dat.add(temp,"print").name("查看状态")
     }
     addModel(){
 
@@ -358,15 +378,16 @@ export class ModelAnimation extends BaseInit {
     addLight(){
 
         //创建聚光灯
-        const light = new THREE.SpotLight("#fff");
+        const light = new THREE.SpotLight("#fff",2000);
         light.castShadow = true;            // default false
-        light.position.x = 20;
+        light.position.x = 10;
         light.position.y = 30;
+        light.position.z = 20;
 
-        const ambientLight = new THREE.AmbientLight("#fff"); // 柔和的白光
+        // const ambientLight = new THREE.AmbientLight("#fff",30); // 柔和的白光
 
 
-        this.scene.add(ambientLight);
+        this.scene.add(light);
     }
     addBall(){
 

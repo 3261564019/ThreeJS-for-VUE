@@ -121,11 +121,6 @@ export class Character implements Updatable {
 
             this.checkMove()
 
-            //没用按任何方向键的情况下进行清空
-            // if(!isDown && !this.move && this.canJump){
-            //     this.clean()
-            // }
-
             /**
              * 如果键盘松开时没有在移动，也不在跳跃过程中需要执行stop动画
              */
@@ -223,7 +218,7 @@ export class Character implements Updatable {
                         targetRadius: 4.5
                     },this.ins.dat)
                     // set initial view to 90 deg theta
-                    this.controls.theta = 90
+                    this.controls.theta = -270
 
                     let canvas=this.ins.renderer.domElement
 
