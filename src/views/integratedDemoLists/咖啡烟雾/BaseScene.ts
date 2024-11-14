@@ -9,8 +9,8 @@ import {
 import {BaseInit, BaseInitParams} from "@/three/classDefine/baseInit";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import table from "@/assets/model/table.glb?url"
-import fragment from "./shaders/fragment.glsl?raw"
-import vertex from "./shaders/vertex.glsl?raw"
+import fragment from "./shaders/fragment.glsl"
+import vertex from "./shaders/vertex.glsl"
 import noisePic from "@/assets/img/noiseTexture.png?url"
 
 export class BaseScene extends BaseInit {
@@ -68,15 +68,11 @@ export class BaseScene extends BaseInit {
         })
     }
     addPlan(){
+        let v=vertex.replace("///logdepthbuf_pars_vertex",ShaderChunk.logdepthbuf_pars_vertex)
+        v=v.replace("///logdepthbuf_vertex",ShaderChunk.logdepthbuf_vertex)
 
-
-        let v=vertex.replace("//logdepthbuf_pars_vertex",ShaderChunk.logdepthbuf_pars_vertex)
-        v=v.replace("//logdepthbuf_vertex",ShaderChunk.logdepthbuf_vertex)
-
-        let f=fragment.replace("//logdepthbuf_pars_fragment",ShaderChunk.logdepthbuf_pars_fragment)
-        f=f.replace("//logdepthbuf_fragment",ShaderChunk.logdepthbuf_fragment)
-
-
+        let f=fragment.replace("///logdepthbuf_pars_fragment",ShaderChunk.logdepthbuf_pars_fragment)
+        f=f.replace("///logdepthbuf_fragment",ShaderChunk.logdepthbuf_fragment)
 
         const noise=this.textureLoader.load(noisePic);
         noise.wrapS=noise.wrapT=RepeatWrapping
@@ -84,8 +80,6 @@ export class BaseScene extends BaseInit {
         const geometry = new PlaneGeometry(1.5,6,14, 64);
         const material = new ShaderMaterial({
             wireframe:false,
-            depthTest: true,      // 启用深度测试
-            depthWrite: false,     // 启用深度写入
             fragmentShader:f,
             transparent:true,
             vertexShader:v,

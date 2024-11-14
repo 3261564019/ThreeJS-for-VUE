@@ -75,6 +75,8 @@ import shader25 from "@/assets/img/shaderDemo/25.png"
 import ragingSea from "@/assets/img/shaderDemo/ragingSea.png"
 import materialHook from "@/assets/img/demo/materialHook.png"
 import coffeeSmoke from "@/assets/img/demo/coffeSmoke.png"
+import videoTexture from "@/assets/img/demo/videoTexture.png"
+import hologram from "@/assets/img/demo/hologram.png"
 
 const router=useRouter();
 
@@ -150,6 +152,10 @@ let itemList=[
     name:"平面烟雾",
     img:coffeeSmoke,
     route:"/coffeeSmoke"
+  },{
+    name:"全息投影",
+    img:hologram,
+    route:"/hologram"
   },
 ];
 
@@ -250,6 +256,10 @@ let shaderList=[
     name:"pattern25",
     img:shader25,
     route:"/ShaderDemo25"
+  },{
+    name:"视频贴图",
+    img:videoTexture,
+    route:"/ShaderDemo28"
   }
 ]
 
@@ -257,22 +267,6 @@ function to(item) {
   console.log(item)
   router.push({path:item.route})
 }
-
-let t=new Promise(resolve => {
-  setTimeout(()=>{
-    resolve()
-  },2000)
-})
-
-t.then(()=>{
-  console.log("111")
-})
-t.then(()=>{
-  console.log("222")
-})
-t.then(()=>{
-  console.log("333")
-})
 
 
 </script>

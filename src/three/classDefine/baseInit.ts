@@ -1,12 +1,12 @@
-import {AudioLoader, PerspectiveCamera, Scene, TextureLoader, WebGLRenderer} from "three";
 import * as THREE from "three";
+import {AudioLoader, PerspectiveCamera, Scene, SRGBColorSpace, TextureLoader, WebGLRenderer} from "three";
 // @ts-ignore
 import Stats from 'stats-js';
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 // @ts-ignore
 import * as dat from 'dat.gui';
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
-import {debounce} from "../../utils";
+import {debounce} from "@/utils";
 
 export interface BaseInitParams {
     //是否需要坐标指示器
@@ -112,8 +112,7 @@ export class BaseInit {
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         //场景曝光以及亮度
         renderer.toneMappingExposure = 0.6;
-        renderer.outputEncoding = THREE.sRGBEncoding;
-
+        renderer.outputColorSpace=SRGBColorSpace
 
         //创建三维坐标系坐标
         if (params.needAxesHelper) {
@@ -190,6 +189,9 @@ export class BaseInit {
         this.handleResize();
         console.log("初始化后", this);
     }
+    extraOnReSize(){
+
+    }
     //屏幕尺寸发生变化时进行适配，并存储可视区域宽高，用于计算射线
     addScreenReSizeListener() {
 
@@ -201,10 +203,12 @@ export class BaseInit {
 
             this.screenSize.set(window.innerWidth , window.innerHeight);
 
+            this.extraOnReSize();
+
             this.handleResize();
         }
         calc();
-        this.reSizeCallBack=debounce(calc,1000,this);
+        this.reSizeCallBack=debounce(calc,100,this);
         // @ts-ignore
         window.addEventListener("resize", this.reSizeCallBack);
     }

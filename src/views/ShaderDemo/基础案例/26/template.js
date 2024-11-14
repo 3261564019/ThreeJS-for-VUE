@@ -40,6 +40,7 @@ const _01_default =  new ShaderMaterial({
     vertexShader: vertex,
     fragmentShader: fragment,
     side: DoubleSide,
+    depthWrite:false,
     transparent: true,
   });
 

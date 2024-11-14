@@ -8,6 +8,11 @@
     "jsx": "preserve",
     "sourceMap": true,
     "resolveJsonModule": true,
+    "compilerOptions": {
+      "types": [
+        "vite-plugin-glsl/ext"
+      ]
+    },
     "isolatedModules": true,
     "esModuleInterop": true,
     "lib": ["esnext", "dom"],

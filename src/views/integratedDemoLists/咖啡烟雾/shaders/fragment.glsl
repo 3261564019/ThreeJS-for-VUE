@@ -1,8 +1,7 @@
 varying vec2 vUv;
 uniform sampler2D uNoiseTexture;
 uniform float uTime;
-//logdepthbuf_pars_fragment
-
+///logdepthbuf_pars_fragment
 void main() {
 
     vec2 smokeUv=vUv;
@@ -25,9 +24,8 @@ void main() {
     c*=1.0-smoothstep(0.75,1.0,vUv.y);
 
     gl_FragColor = vec4(0.6,0.3,0.2,c);
-//    gl_FragColor = vec4(1);
-
-    //logdepthbuf_fragment
+    //gl_FragColor = vec4(1);
+    ///logdepthbuf_fragment
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
 }

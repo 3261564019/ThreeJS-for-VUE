@@ -136,6 +136,12 @@ const routes: Array<RouteRecordRaw> = [
         path: '/coffeeSmoke',
         component: ()=> import("@/views/integratedDemoLists/咖啡烟雾/index.vue"),
     },{
+        path: '/hologram',
+        component: ()=> import("@/views/integratedDemoLists/全息显示/index.vue"),
+    },{
+        path: '/fireWorks',
+        component: ()=> import("@/views/integratedDemoLists/fireWorks/index.vue"),
+    },{
         path: '/temp',
         name: 'temp',
         // component: ()=> import("@/views/面试/变量提升.vue")

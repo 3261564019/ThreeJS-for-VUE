@@ -7,12 +7,10 @@ bool isPerspectiveMatrix(mat4) {
     return true;
 }
 
-vec2 rotate2D(vec2 v, float a) {
-    mat2 m = mat2(cos(a), -sin(a), sin(a), cos(a));
-    return m * v;
-}
 
-//logdepthbuf_pars_vertex
+#include /src/views/integratedDemoLists/咖啡烟雾/chunk/rotate2D.glsl;
+
+///logdepthbuf_pars_vertex
 void main(){
 
     //从纹理中获取 中线 像素点的颜色
@@ -62,6 +60,6 @@ void main(){
 
     vUv=uv;
 
-    //logdepthbuf_vertex
+    ///logdepthbuf_vertex
 
 }
