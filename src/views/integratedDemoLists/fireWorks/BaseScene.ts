@@ -1,22 +1,33 @@
 import {
-    ACESFilmicToneMapping, BufferAttribute, BufferGeometry,
+    ACESFilmicToneMapping, AdditiveBlending, BufferAttribute, BufferGeometry,
     DoubleSide, Float32BufferAttribute,
     Mesh,
     MeshLambertMaterial,
     PlaneGeometry, Points, PointsMaterial, ShaderChunk, ShaderMaterial,
-    SpotLight, SpriteMaterial, Uniform
+    SpotLight, SpriteMaterial, Texture, TextureLoader, Uniform, Vector3
 } from "three";
 import {BaseInit, BaseInitParams} from "@/three/classDefine/baseInit";
 import vertex from "./vertex.glsl"
 import fragment from "./fragment.glsl"
 import * as THREE from "three";
+import p1 from "@/views/integratedDemoLists/fireWorks/partice/p (1).png"
+import p2 from "@/views/integratedDemoLists/fireWorks/partice/p (2).png"
+import p3 from "@/views/integratedDemoLists/fireWorks/partice/p (3).png"
+import p4 from "@/views/integratedDemoLists/fireWorks/partice/p (4).png"
+import p5 from "@/views/integratedDemoLists/fireWorks/partice/p (5).png"
+import p6 from "@/views/integratedDemoLists/fireWorks/partice/p (6).png"
+import p7 from "@/views/integratedDemoLists/fireWorks/partice/p (7).png"
+import p8 from "@/views/integratedDemoLists/fireWorks/partice/p (8).png"
 
 export class BaseScene extends BaseInit {
     private m: ShaderMaterial;
+
+    private textures:Texture[]
     constructor() {
         super({
             needLight:false,
             needOrbitControls:true,
+            transparentRenderBg:true,
             needAxesHelper:false,
             adjustScreenSize:true,
             renderDomId:"#renderDom"
@@ -26,20 +37,36 @@ export class BaseScene extends BaseInit {
 
         this.init();
 
+        this.loadTexture();
+
         this.addPlan();
 
         this.addLight();
 
-        this.createFireWork(100);
+        this.createFireWork(100,new Vector3(0,0,0),7);
 
         this.animate()
+    }
+    loadTexture(){
+        let loader=new TextureLoader();
+
+        this.textures=[
+            loader.load(p1),
+            loader.load(p2),
+            loader.load(p3),
+            loader.load(p4),
+            loader.load(p5),
+            loader.load(p6),
+            loader.load(p7),
+            loader.load(p8)
+        ]
     }
     extraOnReSize() {
         console.log("aaa",this.screenSize)
         console.log(this.m?.uniforms)
     }
 
-    createFireWork(count:number){
+    createFireWork(count:number,center:Vector3,index:number,size:number=10){
         let position=new Float32Array(count*3);
 
         let radius=1;
@@ -47,9 +74,9 @@ export class BaseScene extends BaseInit {
 
             let p=i*3;
 
-            position[p]=Math.random()*radius-(radius/2);
-            position[p+1]=Math.random()*radius-(radius/2);
-            position[p+2]=Math.random()*radius-(radius/2);
+            position[p]=center.x+ Math.random()*radius-(radius/2);
+            position[p+1]=center.y+ Math.random()*radius-(radius/2);
+            position[p+2]=center.z+ Math.random()*radius-(radius/2);
         }
         const geometry = new BufferGeometry();
 
@@ -66,13 +93,24 @@ export class BaseScene extends BaseInit {
         let f=fragment.replace("///logdepthbuf_pars_fragment",ShaderChunk.logdepthbuf_pars_fragment)
         f=f.replace("///logdepthbuf_fragment",ShaderChunk.logdepthbuf_fragment)
 
+        let texture=this.textures[index];
+        texture.flipY=false;
+
         const material = new ShaderMaterial({
             vertexShader:v,
             fragmentShader:f,
             uniforms:{
-                uSize:new Uniform(10),
-                uResolution:new Uniform(this.screenSize)
-            }
+                uSize:new Uniform(size),
+                uResolution:new Uniform(this.screenSize),
+                uTexture:new Uniform(texture),
+            },
+
+            depthTest:true,
+            depthWrite: false,     // 禁止透明部分写入深度缓冲区
+            blending:AdditiveBlending,
+
+
+            transparent:true
         });
 
         this.m=material;

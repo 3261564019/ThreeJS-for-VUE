@@ -1,6 +1,11 @@
+uniform sampler2D uTexture;
 ///logdepthbuf_pars_fragment
 void main() {
-    gl_FragColor = vec4(0.3,0.5,0.7,0.5);
+
+
+    vec4 imgMain=texture2D(uTexture,gl_PointCoord);
+
+    gl_FragColor = imgMain;
 
     ///logdepthbuf_fragment
     #include <tonemapping_fragment>

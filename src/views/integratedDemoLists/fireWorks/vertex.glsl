@@ -1,6 +1,5 @@
 uniform float uSize;
 uniform vec2 uResolution;
-
 ///logdepthbuf_pars_vertex
 bool isPerspectiveMatrix(mat4) {
     return true;
