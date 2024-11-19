@@ -148,7 +148,7 @@ export class GMapRender {
                 ],
                 height: [20, 330, 80],
                 size: 20,
-                speed: 220
+                speed: 1
             }))
 
             this.initDragControls()

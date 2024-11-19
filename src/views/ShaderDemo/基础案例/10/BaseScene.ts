@@ -8,7 +8,7 @@ export class BaseScene extends BaseInit {
 
     material:ShaderMaterial
     private clock:Clock;
-
+    plan:Mesh;
 
     constructor() {
         super({
@@ -49,6 +49,7 @@ export class BaseScene extends BaseInit {
         plane.position.x = 0;
         plane.position.y = 0;
         plane.position.z = 0;
+        this.plan=plane
         //添加地板容器
         this.scene.add(plane);
     }
@@ -68,6 +69,7 @@ export class BaseScene extends BaseInit {
         this.control.update()
         this.stats.update()
         this.renderer.render(this.scene, this.camera);
+        this.plan.rotation.y=this.clock.getElapsedTime();
         this.raf=requestAnimationFrame(this.animate.bind(this));
     }
 }

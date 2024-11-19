@@ -1,11 +1,11 @@
 import {
-    ACESFilmicToneMapping, BoxGeometry,
+    ACESFilmicToneMapping, AxesHelper, BoxGeometry,
     DoubleSide,
     LinearEncoding,
     Mesh,
     MeshLambertMaterial,
-    PlaneGeometry,
-    SpotLight
+    PlaneGeometry, ShapeGeometry, SphereGeometry,
+    SpotLight, Vector3
 } from "three";
 import {BaseInit, BaseInitParams} from "@/three/classDefine/baseInit";
 
@@ -30,8 +30,45 @@ export class BaseScene extends BaseInit {
 
         this.addLight();
 
+        this.addDebug()
 
         this.animate()
+    }
+    addDebug(){
+        let t={
+            t1:()=>{
+                //新创建的球体p，希望加到box上
+                let p=new Mesh(new SphereGeometry(1,30),new MeshLambertMaterial({color:"#0f0"}))
+                //添加之前将p的初始值为0,0,0的位置转为世界坐标系
+                p.translateZ(6);
+
+                p.add(new AxesHelper(4))
+                this.box.add(p);
+                let t=new Vector3(0,0,0)
+                // p.worldToLocal(new Vector3(0,0,0))
+                p.lookAt(t)
+                // this.box.worldToLocal(p.position)
+                //再进行添加
+                console.log(p.matrixWorld)
+                console.log(p.matrix)
+                console.log("-----------")
+                p.updateMatrixWorld()
+                let box=new Mesh(new BoxGeometry(3,3),new MeshLambertMaterial({color:"#0022ff"}))
+                box.applyMatrix4(p.matrixWorld)
+                this.scene.add(box);
+
+
+
+                // this.plane.applyMatrix4(p.matrixWorld);
+                //此时p.position的x为-10
+                // console.log('p',p.position)
+            },
+            t2:()=>{
+
+            }
+        }
+        this.dat.add(t,"t1").name("aa")
+        // this.dat.add(t,"t2").name("添加立方体")
     }
     addPlan(){
 
@@ -41,14 +78,14 @@ export class BaseScene extends BaseInit {
         const plane = new Mesh(geometry, material);
         //设置接受阴影
         plane.receiveShadow = true
-        plane.rotateX(Math.PI/2)
+        // plane.rotateX(Math.PI/2)
         plane.position.x = 10;
         plane.position.y = 0;
         plane.position.z = 0;
 
         let box=new Mesh(new BoxGeometry(3,3),new MeshLambertMaterial({color:"#f00"}))
         plane.add(box)
-        box.position.x=-2;
+        // box.position.x=-2;
         this.plane=plane
         this.box=box
         //添加地板容器

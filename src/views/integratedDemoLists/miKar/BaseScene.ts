@@ -4,8 +4,8 @@ import {BaseInit, BaseInitParams} from "@/three/classDefine/baseInit.js";
 import clarens_night_02_4k from "@/assets/hdr/clarens_night_02_4k.hdr?url";
 import {RGBELoader} from "three/examples/jsm/loaders/RGBELoader";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
-// import su7 from "@/assets/model/su71.glb?url"
-import su7 from "@/assets/model/mesh/sm_car.gltf?url"
+import su7 from "@/assets/model/xj.glb?url"
+// import su7 from "@/assets/model/mesh/sm_car.gltf?url"
 import {MeshoptDecoder} from "three/examples/jsm/libs/meshopt_decoder.module.js"
 import {makeSeriesEncodeForAxisCoordSys} from "echarts/types/src/data/helper/sourceHelper";
 
@@ -44,7 +44,7 @@ export class BaseScene extends BaseInit {
 
             const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256, {
                 minFilter: THREE.LinearMipMapLinearFilter,
-                anisotropy: 0,
+                anisotropy: 1,
                 depthBuffer: true,
                 generateMipmaps: true,
             });
@@ -52,19 +52,19 @@ export class BaseScene extends BaseInit {
             this.cubeCamera = new THREE.CubeCamera( 1, 1000, cubeRenderTarget );
             this.scene.environment = cubeRenderTarget.texture;
 
-            // e.scene.traverse(v=>{
-            //     if(v.isMesh){
+            e.scene.traverse(v=>{
+                if(v.isMesh){
 
-                    // face.material=new THREE.MeshStandardMaterial({
-                    //     envMap: cubeRenderTarget.texture,
-                    //     // color:"#1f65b8",
-                    //     roughness: 0.05,
-                    //     metalness: 1,
-                    //     opacity:1,
-                    //     transparent: true,
-                    // })
-            //     }
-            // })
+                    v.material=new THREE.MeshStandardMaterial({
+                        envMap: cubeRenderTarget.texture,
+                        // color:"#1f65b8",
+                        roughness: 0.05,
+                        metalness: 1,
+                        opacity:1,
+                        transparent: true,
+                    })
+                }
+            })
             // face.material.envMap=cubeRenderTarget.texture
             // face.material.metalness=1;
             // face.material.roughness=0.05;

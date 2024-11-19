@@ -57,22 +57,23 @@ export class FlowPath extends ChildScene {
         console.log(this.splitLineArr)
     }
     render(delta: number, elapsedTime: number): void {
-        if (this.curve) {
-            // console.log("参数",this.p.size)
-            this.splitLineArr.forEach((v, index) => {
-                let at = (index / this.p.size) + (elapsedTime % this.p.size) / (this.p.speed ?? 1)*this.p.size
-                if (at > 1) {
-                    at %= 1
-                }
-                let position = this.curve.getPointAt(at);
-                let tangent=this.curve.getTangentAt(at);
-                // console.log(tangent);
-                let lookAtVec=tangent.add(position);
-                v.lookAt(lookAtVec)
-                // @ts-ignore
-                v.position.set(...position)
-            })
-        }
+        if (!this.curve) return;
+
+        // 预计算速度与时间相关的部分
+        const speed = this.p.speed ?? 1;
+        const pathSize = this.p.size;
+        const timeOffset = (elapsedTime * speed) % pathSize;
+
+        this.splitLineArr.forEach((mesh, index) => {
+            // 计算当前线段的在曲线上的位置 (at) 和切线方向 (tangent)
+            const at = (index + timeOffset) / pathSize % 1;
+            const position = this.curve.getPointAt(at);
+            const tangent = this.curve.getTangentAt(at);
+
+            // 设置位置和朝向
+            mesh.position.copy(position);
+            mesh.lookAt(position.clone().add(tangent));
+        });
     }
 
 }

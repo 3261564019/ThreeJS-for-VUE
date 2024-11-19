@@ -1,12 +1,13 @@
 import {
-    ACESFilmicToneMapping, AdditiveBlending, BufferAttribute, BufferGeometry,
+    ACESFilmicToneMapping, AdditiveBlending, BufferAttribute, BufferGeometry, Color,
     DoubleSide, Float32BufferAttribute,
-    Mesh,
+    Mesh, MeshBasicMaterial,
     MeshLambertMaterial,
-    PlaneGeometry, Points, PointsMaterial, ShaderChunk, ShaderMaterial,
+    PlaneGeometry, Points, PointsMaterial, ShaderChunk, ShaderMaterial, Spherical,
     SpotLight, SpriteMaterial, Texture, TextureLoader, Uniform, Vector3
 } from "three";
 import {BaseInit, BaseInitParams} from "@/three/classDefine/baseInit";
+import {gsap} from "gsap";
 import vertex from "./vertex.glsl"
 import fragment from "./fragment.glsl"
 import * as THREE from "three";
@@ -18,9 +19,12 @@ import p5 from "@/views/integratedDemoLists/fireWorks/partice/p (5).png"
 import p6 from "@/views/integratedDemoLists/fireWorks/partice/p (6).png"
 import p7 from "@/views/integratedDemoLists/fireWorks/partice/p (7).png"
 import p8 from "@/views/integratedDemoLists/fireWorks/partice/p (8).png"
+import sr from "@/assets/img/sr.png"
 
 export class BaseScene extends BaseInit {
     private m: ShaderMaterial;
+
+    plane:Mesh;
 
     private textures:Texture[]
     constructor() {
@@ -39,13 +43,20 @@ export class BaseScene extends BaseInit {
 
         this.loadTexture();
 
-        this.addPlan();
 
         this.addLight();
+        this.addPlan();
 
-        this.createFireWork(100,new Vector3(0,0,0),7);
-
+        this.addDebug()
         this.animate()
+    }
+    addDebug(){
+        this.dat.add(this,"addSomeThing").name("fire")
+    }
+    addSomeThing(){
+
+        this.createFireWork(1000,new Vector3(0,0,0),7,1,new Color("rgba(255,104,150,0.93)"));
+        // this.createFireWork(1000,new Vector3(0,6,0),4,1,new Color("#f00"));
     }
     loadTexture(){
         let loader=new TextureLoader();
@@ -66,21 +77,47 @@ export class BaseScene extends BaseInit {
         console.log(this.m?.uniforms)
     }
 
-    createFireWork(count:number,center:Vector3,index:number,size:number=10){
+    createFireWork(
+        count:number,
+        center:Vector3,
+        index:number,
+        sphereSize:number=1,
+        color:Color,
+        size:number=10,
+    ){
         let position=new Float32Array(count*3);
+        let origin=new Float32Array(count*3);
+        let sizeArr=new Float32Array(count);
 
-        let radius=1;
         for(let i=0;i<count;i++){
 
             let p=i*3;
 
-            position[p]=center.x+ Math.random()*radius-(radius/2);
-            position[p+1]=center.y+ Math.random()*radius-(radius/2);
-            position[p+2]=center.z+ Math.random()*radius-(radius/2);
+
+            const spherical=new Spherical(
+                sphereSize * (0.75 + Math.random()*0.25),
+                Math.random()*Math.PI,
+                Math.random()*Math.PI*2
+            );
+
+            let c=new Vector3();
+            c.setFromSpherical(spherical);
+
+            origin[p]=center.x;
+            origin[p+1]=center.y;
+            origin[p+2]=center.z;
+
+            position[p]=c.x + center.x;
+            position[p+1]=c.y + center.y;
+            position[p+2]=c.z + center.z;
+
+            sizeArr[i]=Math.random();
         }
         const geometry = new BufferGeometry();
 
+        geometry.setAttribute('origin', new Float32BufferAttribute(origin, 3));
         geometry.setAttribute('position', new Float32BufferAttribute(position, 3));
+        geometry.setAttribute('rSize', new Float32BufferAttribute(sizeArr, 1));
 
         console.log(position);
 
@@ -103,26 +140,43 @@ export class BaseScene extends BaseInit {
                 uSize:new Uniform(size),
                 uResolution:new Uniform(this.screenSize),
                 uTexture:new Uniform(texture),
+                uColor:new Uniform(color),
+                uProgress:new Uniform(0)
             },
 
             depthTest:true,
             depthWrite: false,     // 禁止透明部分写入深度缓冲区
             blending:AdditiveBlending,
-
-
             transparent:true
         });
 
-        this.m=material;
         
         const fireWorks=new Points(geometry,material);
 
         this.scene.add(fireWorks);
+
+        const destroy=()=>{
+            this.scene.remove(fireWorks)
+            geometry.dispose()
+            material.dispose()
+        }
+
+        gsap.to(material.uniforms.uProgress,{
+            value:1,
+            duration:2,
+            ease:"none",
+            onComplete:()=>{
+                destroy()
+            }
+        })
+
     }
     addPlan(){
 
-        const geometry = new PlaneGeometry(1, 1);
-        const material = new MeshLambertMaterial({color: 0x222222});
+        const geometry = new PlaneGeometry(0.5, 0.5);
+
+
+        const material = new MeshBasicMaterial({color:new Color("#e0ea34")});
         material.side=DoubleSide
         const plane = new Mesh(geometry, material);
         //设置接受阴影
@@ -132,9 +186,24 @@ export class BaseScene extends BaseInit {
         plane.position.y = 0;
         plane.position.z = 0;
 
+        this.plane=plane;
         //添加地板容器
         this.scene.add(plane);
 
+        this.dat.add(this,"scalePlan").name("scale")
+    }
+    scalePlan(){
+        let s={value:1}
+        gsap.to(s,{
+            value:2,
+            duration:2,
+            ease:"bounce",
+            onUpdate:()=>{
+                this.plane.scale.set(s.value,s.value,s.value)
+            },
+            onComplete:()=>{
+            }
+        })
     }
     addLight(){
 
@@ -159,7 +228,7 @@ export class BaseScene extends BaseInit {
 
 
         const axesHelper = new THREE.AxesHelper(1);
-        this.scene.add(axesHelper);
+        // this.scene.add(axesHelper);
 
     }
     animate(){

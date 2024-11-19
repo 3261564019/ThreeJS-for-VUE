@@ -198,6 +198,10 @@ const routes: Array<RouteRecordRaw> = [
         path: '/foldline',
         name: 'foldline',
         component: ()=> import("@/views/integratedDemoLists/foldline/index.vue")
+    },{
+        path: '/expandBasic',
+        name: 'expandBasic',
+        component: ()=> import("@/views/integratedDemoLists/拓展基础材质/index.vue")
     },
     ...shaderRoute
     // ,{
