@@ -3,7 +3,11 @@ let shaderRoute=[
         path: '/ragingSea',
         name: 'ragingSea',
         component: ()=> import(`@/views/ShaderDemo/ragingSea/index.vue`)
-    }
+    },{
+        path: '/customLight',
+        name: 'customLight',
+        component: ()=> import(`@/views/journey/自定义灯光/index.vue`)
+    },
 ]
 
 for (let i=1;i<=35;i++){
