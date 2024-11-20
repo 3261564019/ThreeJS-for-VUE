@@ -55,7 +55,7 @@ export class BaseScene extends BaseInit {
     }
     addSomeThing(){
 
-        this.createFireWork(1000,new Vector3(0,0,0),7,1,new Color("rgba(255,104,150,0.93)"));
+        this.createFireWork(1000,new Vector3(0,0,0),7,1,new Color("#f0648e"));
         // this.createFireWork(1000,new Vector3(0,6,0),4,1,new Color("#f00"));
     }
     loadTexture(){
@@ -88,6 +88,7 @@ export class BaseScene extends BaseInit {
         let position=new Float32Array(count*3);
         let origin=new Float32Array(count*3);
         let sizeArr=new Float32Array(count);
+        let timeScaleArr=new Float32Array(count);
 
         for(let i=0;i<count;i++){
 
@@ -112,12 +113,14 @@ export class BaseScene extends BaseInit {
             position[p+2]=c.z + center.z;
 
             sizeArr[i]=Math.random();
+            timeScaleArr[i]=1+Math.random();
         }
         const geometry = new BufferGeometry();
 
         geometry.setAttribute('origin', new Float32BufferAttribute(origin, 3));
         geometry.setAttribute('position', new Float32BufferAttribute(position, 3));
         geometry.setAttribute('rSize', new Float32BufferAttribute(sizeArr, 1));
+        geometry.setAttribute('rTimeScale', new Float32BufferAttribute(timeScaleArr, 1));
 
         console.log(position);
 

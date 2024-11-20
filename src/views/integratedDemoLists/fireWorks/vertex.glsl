@@ -3,6 +3,7 @@ uniform float uProgress;
 uniform vec2 uResolution;
 uniform vec3 origin;
 attribute float rSize;
+attribute float rTimeScale;
 
 ///logdepthbuf_pars_vertex
 bool isPerspectiveMatrix(mat4) {
@@ -27,6 +28,8 @@ float remap(float value,float originMin,float originMax,float destinationMin,flo
 void main(){
 
     vec3 newPosition =position;
+
+    float uProgress=uProgress*rTimeScale;
 
     //爆炸
     //先将0-0.3映射成0-1
@@ -63,12 +66,20 @@ void main(){
     float close=remap(uProgress,t,1.0,1.0,0.0);
     float sizeProgress=clamp(min(open,close),0.0,1.0);
 
+    /**
+        闪烁
+    **/
+    //闪烁程度
+    float blinkProgress=clamp(remap(uProgress,0.2,0.9,0.0,1.0),0.0,1.0);
+    float sizeTwink=sin(uProgress*39.3)*0.5+0.5;
+    float blinkRes=1.0-blinkProgress * sizeTwink;
 
     vec4 modelPosotion=modelMatrix * vec4(newPosition, 1.0);
     vec4 viewPosition=viewMatrix * modelPosotion;
     gl_Position = projectionMatrix * viewPosition ;
 
-    gl_PointSize=uSize * uResolution.y * 0.02f * rSize * sizeProgress;
+    //sizeProgress
+    gl_PointSize=uSize * uResolution.y * 0.02f * rSize * sizeProgress * blinkRes;
     //近大远小的透视
     gl_PointSize*=1.0 / - viewPosition.z;
 
