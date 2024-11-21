@@ -22,8 +22,13 @@ export class BaseScene extends BaseInit {
     m:ShaderMaterial;
     private clock: Clock;
     debugData={
-        uColor: "#fff"
+        uColor: "#fff",
+        specular:28,
+        planeColor:"#0077ff",
+        PlaneLightStrength:1
     }
+
+    planeM:MeshBasicMaterial;
 
     constructor() {
         super({
@@ -56,8 +61,10 @@ export class BaseScene extends BaseInit {
     addHelper(){
         let addDirectionHelper=()=>{
             const geometry = new PlaneGeometry(2, 2);
-            const m=new MeshBasicMaterial({color:"#0077ff"})
+            const m=new MeshBasicMaterial({color:this.debugData.planeColor})
             m.side=DoubleSide
+            this.planeM=m;
+
             const plane = new Mesh(geometry, m);
             plane.position.set(0,0,10)
             plane.lookAt(0,0,0)
@@ -83,7 +90,10 @@ export class BaseScene extends BaseInit {
             // blending:AdditiveBlending,
             uniforms:{
                 uTime:new Uniform(0),
-                uColor:new Uniform(new Color("#ffffff"))
+                uColor:new Uniform(new Color("#ffffff")),
+                uPlaneLightColor:new Uniform(new Color(this.debugData.planeColor)),
+                uPlaneLightStrength:new Uniform(this.debugData.PlaneLightStrength),
+                uSpecular:new Uniform(this.debugData.specular)
             }
         })
 
@@ -96,10 +106,29 @@ export class BaseScene extends BaseInit {
             p=>{
                 //通过color 的 set 方法来改变材质的颜色
                 // console.log("颜色改变",this.m.uniforms.uColor);
-
                 this.m.uniforms.uColor.value.set(this.debugData.uColor);
             }
         ).name("物体颜色");
+
+        let folder=this.dat.addFolder("方向灯");
+
+        folder.add(this.debugData,"PlaneLightStrength",0,10,0.1).onChange((e)=>{
+            this.m.uniforms.uPlaneLightStrength.value=e
+        })
+        folder.addColor(this.debugData,"planeColor").onChange(
+            p=>{
+                //通过color 的 set 方法来改变材质的颜色
+                // console.log("颜色改变",this.m.uniforms.uColor);
+                // this.m.uniforms.uColor.value.set(this.debugData.uColor);
+                this.planeM.color.set(p);
+                this.m.uniforms.uPlaneLightColor.value.set(this.debugData.planeColor);
+
+            }
+        ).name("方向灯颜色");
+
+        this.dat.add(this.debugData,"specular",0,50,0.01).name("镜面程度").onChange(v=>{
+            this.m.uniforms.uSpecular.value=v
+        })
     }
     loadSuSan(){
         const loader = new GLTFLoader();

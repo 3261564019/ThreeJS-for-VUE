@@ -1,5 +1,8 @@
 //logdepthbuf_pars_fragment
 uniform vec3 uColor;
+uniform vec3 uPlaneLightColor;
+uniform float uSpecular;
+uniform float uPlaneLightStrength;
 varying vec4 vNormal;
 varying vec3 vPosition;
 
@@ -19,7 +22,8 @@ vec3 directionLight(
     float intensity,
     vec3 lightPosition,
     vec3 normal,
-    vec3 cameraDirection
+    vec3 cameraDirection,
+    float specular
 ){
     //光照的方向应该和所在位置是相反的
     vec3 lightDirection=normalize(lightPosition*-1.0);
@@ -33,10 +37,20 @@ vec3 directionLight(
     float s=-dot(lightReflect,cameraDirection);
     s=max(0.,s);
 
-    s=pow(s,6.0);
+    s=pow(s,specular);
 
-//    return color * intensity*dv;
-    return vec3(s);
+    /*
+        可以直接将高光结果和灯光运算结果相加
+        base+vec3(s)
+        高光部分将会是白色
+
+        vec3(s)*color*intensity
+        高光部分将是灯光的颜色
+    */
+
+    vec3 base=color * intensity * dv;
+
+    return  base+vec3(s)*color*intensity;
 }
 
 void main() {
@@ -48,12 +62,12 @@ void main() {
 
     vec3 light=vec3(0.);
     //光的混合是加法
-    light+=directionLight(vec3(1.0),0.9,vec3(0.,0.,10.0),normal,cameraDirection);
+    light+=directionLight(uPlaneLightColor,uPlaneLightStrength,vec3(0.,0.,10.0),normal,cameraDirection,uSpecular);
 //    light+=ambientLight(vec3(1.0),0.1);
     //是逐分量操作函数对向量的每个分量单独执行 clamp
 //    light=clamp(light, 0.0, 1.0);
 
-    gl_FragColor = vec4(light,1.);
+    gl_FragColor = vec4(light*color,1.);
     //gl_FragColor = vec4(vPosition,1.);
 
     //logdepthbuf_fragment
