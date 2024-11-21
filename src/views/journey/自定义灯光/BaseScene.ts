@@ -21,6 +21,9 @@ export class BaseScene extends BaseInit {
     uniforms:any;
     m:ShaderMaterial;
     private clock: Clock;
+    debugData={
+        uColor: "#fff"
+    }
 
     constructor() {
         super({
@@ -31,11 +34,14 @@ export class BaseScene extends BaseInit {
             renderDomId:"#renderDom"
         } as BaseInitParams);
 
-        this.initDebug();
+        super.initDebug();
 
         this.init();
 
         this.initMaterial();
+
+        this.addHelper()
+        this.addDebug();
 
         this.addBall();
 
@@ -46,8 +52,19 @@ export class BaseScene extends BaseInit {
         // this.addLight();
 
         this.animate()
+    }
+    addHelper(){
+        let addDirectionHelper=()=>{
+            const geometry = new PlaneGeometry(2, 2);
+            const m=new MeshBasicMaterial({color:"#0077ff"})
+            m.side=DoubleSide
+            const plane = new Mesh(geometry, m);
+            plane.position.set(0,0,10)
+            plane.lookAt(0,0,0)
+            this.scene.add(plane);
+        }
 
-
+        addDirectionHelper()
     }
     initMaterial(){
 
@@ -60,18 +77,29 @@ export class BaseScene extends BaseInit {
         this.m=new ShaderMaterial({
             vertexShader:v,
             fragmentShader:f,
-            transparent:true,
+            transparent:false,
             side:DoubleSide,
-            depthWrite:false,
-            blending:AdditiveBlending,
+            depthWrite:true,
+            // blending:AdditiveBlending,
             uniforms:{
                 uTime:new Uniform(0),
-                uColor:new Uniform(new Color("#0084ff"))
+                uColor:new Uniform(new Color("#ffffff"))
             }
         })
 
         this.uniforms=this.m.uniforms;
 
+    }
+    addDebug(){
+        console.log(this.uniforms)
+        this.dat.addColor(this.debugData,"uColor").onChange(
+            p=>{
+                //通过color 的 set 方法来改变材质的颜色
+                // console.log("颜色改变",this.m.uniforms.uColor);
+
+                this.m.uniforms.uColor.value.set(this.debugData.uColor);
+            }
+        ).name("物体颜色");
     }
     loadSuSan(){
         const loader = new GLTFLoader();
@@ -134,7 +162,7 @@ export class BaseScene extends BaseInit {
         this.clock=new Clock();
         this.clock.start();
         this.renderer.toneMapping = ACESFilmicToneMapping;
-        this.renderer.toneMappingExposure = 0.9;
+        // this.renderer.toneMappingExposure = 1.9;
         this.control.enableDamping=true;
         this.control.dampingFactor = 0.08;
         this.renderer.shadowMap.enabled = true;
@@ -145,8 +173,8 @@ export class BaseScene extends BaseInit {
     }
     animate(){
         this.objs.forEach(t=>{
-            // t.rotation.y+=0.01
-            // t.rotation.x+=0.01
+            t.rotation.y+=0.01
+            t.rotation.x+=0.01
         })
 
         if(this.uniforms){
