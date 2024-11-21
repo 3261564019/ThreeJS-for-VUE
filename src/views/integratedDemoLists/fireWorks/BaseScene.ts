@@ -20,6 +20,25 @@ import p6 from "@/views/integratedDemoLists/fireWorks/partice/p (6).png"
 import p7 from "@/views/integratedDemoLists/fireWorks/partice/p (7).png"
 import p8 from "@/views/integratedDemoLists/fireWorks/partice/p (8).png"
 import sr from "@/assets/img/sr.png"
+import {SkyScene} from "@/views/integratedDemoLists/SketchBoxControl/core/Sky/SkyScene";
+
+// 生成随机烟花颜色的函数
+function getRandomFireworkColor() {
+    // 随机生成色相 (hue) 范围 0-360
+    const hue = Math.random() * 360;
+
+    // 设置高饱和度，确保颜色鲜艳（80% 到 100%）
+    const saturation = 80 + Math.random() * 20;
+
+    // 设置适中的亮度，避免过亮或过暗（50% 到 70%）
+    const lightness = 50 + Math.random() * 20;
+
+    // 使用 HSL 创建颜色
+    const color = new THREE.Color();
+    color.setHSL(hue / 360, saturation / 100, lightness / 100);
+
+    return color;
+}
 
 export class BaseScene extends BaseInit {
     private m: ShaderMaterial;
@@ -45,7 +64,9 @@ export class BaseScene extends BaseInit {
 
 
         this.addLight();
-        this.addPlan();
+        // this.addPlan();
+        this.renderer.toneMappingExposure=0.2;
+        let ins=new SkyScene(this);
 
         this.addDebug()
         this.animate()
@@ -53,9 +74,21 @@ export class BaseScene extends BaseInit {
     addDebug(){
         this.dat.add(this,"addSomeThing").name("fire")
     }
+    randomCreate(){
+
+        for (let i=0;i<10;i++){
+            let count=1000+Math.random()*500;
+            let half=10;
+            let center=new Vector3(Math.random()*half*2-half,Math.random()*half*2-half,Math.random()*half*2-half);
+
+            // 随机一个下标
+            const randomIndex = Math.floor(Math.random() * this.textures.length);
+            this.createFireWork(count,center,randomIndex,3.2+Math.random(),getRandomFireworkColor());
+        }
+    }
     addSomeThing(){
 
-        this.createFireWork(1000,new Vector3(0,0,0),7,1,new Color("#f0648e"));
+        this.createFireWork(2000,new Vector3(1,2,0),7,4,new Color("#f0648e"));
         // this.createFireWork(1000,new Vector3(0,6,0),4,1,new Color("#f00"));
     }
     loadTexture(){
@@ -97,7 +130,7 @@ export class BaseScene extends BaseInit {
 
             const spherical=new Spherical(
                 sphereSize * (0.75 + Math.random()*0.25),
-                Math.random()*Math.PI,
+                Math.acos(1 - 2 * Math.random()),
                 Math.random()*Math.PI*2
             );
 
@@ -108,9 +141,9 @@ export class BaseScene extends BaseInit {
             origin[p+1]=center.y;
             origin[p+2]=center.z;
 
-            position[p]=c.x + center.x;
-            position[p+1]=c.y + center.y;
-            position[p+2]=c.z + center.z;
+            position[p]=c.x;
+            position[p+1]=c.y;
+            position[p+2]=c.z;
 
             sizeArr[i]=Math.random();
             timeScaleArr[i]=1+Math.random();
@@ -155,7 +188,7 @@ export class BaseScene extends BaseInit {
 
         
         const fireWorks=new Points(geometry,material);
-
+        fireWorks.position.copy(center)
         this.scene.add(fireWorks);
 
         const destroy=()=>{
@@ -225,20 +258,24 @@ export class BaseScene extends BaseInit {
         this.control.enableDamping=true;
         this.control.dampingFactor = 0.08;
         this.renderer.shadowMap.enabled = true;
-        this.camera.position.set(0, 0, 3);
+        this.camera.position.set(0, 0, -40);
         //定位相机指向场景中心
-        this.camera.lookAt(this.scene.position)
+        this.camera.lookAt(new Vector3(0,0,0))
 
 
-        const axesHelper = new THREE.AxesHelper(1);
+        // const axesHelper = new THREE.AxesHelper(4);
         // this.scene.add(axesHelper);
 
     }
     animate(){
 
-        this.control.update()
-        this.stats.update()
-        this.renderer.render(this.scene, this.camera);
-        this.raf=requestAnimationFrame(this.animate.bind(this));
+        try{
+            this.control.update()
+            this.stats.update()
+            this.renderer.render(this.scene, this.camera);
+            this.raf=requestAnimationFrame(this.animate.bind(this));
+        }catch (e) {
+
+        }
     }
 }

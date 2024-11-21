@@ -1,5 +1,5 @@
 <template>
-  <div class="root" id="renderDom">
+  <div class="root" id="renderDom" @click="ins.randomCreate()">
 
   </div>
 </template>

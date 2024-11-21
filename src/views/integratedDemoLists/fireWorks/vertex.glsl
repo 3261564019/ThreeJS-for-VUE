@@ -1,8 +1,13 @@
+//粒子大小
 uniform float uSize;
+//动画进度
 uniform float uProgress;
+//屏幕宽高比
 uniform vec2 uResolution;
+//粒子原点
 uniform vec3 origin;
 attribute float rSize;
+//单个粒子时间缩放
 attribute float rTimeScale;
 
 ///logdepthbuf_pars_vertex
@@ -79,7 +84,7 @@ void main(){
     gl_Position = projectionMatrix * viewPosition ;
 
     //sizeProgress
-    gl_PointSize=uSize * uResolution.y * 0.02f * rSize * sizeProgress * blinkRes;
+    gl_PointSize=uSize * uResolution.y * 0.1f * rSize * sizeProgress * blinkRes;
     //近大远小的透视
     gl_PointSize*=1.0 / - viewPosition.z;
 

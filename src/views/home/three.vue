@@ -77,6 +77,7 @@ import materialHook from "@/assets/img/demo/materialHook.png"
 import coffeeSmoke from "@/assets/img/demo/coffeSmoke.png"
 import videoTexture from "@/assets/img/demo/videoTexture.png"
 import hologram from "@/assets/img/demo/hologram.png"
+import fireWorks from "@/assets/img/demo/fireWorks.png"
 
 const router=useRouter();
 
@@ -156,6 +157,10 @@ let itemList=[
     name:"全息投影",
     img:hologram,
     route:"/hologram"
+  },{
+    name:"烟花",
+    img:fireWorks,
+    route:"/fireWorks"
   },
 ];
 
