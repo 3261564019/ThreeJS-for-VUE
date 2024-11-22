@@ -1,6 +1,6 @@
 import {
     ACESFilmicToneMapping, AdditiveBlending, AnimationMixer, Clock, Color,
-    DoubleSide,
+    DoubleSide, FrontSide,
     Mesh, MeshBasicMaterial,
     MeshLambertMaterial,
     PlaneGeometry, ShaderChunk, ShaderMaterial, SphereGeometry,
@@ -25,7 +25,10 @@ export class BaseScene extends BaseInit {
         uColor: "#fff",
         specular:28,
         planeColor:"#0077ff",
-        PlaneLightStrength:1
+        pointColor:"#8eff00",
+        pointColor1:"#ff284d",
+        PlaneLightStrength:1,
+        specularMode:2
     }
 
     planeM:MeshBasicMaterial;
@@ -71,7 +74,28 @@ export class BaseScene extends BaseInit {
             this.scene.add(plane);
         }
 
+        let addPointLightHelper1=()=>{
+            const geometry = new SphereGeometry(0.5, 32,32);
+            const m=new MeshBasicMaterial({color:"#fff"})
+            m.side=DoubleSide
+            const plane = new Mesh(geometry, m);
+            plane.position.set(-5,2,-4)
+            plane.lookAt(0,0,0)
+            this.scene.add(plane);
+        }
+        let addPointLightHelper2=()=>{
+            const geometry = new SphereGeometry(0.5, 32,32);
+            const m=new MeshBasicMaterial({color:"#fff"})
+            m.side=DoubleSide
+            const plane = new Mesh(geometry, m);
+            plane.position.set(5,2,-4)
+            plane.lookAt(0,0,0)
+            this.scene.add(plane);
+        }
+
         addDirectionHelper()
+        addPointLightHelper1()
+        addPointLightHelper2()
     }
     initMaterial(){
 
@@ -85,15 +109,17 @@ export class BaseScene extends BaseInit {
             vertexShader:v,
             fragmentShader:f,
             transparent:false,
-            side:DoubleSide,
-            depthWrite:true,
+            side:FrontSide,
             // blending:AdditiveBlending,
             uniforms:{
                 uTime:new Uniform(0),
                 uColor:new Uniform(new Color("#ffffff")),
                 uPlaneLightColor:new Uniform(new Color(this.debugData.planeColor)),
+                uPointLightColor:new Uniform(new Color(this.debugData.pointColor)),
+                uPointLightColor1:new Uniform(new Color(this.debugData.pointColor1)),
                 uPlaneLightStrength:new Uniform(this.debugData.PlaneLightStrength),
-                uSpecular:new Uniform(this.debugData.specular)
+                uSpecular:new Uniform(this.debugData.specular),
+                uSpecularMode:new Uniform(this.debugData.specularMode)
             }
         })
 
@@ -103,9 +129,7 @@ export class BaseScene extends BaseInit {
     addDebug(){
         console.log(this.uniforms)
         this.dat.addColor(this.debugData,"uColor").onChange(
-            p=>{
-                //通过color 的 set 方法来改变材质的颜色
-                // console.log("颜色改变",this.m.uniforms.uColor);
+            ()=>{
                 this.m.uniforms.uColor.value.set(this.debugData.uColor);
             }
         ).name("物体颜色");
@@ -116,18 +140,33 @@ export class BaseScene extends BaseInit {
             this.m.uniforms.uPlaneLightStrength.value=e
         })
         folder.addColor(this.debugData,"planeColor").onChange(
-            p=>{
-                //通过color 的 set 方法来改变材质的颜色
-                // console.log("颜色改变",this.m.uniforms.uColor);
-                // this.m.uniforms.uColor.value.set(this.debugData.uColor);
-                this.planeM.color.set(p);
+            ()=>{
                 this.m.uniforms.uPlaneLightColor.value.set(this.debugData.planeColor);
-
             }
         ).name("方向灯颜色");
 
-        this.dat.add(this.debugData,"specular",0,50,0.01).name("镜面程度").onChange(v=>{
+        let point=this.dat.addFolder("点光源");
+        point.addColor(this.debugData,"pointColor").onChange(
+            ()=>{
+                this.m.uniforms.uPointLightColor.value.set(this.debugData.pointColor);
+            }
+        ).name("颜色左");
+        point.addColor(this.debugData,"pointColor1").onChange(
+            ()=>{
+                this.m.uniforms.uPointLightColor1.value.set(this.debugData.pointColor1);
+            }
+        ).name("颜色右");
+
+
+        this.dat.add(this.debugData,"specular",1,60,0.01).name("镜面程度").onChange(v=>{
             this.m.uniforms.uSpecular.value=v
+        })
+
+        this.dat.add(this.debugData,"specularMode",{
+            "单纯加法":1,
+            "高光程度*光的颜色":2
+        }).name("高光模式").onChange(v=>{
+            this.m.uniforms.uSpecularMode.value=v
         })
     }
     loadSuSan(){
@@ -145,7 +184,6 @@ export class BaseScene extends BaseInit {
 
             let s=3;
             t.scale.set(s,s,s);
-            t.position.set(9,0,0)
             this.scene.add(t)
             //@ts-ignore
             this.objs.push(t)
@@ -156,6 +194,8 @@ export class BaseScene extends BaseInit {
         const torusKnot = new Mesh( geometry, this.m );
         let s=0.2;
         torusKnot.scale.set(s,s,s)
+        torusKnot.position.set(9,0,0)
+
         this.scene.add( torusKnot );
         this.objs.push(torusKnot)
 
@@ -184,14 +224,14 @@ export class BaseScene extends BaseInit {
         light.position.x = 20;
         light.position.y = 30;
 
-        this.scene.add(light);
+        // this.scene.add(light);
     }
     init() {
 
         this.clock=new Clock();
         this.clock.start();
         this.renderer.toneMapping = ACESFilmicToneMapping;
-        // this.renderer.toneMappingExposure = 1.9;
+        this.renderer.toneMappingExposure = 1;
         this.control.enableDamping=true;
         this.control.dampingFactor = 0.08;
         this.renderer.shadowMap.enabled = true;

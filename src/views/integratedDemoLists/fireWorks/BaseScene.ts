@@ -66,6 +66,7 @@ export class BaseScene extends BaseInit {
         this.addLight();
         // this.addPlan();
         this.renderer.toneMappingExposure=0.2;
+        //@ts-ignore
         let ins=new SkyScene(this);
 
         this.addDebug()

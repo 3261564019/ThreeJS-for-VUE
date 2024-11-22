@@ -72,12 +72,14 @@ import shader22 from "@/assets/img/shaderDemo/22.png"
 import shader23 from "@/assets/img/shaderDemo/23.png"
 import shader24 from "@/assets/img/shaderDemo/24.png"
 import shader25 from "@/assets/img/shaderDemo/25.png"
+import shader26 from "@/assets/img/shaderDemo/26.png"
 import ragingSea from "@/assets/img/shaderDemo/ragingSea.png"
 import materialHook from "@/assets/img/demo/materialHook.png"
 import coffeeSmoke from "@/assets/img/demo/coffeSmoke.png"
 import videoTexture from "@/assets/img/demo/videoTexture.png"
 import hologram from "@/assets/img/demo/hologram.png"
 import fireWorks from "@/assets/img/demo/fireWorks.png"
+import customLight from "@/assets/img/demo/customLight.png"
 
 const router=useRouter();
 
@@ -161,6 +163,10 @@ let itemList=[
     name:"烟花",
     img:fireWorks,
     route:"/fireWorks"
+  },{
+    name:"自定义灯光",
+    img:customLight,
+    route:"/customLight"
   },
 ];
 
@@ -261,6 +267,10 @@ let shaderList=[
     name:"pattern25",
     img:shader25,
     route:"/ShaderDemo25"
+  },{
+    name:"pattern26-pow",
+    img:shader26,
+    route:"/ShaderDemo26"
   },{
     name:"视频贴图",
     img:videoTexture,

@@ -1,15 +1,5 @@
-import {
-    ACESFilmicToneMapping,
-    BoxGeometry,
-    Clock,
-    DoubleSide,
-    Mesh, MeshStandardMaterial, NormalBlending,
-    PlaneGeometry,
-    ShaderMaterial,
-    SphereGeometry
-} from "three";
+import {ACESFilmicToneMapping, Clock, DoubleSide, Mesh, PlaneGeometry, ShaderMaterial} from "three";
 
-import m from "./template.js"
 import v from "./vertex.glsl?raw"
 import f from "./fragment.glsl?raw"
 import {BaseInit, BaseInitParams} from "@/three/classDefine/baseInit";
@@ -24,7 +14,7 @@ export class BaseScene extends BaseInit {
         super({
             needLight:false,
             needOrbitControls:true,
-            needAxesHelper:true,
+            needAxesHelper:false,
             renderDomId:"#shaderRoot",
             transparentRenderBg:true
         } as BaseInitParams);
@@ -35,36 +25,25 @@ export class BaseScene extends BaseInit {
         this.createMaterial()
         this.addPlan();
         this.animate()
-        this.addBox()
-    }
-    addBox(){
-        let m=new Mesh(new BoxGeometry(9,9,9),new MeshStandardMaterial({color:"#ccc"}))
-        m.renderOrder=3
-        m.position.set(50,0,0)
-        this.scene.add(m)
     }
     createMaterial(){
-        // this.material=new ShaderMaterial({
-        //     // vertexShader:v,
-        //     // fragmentShader:f,
-        //     // uniforms: {
-        //     //     uTime: { value: 0 }, // 将纹理传入 shader
-        //     // },
-        //     transparent:false,
-        //     wireframe:false,
-        //     // depthTest:true
-        // })
-
-        // this.material.blending=NormalBlending
+        this.material=new ShaderMaterial({
+            vertexShader:v,
+            fragmentShader:f,
+            uniforms: {
+                uTime: { value: 0 }, // 将纹理传入 shader
+            },
+            transparent:true,
+            wireframe:false,
+            depthTest:true
+        })
     }
     addPlan(){
 
-        this.material=m
-        const geometry = new SphereGeometry(40, 40,80,80);
+        const geometry = new PlaneGeometry(40, 40,80,80);
         const material = this.material
-        // material.side=DoubleSide
+        material.side=DoubleSide
         const plane = new Mesh(geometry, material);
-        plane.renderOrder=3
         //设置接受阴影
         plane.receiveShadow = true
         plane.position.x = 0;
@@ -85,7 +64,7 @@ export class BaseScene extends BaseInit {
         this.camera.lookAt(this.scene.position)
     }
     animate(){
-        // this.material.uniforms.uTime.value=this.clock.getElapsedTime();
+        this.material.uniforms.uTime.value=this.clock.getElapsedTime();
         this.control.update()
         this.stats.update()
         this.renderer.render(this.scene, this.camera);
