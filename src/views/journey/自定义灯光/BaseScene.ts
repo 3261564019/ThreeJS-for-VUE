@@ -11,7 +11,7 @@ import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 import {captureBoxMan} from "@/views/integratedDemoLists/SketchBoxControl/hooks/mesh/character";
 import susan from "@/assets/model/display/susan.glb?url"
 import vertex from "./vertex.glsl?raw"
-import fragment from "./fragment.glsl?raw"
+import fragment from "./fragment.glsl"
 
 
 export class BaseScene extends BaseInit {
