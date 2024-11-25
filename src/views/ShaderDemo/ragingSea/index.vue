@@ -27,6 +27,6 @@ export default {
 .shader-root{
   width: 100vw;
   height: 100vh;
-  background: url("@/assets/img/house.png");
+  //background: url("@/assets/img/house.png");
 }
 </style>

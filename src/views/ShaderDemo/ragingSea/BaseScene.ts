@@ -4,9 +4,9 @@ import {
     Clock,
     Color,
     DoubleSide, FrontSide,
-    Mesh,
+    Mesh, MeshBasicMaterial,
     PlaneGeometry,
-    ShaderMaterial, Uniform,
+    ShaderMaterial, SphereGeometry, Uniform,
     Vector2
 } from "three";
 
@@ -27,18 +27,25 @@ export class BaseScene extends BaseInit {
         //频率的速度
         uFrequency:new Vector2(0.16,0.08),
         uSpeed:1,
-        uHeightColor:"#151c37",
-        uDepthColor:"#ff4000",
-        uMixMultiple:0.3,
-        uOffset:0.9,
+        uHeightColor:"#fff",
+        uDepthColor:"#807efc",
+        uDirectionLightColor:"#ffffff",
+        uMixMultiple:0.08,
+        uOffset:0.5,
         //噪波的速度
         uNoiseSpeed:0.7,
         //噪波图案的大小
-        uNoiseScale:15,
+        uNoiseScale:7.1,
         //噪波数据的强度
         uNoiseStrength:1,
-        pointColor:"#8eff00",
+        //高光程度
+        uSpecular:0.06,
 
+        uDirectionLightStrength:0.1,
+        uPointLightStrength:1.2,
+
+
+        pointColor:"#ffcd1f",
         shiftOffset:0.1,
     }
 
@@ -59,6 +66,7 @@ export class BaseScene extends BaseInit {
         this.addDebug();
         this.addPlan();
         this.animate()
+        this.addHelper();
     }
     createMaterial(){
         this.material=new ShaderMaterial({
@@ -69,14 +77,18 @@ export class BaseScene extends BaseInit {
                 uSpeed: { value: this.debugData.uSpeed }, // 将纹理传入 shader,
                 uBigWave:{value:this.debugData.uBigWave},
                 uFrequency:{value:this.debugData.uFrequency},
+                uDirectionLightStrength:{value:this.debugData.uDirectionLightStrength},
+                uPointLightStrength:{value:this.debugData.uPointLightStrength},
                 uHeightColor:{value:new Color(this.debugData.uHeightColor)},
                 uDepthColor:{value:new Color(this.debugData.uDepthColor)},
+                uDirectionLightColor:{value:new Color(this.debugData.uDirectionLightColor)},
                 uMixMultiple:{value:this.debugData.uMixMultiple},
                 uOffset:{value:this.debugData.uOffset},
                 uPointLightColor:new Uniform(new Color(this.debugData.pointColor)),
                 uNoiseSpeed:{value:this.debugData.uNoiseSpeed},
                 uNoiseScale:{value:this.debugData.uNoiseScale},
                 uNoiseStrength:{value:this.debugData.uNoiseStrength},
+                uSpecular:{value:this.debugData.uSpecular},
                 uShiftOffset:{value:this.debugData.shiftOffset},
             },
             transparent:true,
@@ -86,6 +98,42 @@ export class BaseScene extends BaseInit {
         })
 
 
+    }
+    addHelper(){
+        let addDirectionHelper=()=>{
+            const geometry = new PlaneGeometry(2, 2);
+            const m=new MeshBasicMaterial({color:new Color("#ccc")})
+            m.side=DoubleSide
+
+            const plane = new Mesh(geometry, m);
+            plane.position.set(0,10,0)
+            plane.lookAt(0,0,0)
+            this.scene.add(plane);
+        }
+
+        let addPointLightHelper1=()=>{
+            const geometry = new SphereGeometry(0.5, 32,32);
+            const m=new MeshBasicMaterial({color:"#fff"})
+            m.side=DoubleSide
+            const plane = new Mesh(geometry, m);
+            plane.position.set(-8,6,3)
+            plane.lookAt(0,0,0)
+            this.scene.add(plane);
+        }
+        let addPointLightHelper2=()=>{
+            const geometry = new SphereGeometry(0.5, 32,32);
+            const m=new MeshBasicMaterial({color:"#fff"})
+            m.side=DoubleSide
+            const plane = new Mesh(geometry, m);
+            plane.position.set(8,6,-8)
+
+            plane.lookAt(0,0,0)
+            this.scene.add(plane);
+        }
+
+        addDirectionHelper()
+        addPointLightHelper1()
+        addPointLightHelper2()
     }
     addDebug(){
         this.dat.add(this.debugData,"uBigWave",-30,30,0.1).name("uBigWave").onChange((e:number)=>{
@@ -104,7 +152,18 @@ export class BaseScene extends BaseInit {
             ()=>{
                 this.material.uniforms.uPointLightColor.value.set(this.debugData.pointColor);
             }
-        ).name("颜色左");
+        ).name("点光源颜色");
+        this.dat.addColor(this.debugData,"uDirectionLightColor").onChange(
+            ()=>{
+                this.material.uniforms.uDirectionLightColor.value.set(this.debugData.uDirectionLightColor);
+            }
+        ).name("方向灯颜色");
+        this.dat.add(this.debugData,"uDirectionLightStrength",0,3,0.1).name("uDirectionLightStrength").onChange((e:number)=>{
+            this.material.uniforms.uDirectionLightStrength.value=e;
+        }).name("方向灯强度")
+        this.dat.add(this.debugData,"uPointLightStrength",0,10,0.1).name("uPointLightStrength").onChange((e:number)=>{
+            this.material.uniforms.uPointLightStrength.value=e;
+        }).name("点光源强度")
         this.dat.add(this.debugData,"shiftOffset",0,1,0.001).name("shiftOffset").onChange((e:number)=>{
             this.material.uniforms.uShiftOffset.value=e;
         })
@@ -116,7 +175,7 @@ export class BaseScene extends BaseInit {
             console.log("11111111",this.debugData.uDepthColor)
             this.material.uniforms.uDepthColor.value.set(this.debugData.uDepthColor)
         })
-        this.dat.add(this.debugData,"uMixMultiple",0,5,0.1).onChange((e:number)=>{
+        this.dat.add(this.debugData,"uMixMultiple",0,1,0.01).onChange((e:number)=>{
             this.material.uniforms.uMixMultiple.value=e;
         })
         this.dat.add(this.debugData,"uOffset",0,5,0.1).onChange((e:number)=>{
@@ -131,6 +190,9 @@ export class BaseScene extends BaseInit {
         this.dat.add(this.debugData,"uNoiseStrength",0,10,0.1).onChange((e:number)=>{
             this.material.uniforms.uNoiseStrength.value=e;
         })
+        this.dat.add(this.debugData,"uSpecular",0,1,0.001).onChange((e:number)=>{
+            this.material.uniforms.uSpecular.value=e;
+        }).name("高光程度")
     }
     addPlan(){
 
@@ -145,7 +207,7 @@ export class BaseScene extends BaseInit {
         plane.position.x = 0;
         plane.position.y = 0;
         plane.position.z = 0;
-        this.scene.add(new AxesHelper(10))
+        // this.scene.add(new AxesHelper(10))
 
         this.plan=plane;
         console.log(plane)

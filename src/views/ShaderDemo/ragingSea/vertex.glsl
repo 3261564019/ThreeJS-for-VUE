@@ -12,6 +12,7 @@ varying vec2 vUv;
 
 varying vec3 vNormal;
 varying vec3 vPosition;
+varying float vMaxHeight;
 
 #include /src/shaders/chunk/PerlinNoise3D.glsl;
 
@@ -61,7 +62,7 @@ void main(){
 
     vec3 editPosition=position;
 
-
+    float mHeight = abs(uBigWave); // 计算理论上的最大高度
     //进行三次迭代得到更小的波浪
     float height=multipleElevation(editPosition,
     uFrequency,
@@ -121,6 +122,7 @@ void main(){
 
     vNormal=normalize(normalA);
 //    vNormal=normalA;
-    vPosition=position;
+    vPosition=mp.xyz;
+    vMaxHeight=mHeight;
 }
     
