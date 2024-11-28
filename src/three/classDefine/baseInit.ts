@@ -111,7 +111,7 @@ export class BaseInit {
         //设置HDR显示效果 这个属性用于在普通计算机显示器或者移动设备屏幕等低动态范围介质上，模拟、逼近高动态范围（HDR）效果。
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         //场景曝光以及亮度
-        renderer.toneMappingExposure = 0.6;
+        renderer.toneMappingExposure = 0.9;
         renderer.outputColorSpace=SRGBColorSpace
 
         //创建三维坐标系坐标

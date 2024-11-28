@@ -142,6 +142,9 @@ const routes: Array<RouteRecordRaw> = [
         path: '/fireWorks',
         component: ()=> import("@/views/integratedDemoLists/fireWorks/index.vue"),
     },{
+        path: '/earthShader',
+        component: ()=> import("@/views/journey/earthShader/index.vue"),
+    },{
         path: '/temp',
         name: 'temp',
         // component: ()=> import("@/views/面试/变量提升.vue")

@@ -22,5 +22,7 @@ void main() {
 
     float f=dualSmoothStep(vUv.y,0.5,0.1);
 
+    f=smoothstep(-0.5,0.5,vUv.y);
+
     gl_FragColor = vec4(vec3(f),1);
 }

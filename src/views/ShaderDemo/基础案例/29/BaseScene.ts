@@ -1,4 +1,4 @@
-import {ACESFilmicToneMapping, Clock, DoubleSide, Mesh, PlaneGeometry, ShaderMaterial} from "three";
+import {ACESFilmicToneMapping, Clock, DoubleSide, Mesh, PlaneGeometry, ShaderMaterial, Spherical} from "three";
 
 import v from "./vertex.glsl?raw"
 import f from "./fragment.glsl?raw"
