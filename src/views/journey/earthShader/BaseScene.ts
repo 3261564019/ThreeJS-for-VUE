@@ -29,6 +29,11 @@ export class BaseScene extends BaseInit {
     colorCenter="#00aaff"
     colorSide="#ff6600"
 
+    a=0.52;
+    b=0;
+    c=1;
+    uColorPow=6;
+    uSpecular=20;
     addDebug(){
 
         console.log("aaa", this.renderer.capabilities.getMaxAnisotropy())
@@ -58,6 +63,28 @@ export class BaseScene extends BaseInit {
                 this.material.uniforms.uColorSide.value.set(this.colorSide);
             }
         )
+
+        this.dat.add(this,"a",-2,2,0.01).name("a").onChange(()=>{
+            // this.lightPositionChange()
+            this.material.uniforms.uA.value=this.a;
+        })
+        this.dat.add(this,"b",-2,2,0.01).name("b").onChange(()=>{
+            // this.lightPositionChange()
+            this.material.uniforms.uB.value=this.b;
+        })
+        this.dat.add(this,"c",-2,2,0.01).name("c").onChange(()=>{
+            // this.lightPositionChange()
+            this.material.uniforms.uC.value=this.c;
+        })
+
+        this.dat.add(this,"uColorPow",-20,40,0.01).name("uColorPow").onChange(()=>{
+            // this.lightPositionChange()
+            this.material.uniforms.uColorPow.value=this.uColorPow;
+        })
+        this.dat.add(this,"uSpecular",-20,40,0.01).name("uSpecular").onChange(()=>{
+            // this.lightPositionChange()
+            this.material.uniforms.uSpecularPow.value=this.uSpecular;
+        })
     }
     lightPositionChange(){
         let spherical=this.spherical;
@@ -119,6 +146,11 @@ export class BaseScene extends BaseInit {
                 uNight: { value: nightmapT },
                 uClouds: { value: cloudsT },
                 uSpecular: { value: specularT },
+                uA:{value:this.a},
+                uB:{value:this.b},
+                uC:{value:this.c},
+                uColorPow:{value:this.uColorPow},
+                uSpecularPow:{value:this.uSpecular},
                 uCloudSize: { value: this.cloudSize },
                 uColorSide: { value: new Color(this.colorSide) },
                 uColorCenter: { value: new Color(this.colorCenter) },
@@ -167,6 +199,7 @@ export class BaseScene extends BaseInit {
     }
     init() {
         this.clock=new Clock();
+        this.clock.start();
         this.renderer.toneMapping = ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = 1;
         this.control.enableDamping=true;

@@ -1,5 +1,6 @@
 varying vec2 vUv;
 varying vec3 vNormal;
+varying vec3 vPosition;
 ///logdepthbuf_pars_vertex
 
 
@@ -13,6 +14,7 @@ void main(){
 
     vNormal=(modelMatrix * vec4(normal, 0.0)).xyz;
     vUv=uv;
+    vPosition=modelPosotion.xyz;
 
     ///logdepthbuf_vertex
 }
