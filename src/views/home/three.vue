@@ -47,6 +47,7 @@ import shine from "@/assets/img/demo/shine.png";
 import gmap from "@/assets/img/demo/gmap.png";
 import enable3d from "@/assets/img/demo/enable3d.png"
 import SketchBox from "@/assets/img/demo/SketchBox.png"
+import earthDemo from "@/assets/img/demo/earth.png"
 
 import mixPic from "@/assets/img/shaderDemo/mixPic.png"
 import shader1 from "@/assets/img/shaderDemo/1.png"
@@ -167,6 +168,10 @@ let itemList=[
     name:"自定义灯光",
     img:customLight,
     route:"/customLight"
+  },{
+    name:"地球",
+    img:earthDemo,
+    route:"/earthShader"
   },
 ];
 

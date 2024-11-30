@@ -31,8 +31,9 @@ void main() {
     vec3 Clouds=texture2D(uClouds,cUv).rgb;
     vec3 Specular=texture2D(uSpecular,vUv).rgb;
 
+    //相机的朝向
     vec3 cameraDirection=normalize(vPosition-cameraPosition);
-
+    //光源位置
     vec3 sunPosition=uLightPosition;
     vec3 sunDirection=normalize(sunPosition*-1.0);
 
@@ -83,7 +84,8 @@ void main() {
     color+=specularColor*e;
 
     gl_FragColor = vec4(vec3(color),1.);
-    
+//    gl_FragColor = vec4(vec3(fresnel),1.);
+
     ///logdepthbuf_fragment
 //    #include <tonemapping_fragment>
     #include <colorspace_fragment>
