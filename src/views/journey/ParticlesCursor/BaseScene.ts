@@ -10,6 +10,7 @@ import {BaseInit, BaseInitParams} from "@/three/classDefine/baseInit";
 import frag from "./frag.glsl"
 import vertex from "./vertex.glsl"
 import dog from "@/assets/img/dog.webp"
+import {CanvasDraw} from "@/views/journey/ParticlesCursor/CanvasDraw";
 export class BaseScene extends BaseInit {
     constructor() {
         super({
@@ -21,6 +22,9 @@ export class BaseScene extends BaseInit {
             adjustScreenSize:true,
             renderDomId:"#renderDom"
         } as BaseInitParams);
+
+
+        new CanvasDraw();
 
         this.initDebug();
 
