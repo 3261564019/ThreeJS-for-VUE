@@ -145,6 +145,9 @@ const routes: Array<RouteRecordRaw> = [
         path: '/earthShader',
         component: ()=> import("@/views/journey/earthShader/index.vue"),
     },{
+        path: '/particlesCursor',
+        component: ()=> import("@/views/journey/ParticlesCursor/index.vue"),
+    },{
         path: '/temp',
         name: 'temp',
         // component: ()=> import("@/views/面试/变量提升.vue")

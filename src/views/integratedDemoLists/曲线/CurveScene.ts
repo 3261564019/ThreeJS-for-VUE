@@ -31,6 +31,7 @@ export class CurveScene extends BaseInit {
             renderDomId:"#curveRoot",
             needOrbitControls:true,
             needAxesHelper:false,
+            adjustScreenSize:true,
             transparentRenderBg:true
         } as BaseInitParams);
         this.boxs=[]
