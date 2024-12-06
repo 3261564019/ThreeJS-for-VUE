@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import {AudioLoader, PerspectiveCamera, Scene, SRGBColorSpace, TextureLoader, WebGLRenderer} from "three";
+import {AudioLoader, PerspectiveCamera, Scene, SRGBColorSpace, TextureLoader, Vector2, WebGLRenderer} from "three";
 // @ts-ignore
 import Stats from 'stats-js';
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
@@ -213,10 +213,10 @@ export class BaseInit {
         window.addEventListener("resize", this.reSizeCallBack);
     }
     mouseMove(p:MouseEvent){
-            this.cursorPosition = new THREE.Vector2(p.clientX, p.clientY);
+        this.cursorPosition = new Vector2(p.clientX, p.clientY);
     }
     addMouseMoveListener() {
-        window.addEventListener("mousemove", this.mouseMove);
+        window.addEventListener("pointermove", this.mouseMove.bind(this));
     }
 
     initStats() {

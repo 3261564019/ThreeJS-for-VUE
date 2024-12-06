@@ -8,9 +8,9 @@ void main() {
 
     float f=distance(vUv,vec2(0.5));
 
-    f=remap(f,0.0,0.5,0.0,1.0);
+    f=remap(f,0.0,0.45,0.0,1.0);
 
-    f=pow(f,3.0);
+    f=pow(f,4.0);
 
-    gl_FragColor = vec4(vec3(f),1.0);
+    gl_FragColor = vec4(vec3(1.0-f),1.0);
 }
