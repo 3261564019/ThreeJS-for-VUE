@@ -148,6 +148,9 @@ const routes: Array<RouteRecordRaw> = [
         path: '/particlesCursor',
         component: ()=> import("@/views/journey/ParticlesCursor/index.vue"),
     },{
+        path: '/particleSphere',
+        component: ()=> import("@/views/journey/ParticleSphere/index.vue"),
+    },{
         path: '/temp',
         name: 'temp',
         // component: ()=> import("@/views/面试/变量提升.vue")

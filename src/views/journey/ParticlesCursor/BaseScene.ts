@@ -1,5 +1,5 @@
 import {
-    ACESFilmicToneMapping, AdditiveBlending, AxesHelper, BufferGeometry,
+    ACESFilmicToneMapping, AdditiveBlending, AxesHelper, BufferAttribute, BufferGeometry, CanvasTexture,
     DoubleSide, Float32BufferAttribute,
     Mesh,
     MeshLambertMaterial, Object3DEventMap,
@@ -17,6 +17,7 @@ export class BaseScene extends BaseInit {
     private plane: Mesh<PlaneGeometry, MeshLambertMaterial, Object3DEventMap>;
 
     private cd:CanvasDraw;
+    private canvasTexture: CanvasTexture;
     constructor() {
         super({
             needLight:false,
@@ -41,19 +42,32 @@ export class BaseScene extends BaseInit {
         this.animate()
     }
     addPlan(){
-        const planeGeometry = new PlaneGeometry(40, 40);
+        const planeGeometry = new PlaneGeometry(30, 30);
         const planeMaterial = new MeshLambertMaterial({
             color:"#f00"
         });
         const plane = new Mesh(planeGeometry, planeMaterial);
         // plane.rotation.x = Math.PI /
+        plane.visible=false
         this.plane=plane;
         this.scene.add(plane);
     }
     addParticles(){
 
-        const geometry = new PlaneGeometry(40, 40,148,148);
+        const geometry = new PlaneGeometry(30, 30,148,148);
+        let pointCount=geometry.attributes.position.count;
+        let displace=new Float32Array(pointCount);
+        let angles=new Float32Array(pointCount);
 
+        for (let i = 0; i < pointCount; i++) {
+            displace[i]=Math.random()
+            angles[i]=Math.random()*Math.PI*2;
+        }
+
+
+
+
+        this.canvasTexture=new CanvasTexture(this.cd.i);
 
         let points_m=new ShaderMaterial({
             vertexShader:vertex,
@@ -62,15 +76,20 @@ export class BaseScene extends BaseInit {
                 uSize: new Uniform(1),
                 uT1:{value:this.textureLoader.load(dog)},
                 uResolution: new Uniform(this.screenSize),
+                uDisplacement:{value:this.canvasTexture},
             },
 
             depthTest:true,
             depthWrite: false,     // 禁止透明部分写入深度缓冲区
-            // blending:AdditiveBlending,
+            blending:AdditiveBlending,
             transparent:true
         });
+        geometry.setIndex(null)
+        geometry.deleteAttribute("normal")
+        geometry.setAttribute("uRandomDisplace",new BufferAttribute(displace,1));
+        geometry.setAttribute("uAngles",new BufferAttribute(angles,1));
 
-
+        console.log(geometry)
         let points=new Points(geometry,points_m);
 
         //添加地板容器
@@ -89,7 +108,7 @@ export class BaseScene extends BaseInit {
     }
     init() {
 
-        this.scene.add(new AxesHelper(10));
+        // this.scene.add(new AxesHelper(10));
 
         this.renderer.toneMapping = ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = 0.9;
@@ -129,9 +148,12 @@ export class BaseScene extends BaseInit {
             if ( intersects.length > 0 ) {
                 let t=intersects[0]
 
-                console.log(t.uv)
+                // console.log(t.uv)
                 this.cd?.draw(t.uv)
+            }else{
+                this.cd?.draw(new Vector2(0,-1))
             }
+            this.canvasTexture.needsUpdate=true;
         }
 
     }

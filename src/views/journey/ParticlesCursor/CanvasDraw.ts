@@ -53,6 +53,7 @@ export class CanvasDraw {
         c.globalAlpha=0.02;
         c.fillRect(0,0,c.canvas.width,c.canvas.height,)
 
+        //把上次画的内容通过半透明遮罩将其变暗再画本次的内容
         this.c.globalCompositeOperation="lighten"
         c.globalAlpha=1;
         c.drawImage(

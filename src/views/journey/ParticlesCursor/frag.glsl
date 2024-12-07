@@ -1,4 +1,5 @@
 varying float intencity;
+varying float vRandomDisplace;
 
 void main() {
 
