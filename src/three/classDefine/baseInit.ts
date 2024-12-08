@@ -116,7 +116,7 @@ export class BaseInit {
 
         //创建三维坐标系坐标
         if (params.needAxesHelper) {
-            const axesHelper = new THREE.AxesHelper(20);
+            const axesHelper = new THREE.AxesHelper(10);
             scene.add(axesHelper);
         }
 

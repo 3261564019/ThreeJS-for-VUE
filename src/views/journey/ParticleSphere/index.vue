@@ -24,6 +24,6 @@ onUnmounted(()=>{
 .root{
   width: 100vw;
   height: 100vh;
-  background: #304455;
+  background: #ffb4b4;
 }
 </style>

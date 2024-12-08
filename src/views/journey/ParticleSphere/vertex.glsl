@@ -1,5 +1,12 @@
+uniform vec2 uResolution;
+
 void main(){
     vec4 modelPosotion=modelMatrix * vec4(position, 1.0);
-    gl_Position = projectionMatrix * viewMatrix * modelPosotion ;
+    vec4 viewPosition=viewMatrix * modelPosotion;
+    gl_Position = projectionMatrix * viewPosition ;
+
+
+    gl_PointSize=0.2 * uResolution.y * 0.2f;
+    gl_PointSize*=1.0 / - viewPosition.z;
 }
     
