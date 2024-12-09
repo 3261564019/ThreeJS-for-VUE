@@ -8,11 +8,14 @@ import {
 } from "three";
 import {BaseInit, BaseInitParams} from "@/three/classDefine/baseInit";
 import fragment from "./fragment.glsl?raw"
+import gsap from 'gsap';
 import vertex from "./vertex.glsl?raw"
 import p from "@/assets/model/ParticleMesh/particle.glb?url"
 export class BaseScene extends BaseInit {
 
-    geometrys:BufferGeometry[]=[];
+    pointsArr:Float32BufferAttribute[]=[];
+    material:ShaderMaterial;
+    rage:0;
     constructor() {
         super({
             needLight:false,
@@ -25,7 +28,7 @@ export class BaseScene extends BaseInit {
             renderDomId:"#renderDom"
         } as BaseInitParams);
 
-        this.initDebug();
+        super.initDebug();
 
         this.init();
 
@@ -38,29 +41,40 @@ export class BaseScene extends BaseInit {
     }
     addPointsByGeometry(i:number){
 
-         let geometry=this.geometrys[i];
-         geometry.setIndex(null)
-         let material=new ShaderMaterial({
+        let geometry=new BufferGeometry()
+        geometry.setAttribute("position", this.pointsArr[i])
+        geometry.setAttribute("aTargetPosition", this.pointsArr[2])
+
+        geometry.setIndex(null)
+        this.material=new ShaderMaterial({
              vertexShader:vertex,
              fragmentShader:fragment,
              uniforms:{
                  uResolution: new Uniform(this.screenSize),
+                 uRage:new Uniform(this.rage),
              },
-
              transparent:true,
              depthTest:true,
              depthWrite: false,     // 禁止透明部分写入深度缓冲区
-             blending:AdditiveBlending
+             // blending:AdditiveBlending
          })
         // const geometry = new PlaneGeometry(30, 30,148,148);
 
 
 
-        let points=new Points(geometry,material);
+        let points=new Points(geometry,this.material);
+
+        this.dat.add(this,"toAnimate").name("动画");
 
          this.scene.add(points);
          // this.scene.add(new Mesh(geometry,material))
 
+    }
+    toAnimate(){
+        gsap.to(this,{rage:1,duration:5,ease:"power1.inOut",onUpdate:()=>{
+            this.material.uniforms.uRage.value=this.rage
+        }})
+        console.log("aaa")
     }
     addLight(){
 
@@ -103,12 +117,16 @@ export class BaseScene extends BaseInit {
             let positions=e.scene.children.map(v=>{
                 //@ts-ignore
                 let t=v.geometry.attributes.position
-                console.log(v.name+"\t"+t.count);
+                console.log(v.name+"顶点数量：\t"+t.count);
                 if(t.count>max){
                     max=t.count;
                 }
                 return t
             })
+
+
+            console.log(max)
+            console.log(positions)
 
             //
             for (const position of positions) {
@@ -118,10 +136,24 @@ export class BaseScene extends BaseInit {
                     vertices[i]=position.array[i]
                 })
                 if(position.count<max){
-                    let t=(max-position.count)*position.itemSize;
-                    console.log("差了"+t);
+                    //相差的顶点数量
+                    let t=(max-position.count);
+                    console.log("差了"+(max-position.count));
+                    //已有定点数
+                    let endIndex=position.array.length;
+                    //0 1 2
+                    //3 4 5
+                    //6 7 8
                     for (let i = 0; i < t; i++) {
-                        vertices[position.array.length+i]=0;
+                        let x=endIndex+(i*3)+0;
+                        let y=endIndex+(i*3)+1;
+                        let z=endIndex+(i*3)+2;
+
+                        let random=Math.floor(position.count*Math.random())*3
+
+                        vertices[x]=position.array[random];
+                        vertices[y]=position.array[random+1];
+                        vertices[z]=position.array[random+2];
                     }
                 }else{
 
@@ -129,17 +161,11 @@ export class BaseScene extends BaseInit {
                 res.push(new Float32BufferAttribute(vertices,3))
             }
 
-            res.forEach(e=>{
-                let t=new BufferGeometry();
-                t.setAttribute("position",e);
-                this.geometrys.push(t)
-            })
+            this.pointsArr=res;
 
 
-            this.addPointsByGeometry(2);
+            this.addPointsByGeometry(1);
 
-            // console.log(max)
-            // console.log(positions)
 
             // this.scene.add(e.scene)
         })
