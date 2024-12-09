@@ -6,61 +6,14 @@
 <script setup lang="ts">
 import {onMounted} from "vue";
 import {BaseScene} from "./BaseScene";
-import videoFile from "@/assets/img/wall/video.mp4"
 import {Texture} from "three";
 
 let ins:BaseScene;
-const canvas = document.createElement('canvas');
-const context = canvas.getContext('2d');
-//视频的时长
-let duration=0;
-let video:HTMLVideoElement;
-let size={
-  width:0,
-  height:0
-}
-
-let initVideo=()=>{
-  video = document.createElement('video');
-  video.src = videoFile;
-  video.className="testVideo"
-  video.crossOrigin = 'anonymous';
-  video.controls=true
-  video.load();
-  video.addEventListener('loadedmetadata', ()=>{
-    duration=video.duration;
-    size.width = video.videoWidth;
-    size.height = video.videoHeight;
-    console.log("siez",size)
-    // console.log('Video duration: ', video.duration, ' seconds')
-  })
-  video.addEventListener('seeked', ()=>{
-    console.log("seeked")
-    createImage()
-  });
-  // document.body.appendChild(video);
-}
-
-let createImage=()=>{
-  context.drawImage(video, 0, 0, canvas.width, canvas.height);
-  const texture = new Texture(canvas);
-  texture.needsUpdate = true;
-  ins.setTrack(texture)
-}
-
-let videoRateChange=(e:number)=>{
-  let t=duration * e
-  video.currentTime=t;
-  // console.log("进度",e)
-  // console.log("时间",t)
-}
 
 
 onMounted(()=>{
-  initVideo()
 
   ins=new BaseScene()
-  ins.videoRateChange=videoRateChange;
 })
 </script>
 <script lang="ts">

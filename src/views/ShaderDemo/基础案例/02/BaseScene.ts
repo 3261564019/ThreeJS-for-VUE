@@ -15,7 +15,7 @@ import {
 import v from "./vertex.glsl?raw"
 import f from "./fragment.glsl?raw"
 import homer from "@/assets/img/cubeImg/5.png"
-import plan from "@/assets/model/plan.glb?url"
+// import plan from "@/assets/model/plan.glb?url"
 import opacity from "@/assets/img/opcatity.png"
 import {BaseInit, BaseInitParams} from "@/three/classDefine/baseInit";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
@@ -72,12 +72,12 @@ export class BaseScene extends BaseInit {
     }
     addModel(){
         let loader = new GLTFLoader()
-        loader.load(plan,(e)=>{
-            let m:Mesh=e.scene.getObjectByName("平面") as Mesh;
-            m.material=this.material
-            console.log(m)
-            this.scene.add(m)
-        })
+        // loader.load(plan,(e)=>{
+        //     let m:Mesh=e.scene.getObjectByName("平面") as Mesh;
+        //     m.material=this.material
+        //     console.log(m)
+        //     this.scene.add(m)
+        // })
     }
     addPlan(){
 

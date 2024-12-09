@@ -1,7 +1,6 @@
 import {
     ACESFilmicToneMapping, AxesHelper, BoxGeometry,
     DoubleSide,
-    LinearEncoding,
     Mesh,
     MeshLambertMaterial,
     PlaneGeometry, ShapeGeometry, SphereGeometry,
@@ -106,7 +105,7 @@ export class BaseScene extends BaseInit {
 
         this.renderer.toneMapping = ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = 0.9;
-        this.renderer.outputEncoding = LinearEncoding;
+        // this.renderer.outputColorSpace = LinearEncoding;
         this.control.enableDamping=true;
         this.control.dampingFactor = 0.08;
         this.renderer.shadowMap.enabled = true;

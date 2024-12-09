@@ -7,6 +7,7 @@ export default defineConfig(
     async () => {
         const glsl = (await import('vite-plugin-glsl')).default;
         return {
+            base:"./",
             plugins: [
                 vue(),
                 glsl({
