@@ -25,11 +25,13 @@ const routes: Array<RouteRecordRaw> = [
         path: '/PostEffects',
         name: 'PostEffects',
         component: ()=> import("@/views/integratedDemoLists/后期效果/index.vue")
-    },{
-        path: '/gmap',
-        name: 'gmap',
-        component: ()=> import("@/views/integratedDemoLists/高德地图/index.vue")
-    },{
+    },
+    // {
+    //     path: '/gmap',
+    //     name: 'gmap',
+    //     component: ()=> import("@/views/integratedDemoLists/高德地图/index.vue")
+    // },
+    {
         path: '/gmapt',
         name: 'gmapt',
         component: ()=> import("@/views/integratedDemoLists/高德地图/temp.vue")

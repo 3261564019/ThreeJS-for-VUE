@@ -10,7 +10,7 @@ import girl from "@/assets/model/111.gltf?url"
 import boxMan from "@/assets/model/box_man.glb?url"
 import test from "@/assets/model/bart.glb?url"
 import tree from "@/assets/model/tree.glb?url"
-import ani from "@/assets/model/break.glb?url"
+// import ani from "@/assets/model/break.glb?url"
 import {DRACOLoader} from "three/examples/jsm/loaders/DRACOLoader";
 import {captureBoxMan} from "@/views/integratedDemoLists/SketchBoxControl/hooks/mesh/character";
 

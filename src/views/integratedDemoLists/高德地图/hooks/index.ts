@@ -13,7 +13,7 @@ import {
 import {CustomCoords, GMapIns, MakerWithCmp, SetDataParams} from "../types/Gmap";
 import {RotationBoxScene} from "./childScene/RotationBoxScene";
 import {ShiningWall} from "./childScene/ShiningWall";
-import {CustomLabelRender} from "./renders/customLabelRender";
+import {CustomLabelRender} from "@/views/integratedDemoLists/高德地图/hooks/renders/CustomLabelRender";
 import {CSS2DObject} from "three/examples/jsm/renderers/CSS2DRenderer";
 import {createApp} from "vue";
 // @ts-ignore

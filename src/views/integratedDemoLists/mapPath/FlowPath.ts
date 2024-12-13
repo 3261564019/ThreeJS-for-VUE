@@ -33,18 +33,18 @@ export class FlowPath {
         this.segmentSize=segmentSize;
         const material = new THREE.MeshBasicMaterial({color});
 
-        this.loaded.load(t,(e)=>{
-            console.log(e.scene)
-            let t=e.scene;
-            t.traverse(v=>{
-                if (v.isMesh) {
-                    v.material=material;
-                }
-            })
-            t.scale.set(0.1,0.1,0.12)
-            this.ins.scene.add(t);
-            this.createLine(path,segmentSize,e.scene);
-        })
+        // this.loaded.load(t,(e)=>{
+        //     console.log(e.scene)
+        //     let t=e.scene;
+        //     t.traverse(v=>{
+        //         if (v.isMesh) {
+        //             v.material=material;
+        //         }
+        //     })
+        //     t.scale.set(0.1,0.1,0.12)
+        //     this.ins.scene.add(t);
+        //     this.createLine(path,segmentSize,e.scene);
+        // })
 
     }
 
