@@ -49,6 +49,7 @@ import enable3d from "@/assets/img/demo/enable3d.png"
 import SketchBox from "@/assets/img/demo/SketchBox.png"
 import earthDemo from "@/assets/img/demo/earth.png"
 import particles from "@/assets/img/demo/particles.png"
+import particalMesh from "@/assets/img/demo/particalMesh.png"
 
 import mixPic from "@/assets/img/shaderDemo/mixPic.png"
 import shader1 from "@/assets/img/shaderDemo/1.png"
@@ -177,6 +178,10 @@ let itemList=[
     name:"粒子动画",
     img:particles,
     route:"/particlesCursor"
+  },{
+    name:"粒子动画",
+    img:particalMesh,
+    route:"/particalMesh"
   },
 ];
 

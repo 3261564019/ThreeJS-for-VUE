@@ -10,6 +10,7 @@ import girl from "@/assets/model/111.gltf?url"
 import boxMan from "@/assets/model/box_man.glb?url"
 import test from "@/assets/model/bart.glb?url"
 import tree from "@/assets/model/tree.glb?url"
+import aa from "./aa.glb?url"
 // import ani from "@/assets/model/break.glb?url"
 import {DRACOLoader} from "three/examples/jsm/loaders/DRACOLoader";
 import {captureBoxMan} from "@/views/integratedDemoLists/SketchBoxControl/hooks/mesh/character";
@@ -142,19 +143,17 @@ export class ModelAnimation extends BaseInit {
 
         // this.addModel()
 
-        // this.loadMyModel();
+        this.loadMyModel();
 
-        this.loadBoxMan();
+        // this.loadBoxMan();
 
         // this.loadAniMan()
         // this.loadAnimation()
     }
     loadMyModel(){
         const loader = new GLTFLoader();
-        loader.load(girl,(res)=>{
-            console.log("模型对象res",res)
-            res.scene.position.y=10
-            this.scene.add(res.scene)
+        loader.load(aa,(res)=>{
+            console.log("模型对象resaaa",res)
         })
 
     }

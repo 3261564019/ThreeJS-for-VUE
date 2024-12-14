@@ -1,5 +1,5 @@
 import {
-    ACESFilmicToneMapping, AdditiveBlending, BufferGeometry,
+    ACESFilmicToneMapping, AdditiveBlending, BufferGeometry, Color,
     DoubleSide, Float32BufferAttribute,
     Mesh,
     MeshLambertMaterial,
@@ -7,11 +7,20 @@ import {
     SpotLight, Uniform
 } from "three";
 import {BaseInit, BaseInitParams} from "@/three/classDefine/baseInit";
-import fragment from "./fragment.glsl?raw"
+import fragment from "./fragment.glsl"
 import gsap from 'gsap';
-import vertex from "./vertex.glsl?raw"
+import vertex from "./vertex.glsl"
 import p from "@/assets/model/ParticleMesh/particle.glb?url"
+import {color} from "echarts";
 export class BaseScene extends BaseInit {
+
+
+    animating=false;
+    colors={
+        colorA:"#d69a3c",
+        colorB:"#6000ff",
+    }
+    points:Points;
 
     pointsArr:Float32BufferAttribute[]=[];
     material:ShaderMaterial;
@@ -20,7 +29,7 @@ export class BaseScene extends BaseInit {
         super({
             needLight:false,
             needOrbitControls:true,
-            needAxesHelper:true,
+            needAxesHelper:false,
             adjustScreenSize:true,
 
             needGLTFLoader:true,
@@ -32,6 +41,9 @@ export class BaseScene extends BaseInit {
 
         this.init();
 
+        this.control.autoRotate=true;
+        this.control.autoRotateSpeed=0.4;
+
         this.loadModel();
         // this.addBall();
 
@@ -39,13 +51,92 @@ export class BaseScene extends BaseInit {
 
         this.animate()
     }
+    showGeometryByPoints(i){
+        let geometry=new BufferGeometry()
+        geometry.setAttribute("position", this.pointsArr[i])
+
+        console.log("this",this)
+        this.material=new ShaderMaterial({
+            vertexShader:vertex,
+            fragmentShader:fragment,
+            uniforms:{
+                uResolution: new Uniform(this.screenSize),
+                uRage:{value:new Color(this.rage)},
+                uColorA:{value:new Color(this.colors.colorA)},
+                uColorB:{value:new Color(this.colors.colorB)},
+            },
+            transparent:true,
+            depthTest:true,
+            depthWrite: false,     // 禁止透明部分写入深度缓冲区
+            blending:AdditiveBlending
+        })
+        let points=new Points(geometry,this.material);
+        this.points=points
+        this.scene.add(points);
+    }
+    addChangeEvent(){
+        let run=()=>{
+            this.animating=true
+            this.rage=0;
+            this.material.uniforms.uRage.value=0;
+            gsap.to(this,{rage:1,duration:5,ease:"power1.inOut",onUpdate:()=>{
+                    this.material.uniforms.uRage.value=this.rage
+            },
+                onComplete: () => {
+                    console.log("动画结束了！");
+                    this.animating=false
+                    // 在此处执行动画结束后的操作
+                }
+            })
+        }
+        let a={
+            a1:()=>{
+                if(this.animating)return
+                this.points.geometry.setAttribute("position",this.pointsArr[0]);
+                this.points.geometry.setAttribute("aTargetPosition",this.pointsArr[1]);
+                run()
+            },
+            a2:()=>{
+                if(this.animating)return
+
+                this.points.geometry.setAttribute("position",this.pointsArr[1]);
+                this.points.geometry.setAttribute("aTargetPosition",this.pointsArr[2]);
+                run()
+            },
+            a3:()=>{
+                if(this.animating)return
+
+                this.points.geometry.setAttribute("position",this.pointsArr[2]);
+                this.points.geometry.setAttribute("aTargetPosition",this.pointsArr[0]);
+                run()
+            }
+        }
+        this.dat.add(a,"a1").name("球体to文字")
+        this.dat.add(a,"a2").name("文字to猴头")
+        this.dat.add(a,"a3").name("猴头to球体")
+
+
+        this.dat.addColor(this.colors,"colorA").name("颜色A").onChange(
+            ()=>{
+                this.material.uniforms.uColorA.value.set(this.colors.colorA);
+            }
+        )
+
+        this.dat.addColor(this.colors,"colorB").name("颜色B").onChange(
+            ()=>{
+                this.material.uniforms.uColorB.value.set(this.colors.colorB);
+            }
+        )
+
+
+    }
     addPointsByGeometry(i:number){
 
         let geometry=new BufferGeometry()
         geometry.setAttribute("position", this.pointsArr[i])
         geometry.setAttribute("aTargetPosition", this.pointsArr[2])
-
         geometry.setIndex(null)
+
         this.material=new ShaderMaterial({
              vertexShader:vertex,
              fragmentShader:fragment,
@@ -93,7 +184,7 @@ export class BaseScene extends BaseInit {
         this.control.enableDamping=true;
         this.control.dampingFactor = 0.08;
         this.renderer.shadowMap.enabled = true;
-        this.camera.position.set(0, 3, 3);
+        this.camera.position.set(0, 2, 3);
         //定位相机指向场景中心
         this.camera.lookAt(this.scene.position)
 
@@ -162,12 +253,11 @@ export class BaseScene extends BaseInit {
             }
 
             this.pointsArr=res;
+            //先让球体显示出来
+            this.showGeometryByPoints(0);
 
-
-            this.addPointsByGeometry(1);
-
-
-            // this.scene.add(e.scene)
+            // 添加切换事件
+            this.addChangeEvent();
         })
     }
 }

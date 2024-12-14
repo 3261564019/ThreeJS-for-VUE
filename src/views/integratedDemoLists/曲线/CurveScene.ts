@@ -30,7 +30,7 @@ export class CurveScene extends BaseInit {
             needLight:false,
             renderDomId:"#curveRoot",
             needOrbitControls:true,
-            needAxesHelper:false,
+            needAxesHelper:true,
             adjustScreenSize:true,
             transparentRenderBg:true
         } as BaseInitParams);
@@ -44,14 +44,65 @@ export class CurveScene extends BaseInit {
         this.addPlan();
 
         this.addLight();
-
         this.addCurve();
         this.addMoveBrick()
         this.addBox();
         this.animate()
+        this.calcNear();
+
         this.addRayDebug()
         //创建拖拽控制器
         this.initDragControls();
+    }
+    calcNear(){
+
+        let m=new MeshLambertMaterial({color:"#ffb900"});
+        const geometry = new THREE.BoxGeometry( 2, 2, 2 );
+        let mesh=new Mesh(geometry,m);
+        mesh.position.set(-10,2,25);
+        this.scene.add(mesh)
+
+        let r=this.findClosestProgress(this.curve,mesh.position)
+
+        let m1=new MeshLambertMaterial({color:"#ff3939"});
+        let mesh1=new Mesh(geometry,m1);
+        mesh1.position.copy(this.curve.getPointAt(r));
+        this.scene.add(mesh1)
+
+        console.log('rrr',r)
+    }
+    findClosestProgress(curve, targetPoint, tolerance = 0.0001) {
+        let low = 0;
+        let high = 1;
+        let closestProgress = 0;
+        let closestDistance = Infinity;
+
+        while (high - low > tolerance) {
+            const mid1 = low + (high - low) / 3;
+            const mid2 = high - (high - low) / 3;
+
+            const point1 = curve.getPointAt(mid1);
+            const point2 = curve.getPointAt(mid2);
+
+            const distance1 = point1.distanceTo(targetPoint);
+            const distance2 = point2.distanceTo(targetPoint);
+
+            if (distance1 < distance2) {
+                high = mid2;
+                if (distance1 < closestDistance) {
+                    closestDistance = distance1;
+                    closestProgress = mid1;
+                }
+            } else {
+                low = mid1;
+                if (distance2 < closestDistance) {
+                    closestDistance = distance2;
+                    closestProgress = mid2;
+                }
+            }
+        }
+
+        return closestProgress;
     }
     addRayDebug(){
         const rayMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
@@ -156,7 +207,7 @@ export class CurveScene extends BaseInit {
             new THREE.Vector3(  -20, 0, - 20,)
         ] );
         //让曲线自动闭合
-        curve.closed=true;
+        curve.closed=false;
         this.curve=curve;
         //取该曲线平均距离的100个点的位置
         const points = curve.getPoints( 100 );

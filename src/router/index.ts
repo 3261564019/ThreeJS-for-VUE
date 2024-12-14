@@ -156,6 +156,9 @@ const routes: Array<RouteRecordRaw> = [
         path: '/particleSphere',
         component: ()=> import("@/views/journey/ParticleSphere/index.vue"),
     },{
+        path: '/particalMesh',
+        component: ()=> import("@/views/journey/ParticleSphere/index.vue"),
+    },{
         path: '/temp',
         name: 'temp',
         // component: ()=> import("@/views/面试/变量提升.vue")
