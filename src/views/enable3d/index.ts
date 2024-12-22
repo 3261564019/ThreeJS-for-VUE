@@ -55,9 +55,11 @@ class MainScene extends Scene3D {
         this.addHouse()
 
         this.initDebug()
+
+        window.toDie=this.toDie.bind(this)
         // this.box=this.physics.add.box({ y: 14 }, { lambert: { color: '#1d9be8' } })
     }
-    toDie(){
+    public toDie(){
         this.gui.destroy()
         this.stats.domElement.parentNode.removeChild(this.stats.domElement);
         this.renderer.forceContextLoss();

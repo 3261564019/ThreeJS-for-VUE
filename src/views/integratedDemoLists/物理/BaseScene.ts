@@ -97,7 +97,7 @@ export class physicsBaseScene extends BaseInit {
     }
 
     addLight() {
-        const light = new THREE.SpotLight( "#fff" ,1); // soft white light
+        const light = new THREE.SpotLight( "#fff" ,4200); // soft white light
         light.position.set(180,180,-150);
         light.lookAt(0,0,-160)
         light.castShadow=true;
@@ -105,7 +105,7 @@ export class physicsBaseScene extends BaseInit {
         this.spotLight=light;
         // this.scene.add( new SpotLightHelper(light));
         {
-            const light = new THREE.AmbientLight( "#fff" ,0.4); // soft white light
+            const light = new THREE.AmbientLight( "#fff" ,1); // soft white light
             this.scene.add( light );
         }
     }

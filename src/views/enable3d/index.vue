@@ -19,7 +19,8 @@ onMounted(()=>{
 })
 
 onUnmounted(()=>{
-
+  toDie()
+  console.log(ins.scenes)
 })
 
 </script>

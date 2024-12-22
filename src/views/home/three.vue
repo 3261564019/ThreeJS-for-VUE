@@ -87,6 +87,11 @@ import customLight from "@/assets/img/demo/customLight.png"
 const router=useRouter();
 
 let itemList=[
+    {
+  name:"SketchBox",
+  img:SketchBox,
+  route:"/SketchBoxControl"
+},
   {
     name:"射线检查该点位是否可见",
     img:d1,
@@ -122,11 +127,13 @@ let itemList=[
     name:"transFormControl",
     img:transformControl,
     route:"/transFormControl"
-  },{
-    name:"水面",
-    img:waterDemo,
-    route:"/water"
-  },{
+  },
+  // {
+  //   name:"水面",
+  //   img:waterDemo,
+  //   route:"/water"
+  // },
+  {
     name:"物理",
     img:physics,
     route:"/physics"
@@ -134,18 +141,16 @@ let itemList=[
     name:"后期处理---发光",
     img:shine,
     route:"/shine"
-  },{
-    name:"结合高德地图",
-    img:gmap,
-    route:"/gmap"
-  },{
+  },
+  // {
+  //   name:"结合高德地图",
+  //   img:gmap,
+  //   route:"/gmap"
+  // },
+  {
     name:"enable3d",
     img:enable3d,
     route:"/enable3d"
-  },{
-    name:"SketchBox",
-    img:SketchBox,
-    route:"/SketchBoxControl"
   },{
     name:"RagingSea",
     img:ragingSea,
